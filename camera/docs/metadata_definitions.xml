@@ -3350,6 +3350,18 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             android.control.zoomRatio is not 1.0, and android.scaler.cropRegion is set to be
             windowboxing, the camera framework will override the android.scaler.cropRegion to be
             the active array.
+
+            In the capture request, if the application sets android.control.zoomRatio to a
+            value != 1.0, the android.control.zoomRatio tag in the capture result reflects the
+            effective zoom ratio achieved by the camera device, and the android.scaler.cropRegion
+            adjusts for additional crops that are not zoom related. Otherwise, if the application
+            sets android.control.zoomRatio to 1.0, or does not set it at all, the
+            android.control.zoomRatio tag in the result metadata will also be 1.0.
+
+            When the application requests a physical stream for a logical multi-camera, the
+            android.control.zoomRatio in the physical camera result metadata will be 1.0, and
+            the android.scaler.cropRegion tag reflects the amount of zoom and crop done by the
+            physical camera device.
           </details>
           <hal_details>
             For all capture request templates, this field must be set to 1.0 in order to have
@@ -3390,6 +3402,77 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         <tag id="V1" />
       </entry>
     </static>
+    <controls>
+        <entry name="afRegionsSet" type="byte" visibility="fwk_only"
+               enum="true" typedef="boolean">
+          <enum>
+            <value>TRUE
+            <notes>AF regions (android.control.afRegions) have been set by the camera client.
+            </notes>
+            </value>
+            <value>FALSE
+            <notes>
+              AF regions (android.control.afRegions) have not been set by the camera client.
+            </notes>
+            </value>
+          </enum>
+          <description>
+            Framework-only private key which informs camera fwk that the AF regions has been set
+            by the client and those regions need not be corrected when android.sensor.pixelMode is
+            set to MAXIMUM_RESOLUTION.
+          </description>
+          <details>
+            This must be set to TRUE by the camera2 java fwk when the camera client sets
+            android.control.afRegions.
+          </details>
+        </entry>
+        <entry name="aeRegionsSet" type="byte" visibility="fwk_only"
+          enum="true" typedef="boolean">
+          <enum>
+            <value>TRUE
+            <notes> AE regions (android.control.aeRegions) have been set by the camera client.
+            </notes>
+            </value>
+            <value>FALSE
+            <notes>
+              AE regions (android.control.aeRegions) have not been set by the camera client.
+            </notes>
+            </value>
+          </enum>
+          <description>
+            Framework-only private key which informs camera fwk that the AE regions has been set
+            by the client and those regions need not be corrected when android.sensor.pixelMode is
+            set to MAXIMUM_RESOLUTION.
+          </description>
+          <details>
+            This must be set to TRUE by the camera2 java fwk when the camera client sets
+            android.control.aeRegions.
+          </details>
+        </entry>
+        <entry name="awbRegionsSet" type="byte" visibility="fwk_only"
+          enum="true" typedef="boolean">
+          <enum>
+            <value>TRUE
+            <notes> AWB regions (android.control.awbRegions) have been set by the camera client.
+            </notes>
+            </value>
+            <value>FALSE
+            <notes>
+              AWB regions (android.control.awbRegions) have not been set by the camera client.
+            </notes>
+            </value>
+          </enum>
+          <description>
+            Framework-only private key which informs camera fwk that the AF regions has been set
+            by the client and those regions need not be corrected when android.sensor.pixelMode is
+            set to MAXIMUM_RESOLUTION.
+          </description>
+          <details>
+            This must be set to TRUE by the camera2 java fwk when the camera client sets
+            android.control.awbRegions.
+          </details>
+        </entry>
+    </controls>
     </section>
     <section name="demosaic">
       <controls>
@@ -3929,7 +4012,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="maxSize" type="int32" visibility="system">
           <description>Maximum size in bytes for the compressed
-          JPEG buffer</description>
+          JPEG buffer, in default sensor pixel mode (see android.sensor.pixelMode)</description>
           <range>Must be large enough to fit any JPEG produced by
           the camera</range>
           <details>This is used for sizing the gralloc buffers for
@@ -5922,14 +6005,27 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
               ultrawide lens will be the same as the logical stream, by making the crop region
               smaller than its active array size to compensate for the smaller focal length.
 
-              Even if the underlying physical cameras have different RAW characteristics (such as
-              size or CFA pattern), a logical camera can still advertise RAW capability. In this
-              case, when the application configures a RAW stream, the camera device will make sure
-              the active physical camera will remain active to ensure consistent RAW output
-              behavior, and not switch to other physical cameras.
+              There are two ways for the application to capture RAW images from a logical camera
+              with RAW capability:
+
+              * Because the underlying physical cameras may have different RAW capabilities (such
+              as resolution or CFA pattern), to maintain backward compatibility, when a RAW stream
+              is configured, the camera device makes sure the default active physical camera remains
+              active and does not switch to other physical cameras. (One exception is that, if the
+              logical camera consists of identical image sensors and advertises multiple focalLength
+              due to different lenses, the camera device may generate RAW images from different
+              physical cameras based on the focalLength being set by the application.) This
+              backward-compatible approach usually results in loss of optical zoom, to telephoto
+              lens or to ultrawide lens.
+              * Alternatively, to take advantage of the full zoomRatio range of the logical camera,
+              the application should use {@link android.hardware.camera2.MultiResolutionImageReader}
+              to capture RAW images from the currently active physical camera. Because different
+              physical camera may have different RAW characteristics, the application needs to use
+              the characteristics and result metadata of the active physical camera for the
+              relevant RAW metadata.
 
               The capture request and result metadata tags required for backward compatible camera
-              functionalities will be solely based on the logical camera capabiltity. On the other
+              functionalities will be solely based on the logical camera capability. On the other
               hand, the use of manual capture controls (sensor or post-processing) with a
               logical camera may result in unexpected behavior when the HAL decides to switch
               between physical cameras with different characteristics under the hood. For example,
@@ -6022,6 +6118,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
                 mode.
                 The stream configurations supported in 'max resolution' mode are described by
                 `android.scaler.streamConfigurationMapMaximumResolution`.
+                The maximum resolution mode pixel array size of a camera device
+                (`android.sensor.info.pixelArraySize`) with this capability,
+                will be at least 24 megapixels.
               </notes>
             </value>
             <value optional="true" visibility="java_public" hal_version="3.6">REMOSAIC_REPROCESSING
@@ -6563,40 +6662,6 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             for raw output, where only a few fixed scales may be
             possible.
 
-            For a set of output streams configured, if the sensor output is cropped to a smaller
-            size than pre-correction active array size, the HAL need follow below cropping rules:
-
-            * The HAL need to handle the cropRegion as if the sensor crop size is the effective
-            pre-correction active array size. More specifically, the HAL must transform the request
-            cropRegion from android.sensor.info.preCorrectionActiveArraySize to the sensor cropped
-            pixel area size in this way:
-                1. If android.control.zoomRatio is set to value x, scale the requested cropRegion
-                with 1.0/x in relation to its center as the origin. For example, say the requested
-                cropRegion is (crX, crY, crWidth, crHeight), override it with
-                    `crX' = crX + crWidth * (1.0 - 1.0 / x) / 2`,
-                    `crY' = crY + crHeight * (1.0 - 1.0 / x) / 2`,
-                    `crWidth' = crWidth / x`, and
-                    `crHeight' = crHeight / x`.
-                2. Translate the requested cropRegion w.r.t., the left top corner of the sensor
-                cropped pixel area by (tx, ty),
-                where `ty = sensorCrop.top * (sensorCrop.height / preCorrectionActiveArraySize.height)`
-                and `tx = sensorCrop.left * (sensorCrop.width / preCorrectionActiveArraySize.width)`.
-                The (sensorCrop.top, sensorCrop.left) is the coordinate based off the
-                android.sensor.info.activeArraySize.
-                3. Scale the width and height of requested cropRegion with scaling factor of
-                sensorCrop.width/preCorrectionActiveArraySize.width and sensorCrop.height/preCorrectionActiveArraySize.height
-                respectively.
-            Once this new cropRegion is calculated, the HAL must use this region to crop the image
-            with regard to the sensor crop size (effective pre-correction active array size). The
-            HAL still need follow the general cropping rule for this new cropRegion and effective
-            pre-correction active array size.
-
-            * The HAL must report the cropRegion with regard to android.sensor.info.preCorrectionActiveArraySize.
-            The HAL need convert the new cropRegion generated above w.r.t., full pre-correction
-            active array size. The reported cropRegion may be slightly different with the requested
-            cropRegion since the HAL may adjust the crop region to account for rounding, conversion
-            error, or other hardware limitations.
-
             If android.control.zoomRatio is supported by the HAL, the HAL must report the zoom
             ratio via android.control.zoomRatio, and change the coordinate system such that
             android.sensor.info.preCorrectionActiveArraySize or android.sensor.info.activeArraySize
@@ -6799,8 +6864,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           maximum zoom ratio.
           </details>
           <hal_details>
-          If the HAL supports android.control.zoomRatio, this value must be equal to the maximum
-          supported zoomRatio specified in android.control.zoomRatioRange.
+          If the HAL supports android.control.zoomRatio, this value must be equal to or less than
+          the maximum supported zoomRatio specified in android.control.zoomRatioRange.
           </hal_details>
           <tag id="BC" />
         </entry>
@@ -8095,6 +8160,33 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </hal_details>
         </entry>
       </static>
+      <controls>
+        <entry name="cropRegionSet" type="byte" visibility="fwk_only"
+               enum="true" typedef="boolean">
+          <enum>
+            <value>TRUE
+            <notes>Crop region (android.scaler.cropRegion) has been set by the
+              camera client.
+            </notes>
+            </value>
+            <value>FALSE
+            <notes>
+              Scaler crop regions (android.scaler.cropRegion) has not been set by the camera
+              client.
+            </notes>
+            </value>
+          </enum>
+          <description>
+            Framework-only private key which informs camera fwk that the scaler crop region
+            (android.scaler.cropRegion) has been set by the client and it need
+            not be corrected when android.sensor.pixelMode is set to MAXIMUM_RESOLUTION.
+          </description>
+          <details>
+            This must be set to TRUE by the camera2 java fwk when the camera client sets
+            android.scaler.cropRegion.
+          </details>
+        </entry>
+      </controls>
     </section>
     <section name="sensor">
       <controls>
