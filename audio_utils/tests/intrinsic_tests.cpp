@@ -25,13 +25,6 @@ class IntrisicUtilsTest : public ::testing::Test { };
 using FloatTypes = ::testing::Types<float, double>;
 TYPED_TEST_CASE(IntrisicUtilsTest, FloatTypes);
 
-TYPED_TEST(IntrisicUtilsTest, vadd) {
-    constexpr TypeParam a = 0.25f;
-    constexpr TypeParam b = 0.5f;
-    constexpr TypeParam result = a + b;
-    ASSERT_EQ(result, android::audio_utils::intrinsics::vadd(a, b));
-}
-
 TYPED_TEST(IntrisicUtilsTest, vdupn) {
     constexpr TypeParam value = 1.f;
     ASSERT_EQ(value, android::audio_utils::intrinsics::vdupn<TypeParam>(value));
@@ -68,11 +61,4 @@ TYPED_TEST(IntrisicUtilsTest, vst1) {
     android::audio_utils::intrinsics::vst1(
             &destination, android::audio_utils::intrinsics::vdupn<TypeParam>(value));
     ASSERT_EQ(value, destination);
-}
-
-TYPED_TEST(IntrisicUtilsTest, vsub) {
-    constexpr TypeParam a = 1.25f;
-    constexpr TypeParam b = 1.5f;
-    constexpr TypeParam result = a - b;
-    ASSERT_EQ(result, android::audio_utils::intrinsics::vsub(a, b));
 }
