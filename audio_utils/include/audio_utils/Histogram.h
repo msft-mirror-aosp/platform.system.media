@@ -25,17 +25,11 @@ namespace android::audio_utils {
 
 class Histogram {
 public:
-    /**
-     * Construct a histogram.
-     * @param numBinsInRange number of bins to create
-     * @param binWidth width of each bin. Must be positive.
-     */
     Histogram(int32_t numBinsInRange, int32_t binWidth)
     : mBinWidth(binWidth)
     , mBins(numBinsInRange + kExtraBins)
     , mLastItemNumbers(mBins.size())
     {
-        assert(binWidth > 0);
     }
 
     /**
