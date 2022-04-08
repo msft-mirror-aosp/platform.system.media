@@ -17,7 +17,7 @@
 #
 
 #
-# Validate the XML parser by making sure it's generating the same data
+# Sanity check the XML parser by making sure it's generating the same data
 # as the original parsed data.
 #
 

@@ -1,80 +1,10 @@
 // Build the unit tests for audio_utils
 
-package {
-    // http://go/android-license-faq
-    // A large-scale-change added 'default_applicable_licenses' to import
-    // the below license kinds from "system_media_license":
-    //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["system_media_license"],
-}
-
-cc_test {
-    name: "balance_tests",
-    host_supported: true,
-
-    srcs: [
-        "balance_tests.cpp",
-    ],
-
-    static_libs: [
-        "libaudioutils",
-    ],
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-    ],
-}
-
-cc_binary {
-    name: "biquad_filter",
-    host_supported: true,
-
-    srcs: [
-        "biquad_filter.cpp"
-    ],
-
-    shared_libs: [
-        "libaudioutils",
-    ],
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-    ],
-}
-
-cc_test {
-    name: "biquad_filter_tests",
-    host_supported: true,
-
-    srcs: [
-        "biquad_filter_tests.cpp",
-    ],
-
-    header_libs: [
-        "libaudioutils_headers",
-    ],
-
-    static_libs: [
-        "libgmock",
-    ],
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-    ],
-}
-
 cc_test {
     name: "fdtostring_tests",
-    host_supported: true,
+    host_supported: false,
 
     shared_libs: [
-        "libaudioutils",
         "libcutils",
         "liblog",
         "libutils", //for systemTime
@@ -85,25 +15,11 @@ cc_test {
         "-Werror",
         "-Wextra",
     ],
-}
-
-cc_test {
-    name: "intrinsic_tests",
-    host_supported: true,
-
-    srcs: [
-        "intrinsic_tests.cpp",
-    ],
-
-    header_libs: [
-        "libaudioutils_headers",
-    ],
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-    ],
+    target: {
+        android: {
+            shared_libs: ["libaudioutils"],
+        },
+    }
 }
 
 cc_test {
@@ -130,6 +46,26 @@ cc_test {
 }
 
 cc_binary {
+    name: "primitives_benchmark",
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+
+    srcs: ["primitives_benchmark.cpp"],
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+    static_libs: [
+        "libgoogle-benchmark",
+        "libaudioutils",
+    ],
+}
+
+cc_binary {
     name: "fifo_tests",
     host_supported: true,
     srcs: ["fifo_tests.cpp"],
@@ -143,7 +79,7 @@ cc_binary {
 
 cc_binary {
     name: "fifo_multiprocess",
-    host_supported: true,
+    host_supported: false,
     srcs: ["fifo_multiprocess.cpp"],
     shared_libs: ["libaudioutils", "libcutils"],
     static_libs: ["libsndfile"],
@@ -207,7 +143,7 @@ cc_test {
 
 cc_test {
     name: "errorlog_tests",
-    host_supported: true,
+    host_supported: false,
 
     shared_libs: [
         "libcutils",
@@ -253,21 +189,9 @@ cc_test {
     }
 }
 
-cc_binary {
-    name: "metadata_c_tests",
-    host_supported: true,
-    srcs: ["metadata_tests_c.c"],
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-    ],
-    shared_libs: ["libaudioutils"],
-}
-
 cc_test {
     name: "powerlog_tests",
-    host_supported: true,
+    host_supported: false,
 
     shared_libs: [
         "libcutils",
@@ -291,7 +215,7 @@ cc_test {
 
 cc_test {
     name: "simplelog_tests",
-    host_supported: true,
+    host_supported: false,
 
     shared_libs: [
         "libcutils",
@@ -338,7 +262,7 @@ cc_test {
 
 cc_test {
     name: "string_tests",
-    host_supported: true,
+    host_supported: false,
 
     shared_libs: ["libaudioutils"],
     srcs: ["string_tests.cpp"],
@@ -346,11 +270,6 @@ cc_test {
         "-Wall",
         "-Werror",
     ],
-    target: {
-        host: {
-            shared_libs: ["libcutils"],
-        },
-    }
 }
 
 cc_test {
@@ -377,7 +296,7 @@ cc_test {
 
 cc_test {
     name: "statistics_tests",
-    host_supported: true,
+    host_supported: false,
 
     header_libs: ["libaudioutils_headers"],
     srcs: ["statistics_tests.cpp"],
@@ -390,7 +309,7 @@ cc_test {
 
 cc_test {
     name: "timestampverifier_tests",
-    host_supported: true,
+    host_supported: false,
 
     header_libs: ["libaudioutils_headers"],
     srcs: ["timestampverifier_tests.cpp"],
@@ -403,7 +322,7 @@ cc_test {
 
 cc_test {
     name: "variadic_tests",
-    host_supported: true,
+    host_supported: false,
 
     shared_libs: ["libaudioutils"],
     srcs: ["variadic_tests.cpp"],
@@ -423,7 +342,6 @@ cc_test {
         "libcutils",
     ],
     srcs: ["logplot_tests.cpp"],
-    gtest:false,
     cflags: [
         "-Werror",
         "-Wall",
@@ -436,6 +354,21 @@ cc_test {
             static_libs: ["libaudioutils"],
         },
     }
+}
+
+cc_binary {
+    name: "statistics_benchmark",
+    host_supported: false,
+
+    srcs: ["statistics_benchmark.cpp"],
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+    static_libs: [
+        "libgoogle-benchmark",
+        "libaudioutils",
+    ],
 }
 
 cc_test {
@@ -463,7 +396,6 @@ cc_test {
 
 cc_test {
     name: "spdif_tests",
-    host_supported: true,
 
     shared_libs: [
         "libaudioutils",
@@ -477,3 +409,4 @@ cc_test {
         "-Wall",
     ],
 }
+

@@ -20,7 +20,6 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <pthread.h>
-#include <stddef.h>
 #include <stdlib.h>
 
 #include <log/log.h>
@@ -206,13 +205,7 @@ static int echo_reference_write(struct echo_reference_itfe *echo_reference,
             ALOGV("echo_reference_write() increasing write buffer size from %zu to %zu",
                     er->wr_buf_size, wrBufSize);
             er->wr_buf_size = wrBufSize;
-            void *new_buf = realloc(er->wr_buf, er->wr_buf_size * er->rd_frame_size);
-            if (new_buf == NULL) {
-                status = -ENOMEM;
-                goto exit;
-            } else {
-                er->wr_buf = new_buf;
-            }
+            er->wr_buf = realloc(er->wr_buf, er->wr_buf_size * er->rd_frame_size);
         }
 
         if (er->rd_channel_count != er->wr_channel_count) {
@@ -260,7 +253,7 @@ static int echo_reference_write(struct echo_reference_itfe *echo_reference,
             er->resampler->resample_from_provider(er->resampler,
                                                      (int16_t *)er->wr_buf, &inFrames);
             ALOGV_IF(er->wr_frames_in != 0,
-                    "echo_reference_write() er->wr_frames_in not 0 (%zu) after resampler",
+                    "echo_reference_write() er->wr_frames_in not 0 (%d) after resampler",
                     er->wr_frames_in);
         }
         srcBuf = er->wr_buf;
@@ -272,14 +265,8 @@ static int echo_reference_write(struct echo_reference_itfe *echo_reference,
     if (er->frames_in + inFrames > er->buf_size) {
         ALOGV("echo_reference_write() increasing buffer size from %zu to %zu",
                 er->buf_size, er->frames_in + inFrames);
-        er->buf_size = er->frames_in + inFrames;
-        void *new_buf = realloc(er->buffer, er->buf_size * er->rd_frame_size);
-        if (new_buf == NULL) {
-            status = -ENOMEM;
-            goto exit;
-        } else {
-            er->buffer = new_buf;
-        }
+                er->buf_size = er->frames_in + inFrames;
+                er->buffer = realloc(er->buffer, er->buf_size * er->rd_frame_size);
     }
     memcpy((char *)er->buffer + er->frames_in * er->rd_frame_size,
            srcBuf,
@@ -309,7 +296,6 @@ static int echo_reference_read(struct echo_reference_itfe *echo_reference,
                          struct echo_reference_buffer *buffer)
 {
     struct echo_reference *er = (struct echo_reference *)echo_reference;
-    int status = 0;
 
     if (er == NULL) {
         return -EINVAL;
@@ -359,7 +345,7 @@ static int echo_reference_read(struct echo_reference_itfe *echo_reference,
 
         ALOGV_IF((er->frames_in < buffer->frame_count),
                  "echo_reference_read() waited %d ms but still not enough frames"
-                 " er->frames_in: %zu, buffer->frame_count = %zu",
+                 " er->frames_in: %d, buffer->frame_count = %d",
                  timeoutMs, er->frames_in, buffer->frame_count);
     }
 
@@ -426,15 +412,9 @@ static int echo_reference_read(struct echo_reference_itfe *echo_reference,
                         // Less data available in the reference buffer than expected
                         if (er->frames_in > er->buf_size) {
                             er->buf_size = er->frames_in;
+                            er->buffer  = realloc(er->buffer, er->buf_size * er->rd_frame_size);
                             ALOGV("echo_reference_read(): increasing buffer size to %zu",
                                   er->buf_size);
-                            void *new_buf = realloc(er->buffer, er->buf_size * er->rd_frame_size);
-                            if (new_buf == NULL) {
-                                status = -ENOMEM;
-                                goto exit;
-                            } else {
-                                er->buffer = new_buf;
-                            }
                         }
 
                         if (offset > 0) {
@@ -470,14 +450,8 @@ static int echo_reference_read(struct echo_reference_itfe *echo_reference,
     if (er->frames_in < buffer->frame_count) {
         if (buffer->frame_count > er->buf_size) {
             er->buf_size = buffer->frame_count;
+            er->buffer  = realloc(er->buffer, er->buf_size * er->rd_frame_size);
             ALOGV("echo_reference_read(): increasing buffer size to %zu", er->buf_size);
-            void *new_buf  = realloc(er->buffer, er->buf_size * er->rd_frame_size);
-            if (new_buf == NULL) {
-                status = -ENOMEM;
-                goto exit;
-            } else {
-                er->buffer = new_buf;
-            }
         }
         // filling up the reference buffer with 0s to match the expected delay.
         memset((char *)er->buffer + er->frames_in * er->rd_frame_size,
@@ -504,7 +478,7 @@ static int echo_reference_read(struct echo_reference_itfe *echo_reference,
 
 exit:
     pthread_mutex_unlock(&er->lock);
-    return status;
+    return 0;
 }
 
 

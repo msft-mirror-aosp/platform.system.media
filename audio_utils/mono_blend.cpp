@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#include <assert.h>
+//#define LOG_NDEBUG 0
+#define LOG_TAG "audio_utils_mono_blend"
+
 #include <math.h>
+#include <log/log.h>
 #include <audio_utils/limiter.h>
 #include <audio_utils/mono_blend.h>
 
@@ -59,7 +62,7 @@ void mono_blend(void *buf, audio_format_t format, size_t channelCount, size_t fr
         }
     } break;
     default:
-        assert(false);
+        ALOGE("mono_blend: invalid format %d", format);
         break;
     }
 }

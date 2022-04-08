@@ -308,8 +308,8 @@ ${          insert_toc_body(kind)}\
                   % if value.optional:
                     <span class="entry_type_enum_optional">[optional]</span>
                   % endif:
-                  % if value.applied_visibility != 'public':
-                    <span class="entry_type_enum_hidden">[${value.visibility}]</span>
+                  % if value.hidden:
+                    <span class="entry_type_enum_hidden">[hidden]</span>
                   % endif:
                   % if value.id is not None:
                     <span class="entry_type_enum_value">${value.id}</span>

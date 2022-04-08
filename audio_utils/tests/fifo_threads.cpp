@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <audio_utils/fifo.h>
-
 extern "C" {
 #include "getch.h"
 }

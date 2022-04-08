@@ -12,16 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package {
-    // http://go/android-license-faq
-    // A large-scale-change added 'default_applicable_licenses' to import
-    // the below license kinds from "system_media_license":
-    //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["system_media_license"],
-}
-
-cc_defaults {
-    name: "libalsautils_defaults",
+cc_library_shared {
+    name: "libalsautils",
     vendor: true,
     srcs: [
         "alsa_device_profile.c",
@@ -39,27 +31,12 @@ cc_defaults {
     shared_libs: [
         "liblog",
         "libcutils",
+        "libtinyalsa",
         "libaudioutils",
     ],
     cflags: [
         "-Werror",
         "-Wall",
         "-Wno-unused-parameter",
-    ],
-}
-
-cc_library_shared {
-    name: "libalsautils",
-    defaults: ["libalsautils_defaults"],
-    shared_libs: [
-        "libtinyalsa",
-    ],
-}
-
-cc_library_shared {
-    name: "libalsautilsv2",
-    defaults: ["libalsautils_defaults"],
-    shared_libs: [
-        "libtinyalsav2",
     ],
 }

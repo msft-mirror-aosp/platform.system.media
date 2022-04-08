@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// #define LOG_NDEBUG 0
+#define LOG_TAG "audio_utils_ErrorLog"
+#include <log/log.h>
+
 #include <audio_utils/ErrorLog.h>
 
 using namespace android;
