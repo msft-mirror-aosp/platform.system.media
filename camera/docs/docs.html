@@ -815,6 +815,8 @@
             <li
             ><a href="#static_android.scaler.mandatoryTenBitOutputStreamCombinations">android.scaler.mandatoryTenBitOutputStreamCombinations</a></li>
             <li
+            ><a href="#static_android.scaler.mandatoryPreviewStabilizationOutputStreamCombinations">android.scaler.mandatoryPreviewStabilizationOutputStreamCombinations</a></li>
+            <li
             ><a href="#static_android.scaler.multiResolutionStreamSupported">android.scaler.multiResolutionStreamSupported</a></li>
             <li
             ><a href="#static_android.scaler.availableStreamUseCases">android.scaler.availableStreamUseCases</a></li>
@@ -2847,6 +2849,14 @@ capture result metadata,<wbr/> the camera device will ignore the sections outsid
 region and output only the intersection rectangle as the metering region in the result
 metadata.<wbr/>  If the region is entirely outside the crop region,<wbr/> it will be ignored and
 not reported in the result metadata.<wbr/></p>
+<p>When setting the AE metering regions,<wbr/> the application must consider the additional
+crop resulted from the aspect ratio differences between the preview stream and
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a>.<wbr/> For example,<wbr/> if the <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> is the full
+active array size with 4:3 aspect ratio,<wbr/> and the preview stream is 16:9,<wbr/>
+the boundary of AE regions will be [0,<wbr/> y_<wbr/>crop] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height - 2 * y_<wbr/>crop] rather than [0,<wbr/> 0] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height],<wbr/> where y_<wbr/>crop is the additional crop due to aspect ratio
+mismatch.<wbr/></p>
 <p>Starting from API level 30,<wbr/> the coordinate system of activeArraySize or
 preCorrectionActiveArraySize is used to represent post-zoomRatio field of view,<wbr/> not
 pre-zoom field of view.<wbr/> This means that the same aeRegions values at different
@@ -3346,6 +3356,14 @@ capture result metadata,<wbr/> the camera device will ignore the sections outsid
 region and output only the intersection rectangle as the metering region in the result
 metadata.<wbr/> If the region is entirely outside the crop region,<wbr/> it will be ignored and
 not reported in the result metadata.<wbr/></p>
+<p>When setting the AF metering regions,<wbr/> the application must consider the additional
+crop resulted from the aspect ratio differences between the preview stream and
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a>.<wbr/> For example,<wbr/> if the <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> is the full
+active array size with 4:3 aspect ratio,<wbr/> and the preview stream is 16:9,<wbr/>
+the boundary of AF regions will be [0,<wbr/> y_<wbr/>crop] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height - 2 * y_<wbr/>crop] rather than [0,<wbr/> 0] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height],<wbr/> where y_<wbr/>crop is the additional crop due to aspect ratio
+mismatch.<wbr/></p>
 <p>Starting from API level 30,<wbr/> the coordinate system of activeArraySize or
 preCorrectionActiveArraySize is used to represent post-zoomRatio field of view,<wbr/> not
 pre-zoom field of view.<wbr/> This means that the same afRegions values at different
@@ -3842,6 +3860,14 @@ capture result metadata,<wbr/> the camera device will ignore the sections outsid
 region and output only the intersection rectangle as the metering region in the result
 metadata.<wbr/>  If the region is entirely outside the crop region,<wbr/> it will be ignored and
 not reported in the result metadata.<wbr/></p>
+<p>When setting the AWB metering regions,<wbr/> the application must consider the additional
+crop resulted from the aspect ratio differences between the preview stream and
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a>.<wbr/> For example,<wbr/> if the <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> is the full
+active array size with 4:3 aspect ratio,<wbr/> and the preview stream is 16:9,<wbr/>
+the boundary of AWB regions will be [0,<wbr/> y_<wbr/>crop] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height - 2 * y_<wbr/>crop] rather than [0,<wbr/> 0] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height],<wbr/> where y_<wbr/>crop is the additional crop due to aspect ratio
+mismatch.<wbr/></p>
 <p>Starting from API level 30,<wbr/> the coordinate system of activeArraySize or
 preCorrectionActiveArraySize is used to represent post-zoomRatio field of view,<wbr/> not
 pre-zoom field of view.<wbr/> This means that the same awbRegions values at different
@@ -7700,6 +7726,14 @@ capture result metadata,<wbr/> the camera device will ignore the sections outsid
 region and output only the intersection rectangle as the metering region in the result
 metadata.<wbr/>  If the region is entirely outside the crop region,<wbr/> it will be ignored and
 not reported in the result metadata.<wbr/></p>
+<p>When setting the AE metering regions,<wbr/> the application must consider the additional
+crop resulted from the aspect ratio differences between the preview stream and
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a>.<wbr/> For example,<wbr/> if the <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> is the full
+active array size with 4:3 aspect ratio,<wbr/> and the preview stream is 16:9,<wbr/>
+the boundary of AE regions will be [0,<wbr/> y_<wbr/>crop] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height - 2 * y_<wbr/>crop] rather than [0,<wbr/> 0] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height],<wbr/> where y_<wbr/>crop is the additional crop due to aspect ratio
+mismatch.<wbr/></p>
 <p>Starting from API level 30,<wbr/> the coordinate system of activeArraySize or
 preCorrectionActiveArraySize is used to represent post-zoomRatio field of view,<wbr/> not
 pre-zoom field of view.<wbr/> This means that the same aeRegions values at different
@@ -8506,6 +8540,14 @@ capture result metadata,<wbr/> the camera device will ignore the sections outsid
 region and output only the intersection rectangle as the metering region in the result
 metadata.<wbr/> If the region is entirely outside the crop region,<wbr/> it will be ignored and
 not reported in the result metadata.<wbr/></p>
+<p>When setting the AF metering regions,<wbr/> the application must consider the additional
+crop resulted from the aspect ratio differences between the preview stream and
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a>.<wbr/> For example,<wbr/> if the <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> is the full
+active array size with 4:3 aspect ratio,<wbr/> and the preview stream is 16:9,<wbr/>
+the boundary of AF regions will be [0,<wbr/> y_<wbr/>crop] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height - 2 * y_<wbr/>crop] rather than [0,<wbr/> 0] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height],<wbr/> where y_<wbr/>crop is the additional crop due to aspect ratio
+mismatch.<wbr/></p>
 <p>Starting from API level 30,<wbr/> the coordinate system of activeArraySize or
 preCorrectionActiveArraySize is used to represent post-zoomRatio field of view,<wbr/> not
 pre-zoom field of view.<wbr/> This means that the same afRegions values at different
@@ -9548,6 +9590,14 @@ capture result metadata,<wbr/> the camera device will ignore the sections outsid
 region and output only the intersection rectangle as the metering region in the result
 metadata.<wbr/>  If the region is entirely outside the crop region,<wbr/> it will be ignored and
 not reported in the result metadata.<wbr/></p>
+<p>When setting the AWB metering regions,<wbr/> the application must consider the additional
+crop resulted from the aspect ratio differences between the preview stream and
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a>.<wbr/> For example,<wbr/> if the <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> is the full
+active array size with 4:3 aspect ratio,<wbr/> and the preview stream is 16:9,<wbr/>
+the boundary of AWB regions will be [0,<wbr/> y_<wbr/>crop] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height - 2 * y_<wbr/>crop] rather than [0,<wbr/> 0] and
+[active_<wbr/>width,<wbr/> active_<wbr/>height],<wbr/> where y_<wbr/>crop is the additional crop due to aspect ratio
+mismatch.<wbr/></p>
 <p>Starting from API level 30,<wbr/> the coordinate system of activeArraySize or
 preCorrectionActiveArraySize is used to represent post-zoomRatio field of view,<wbr/> not
 pre-zoom field of view.<wbr/> This means that the same awbRegions values at different
@@ -20095,11 +20145,11 @@ of supported profiles that can be referenced within a single capture request by 
               android.<wbr/>request.<wbr/>available<wbr/>Dynamic<wbr/>Range<wbr/>Profiles<wbr/>Map
             </td>
             <td class="entry_type">
-                <span class="entry_type_name entry_type_name_enum">int32</span>
+                <span class="entry_type_name entry_type_name_enum">int64</span>
                 <span class="entry_type_container">x</span>
 
                 <span class="entry_type_array">
-                  n x 2
+                  n x 3
                 </span>
               <span class="entry_type_visibility"> [ndk_public]</span>
 
@@ -20228,28 +20278,36 @@ constraints must be listed here as well.<wbr/></p>
           </tr>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
-              <p>The array contains two entries per supported profile:
+              <p>The array contains three entries per supported profile:
 1) The supported dynamic profile value.<wbr/> Do note that
 ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>STANDARD is assumed to be always
 present and must not be listed.<wbr/>
 2) A bitmap combination of all supported profiles that can be referenced at the same
 time within a single capture request.<wbr/> Do note that a value of 0 means that there are
-no constraints and all combinations are supported.<wbr/></p>
+no constraints and all combinations are supported.<wbr/>
+3) A flag indicating the presence of an internal lookahead functionality that
+can increase the streaming latency by more than 3 buffers.<wbr/> The value 0 will indicate
+that latency doesn't exceed 3 buffers,<wbr/> everything different than 0 will indicate
+latency that is beyond 3 buffers.<wbr/> In case the flag is set,<wbr/> then Camera clients will be
+advised to avoid configuring this profile for camera latency sensitive outputs such as
+preview.<wbr/> Do note,<wbr/> that such extra latency must not be present for the HLG10 profile.<wbr/></p>
 <p>For example if we assume that a device exists that can only support HLG10,<wbr/> HDR10 and
 HDR10_<wbr/>PLUS from the possible 10-bit profiles with the following capture constraints:
 1) HLG10 can be included in any capture request without constraints.<wbr/>
-2) HDR10 and HDR10_<wbr/>PLUS can only be referenced together and/<wbr/>or with HGL10 but not with
+2) HDR10 and HDR10_<wbr/>PLUS can only be referenced together and/<wbr/>or with HLG10 but not with
 STANDARD.<wbr/>
+In the same example,<wbr/> HLG10 and HDR10 will not have additional lookahead latency,<wbr/> and
+HDR10+ will have latency that exceeds 3 buffers.<wbr/>
 The resulting array should look like this:
-[ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HLG10,<wbr/> 0,<wbr/>
+[ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HLG10,<wbr/> 0,<wbr/> 0,<wbr/>
 ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10,<wbr/>
 (ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10 |<wbr/>
 ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HLG10 |<wbr/>
- ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10_<wbr/>PLUS),<wbr/>
+ ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10_<wbr/>PLUS),<wbr/> 0,<wbr/>
 ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10_<wbr/>PLUS,<wbr/>
 (ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10_<wbr/>PLUS |<wbr/>
 ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HLG10 |<wbr/>
- ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10)]</p>
+ ANDROID_<wbr/>REQUEST_<wbr/>AVAILABLE_<wbr/>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILES_<wbr/>HDR10),<wbr/> 1]</p>
 <p>Camera providers must ensure that each processed buffer from a stream configured with the
 HDR10 dynamic range profile includes SMPTE ST 2086 static metadata by calling
 'android::hardware::graphics::mapper::V4_<wbr/>0::IMapper::set' before returning the buffer.<wbr/></p>
@@ -20274,7 +20332,7 @@ before returning the buffer.<wbr/></p>
               android.<wbr/>request.<wbr/>recommended<wbr/>Ten<wbr/>Bit<wbr/>Dynamic<wbr/>Range<wbr/>Profile
             </td>
             <td class="entry_type">
-                <span class="entry_type_name">int32</span>
+                <span class="entry_type_name">int64</span>
 
               <span class="entry_type_visibility"> [java_public]</span>
 
@@ -23910,6 +23968,80 @@ device.<wbr/></p>
            <!-- end of entry -->
         
                 
+          <tr class="entry" id="static_android.scaler.mandatoryPreviewStabilizationOutputStreamCombinations">
+            <td class="entry_name
+             " rowspan="5">
+              android.<wbr/>scaler.<wbr/>mandatory<wbr/>Preview<wbr/>Stabilization<wbr/>Output<wbr/>Stream<wbr/>Combinations
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int32</span>
+                <span class="entry_type_container">x</span>
+
+                <span class="entry_type_array">
+                  n
+                </span>
+              <span class="entry_type_visibility"> [java_public as mandatoryStreamCombination]</span>
+
+              <span class="entry_type_synthetic">[synthetic] </span>
+
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>An array of mandatory stream combinations which are applicable when device lists
+{@code PREVIEW_<wbr/>STABILIZATION} in <a href="#static_android.control.availableVideoStabilizationModes">android.<wbr/>control.<wbr/>available<wbr/>Video<wbr/>Stabilization<wbr/>Modes</a>.<wbr/>
+This is an app-readable conversion of the maximum resolution mandatory stream combination
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice.html#createCaptureSession">tables</a>.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>2</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>The array of
+<a href="https://developer.android.com/reference/android/hardware/camera2/params/MandatoryStreamCombination.html">combinations</a> is
+generated according to the documented
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice.html#createCaptureSession">guideline</a> for each
+device which supports {@code PREVIEW_<wbr/>STABILIZATION}
+Clients can use the array as a quick reference to find an appropriate camera stream
+combination.<wbr/>
+The mandatory stream combination array will be {@code null} in case the device does not
+list {@code PREVIEW_<wbr/>STABILIZATION} in <a href="#static_android.control.availableVideoStabilizationModes">android.<wbr/>control.<wbr/>available<wbr/>Video<wbr/>Stabilization<wbr/>Modes</a>.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Do not set this property directly
+(it is synthetic and will not be available at the HAL layer).<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
           <tr class="entry" id="static_android.scaler.multiResolutionStreamSupported">
             <td class="entry_name
              " rowspan="5">
@@ -24009,7 +24141,7 @@ multi-resolution input stream to the output formats specified in the camera's
               android.<wbr/>scaler.<wbr/>available<wbr/>Stream<wbr/>Use<wbr/>Cases
             </td>
             <td class="entry_type">
-                <span class="entry_type_name entry_type_name_enum">int32</span>
+                <span class="entry_type_name entry_type_name_enum">int64</span>
                 <span class="entry_type_container">x</span>
 
                 <span class="entry_type_array">
