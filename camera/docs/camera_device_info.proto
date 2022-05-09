@@ -137,7 +137,7 @@ message CameraDeviceInfo {
     optional int32 android_request_partialResultCount = 851973;
     repeated int32 android_request_availableCapabilities = 851974;
     optional DynamicRangeProfiles android_request_availableDynamicRangeProfiles = 851975;
-    optional int32 android_request_recommendedTenBitDynamicRangeProfile = 851976;
+    optional int64 android_request_recommendedTenBitDynamicRangeProfile = 851976;
     optional float android_scaler_availableMaxDigitalZoom = 917504;
     optional StreamConfigurations android_scaler_streamConfigurationMap = 917505;
     optional int32 android_scaler_croppingType = 917506;
@@ -150,7 +150,7 @@ message CameraDeviceInfo {
     repeated MandatoryStreamCombination android_scaler_mandatoryMaximumResolutionStreamCombinations = 917513;
     repeated MandatoryStreamCombination android_scaler_mandatoryTenBitOutputStreamCombinations = 917514;
     repeated MandatoryStreamCombination android_scaler_mandatoryPreviewStabilizationOutputStreamCombinations = 917515;
-    repeated int32 android_scaler_availableStreamUseCases = 917516;
+    repeated int64 android_scaler_availableStreamUseCases = 917516;
     repeated MandatoryStreamCombination android_scaler_mandatoryUseCaseStreamCombinations = 917517;
     optional int32 android_sensor_referenceIlluminant1 = 983040;
     optional int32 android_sensor_referenceIlluminant2 = 983041;
