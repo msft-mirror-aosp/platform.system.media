@@ -37,8 +37,7 @@ JAVADOC_IMAGE_SRC_METADATA="/reference/" + IMAGE_SRC_METADATA
 NDKDOC_IMAGE_SRC_METADATA="../" + IMAGE_SRC_METADATA
 
 _context_buf = None
-_hal_major_version = None
-_hal_minor_version = None
+_enum = None
 
 def _is_sec_or_ins(x):
   return isinstance(x, metadata_model.Section) or    \
@@ -181,7 +180,9 @@ def protobuf_type(entry):
     "enumList"               : "int32",
     "string"                 : "string",
     "capability"             : "Capability",
-    "multiResolutionStreamConfigurationMap" : "MultiResolutionStreamConfigurations"
+    "multiResolutionStreamConfigurationMap" : "MultiResolutionStreamConfigurations",
+    "deviceStateSensorOrientationMap"  : "DeviceStateSensorOrientationMap",
+    "dynamicRangeProfiles"   : "DynamicRangeProfiles",
   }
 
   if typeName not in typename_to_protobuftype:
@@ -1347,6 +1348,18 @@ def filter_visibility(entries, visibilities):
   """
   return (e for e in entries if e.applied_visibility in visibilities)
 
+def remove_synthetic_or_fwk_only(entries):
+  """
+  Filter the given entries by removing those that are synthetic or fwk_only.
+
+  Args:
+    entries: An iterable of Entry nodes
+
+  Yields:
+    An iterable of Entry nodes
+  """
+  return (e for e in entries if not (e.synthetic or e.visibility == 'fwk_only'))
+
 def remove_synthetic(entries):
   """
   Filter the given entries by removing those that are synthetic.
@@ -1400,7 +1413,7 @@ def permission_needed_count(root):
   """
   ret = 0
   for sec in find_all_sections(root):
-      ret += len(list(filter_has_permission_needed(remove_synthetic(find_unique_entries(sec)))))
+      ret += len(list(filter_has_permission_needed(remove_synthetic_or_fwk_only(find_unique_entries(sec)))))
 
   return ret
 
@@ -1491,11 +1504,8 @@ def wbr(text):
 def copyright_year():
   return _copyright_year
 
-def hal_major_version():
-  return _hal_major_version
-
-def hal_minor_version():
-  return _hal_minor_version
+def enum():
+  return _enum
 
 def first_hal_minor_version(hal_major_version):
   return 2 if hal_major_version == 3 else 0
@@ -1522,7 +1532,7 @@ def find_all_sections_added_in_hal(root, hal_major_version, hal_minor_version):
   for section in all_sections:
     min_major_version = None
     min_minor_version = None
-    for entry in remove_synthetic(find_unique_entries(section)):
+    for entry in remove_synthetic_or_fwk_only(find_unique_entries(section)):
       min_major_version = (min_major_version or entry.hal_major_version)
       min_minor_version = (min_minor_version or entry.hal_minor_version)
       if entry.hal_major_version < min_major_version or \
@@ -1540,3 +1550,19 @@ def find_first_older_used_hal_version(section, hal_major_version, hal_minor_vers
         (v[0] < hal_major_version or (v[0] == hal_major_version and v[1] < hal_minor_version)):
       hal_version = v
   return hal_version
+
+# Some exceptions need to be made regarding enum value identifiers in AIDL.
+# Process them here.
+def aidl_enum_value_name(name):
+  if name == 'ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION_HIDL_DEVICE_3_5':
+    name = 'ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION_AIDL_DEVICE'
+  return name
+
+def aidl_enum_values(entry):
+  ignoreList = [
+    'ANDROID_SCALER_AVAILABLE_RECOMMENDED_STREAM_CONFIGURATIONS_PUBLIC_END',
+    'ANDROID_SCALER_AVAILABLE_RECOMMENDED_STREAM_CONFIGURATIONS_PUBLIC_END_3_8'
+  ]
+  return [
+    val for val in entry.enum.values if '%s_%s'%(csym(entry.name), val.name) not in ignoreList
+  ]
