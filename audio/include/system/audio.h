@@ -322,6 +322,28 @@ static inline audio_channel_mask_t audio_channel_mask_from_representation_and_bi
     return (audio_channel_mask_t) ((representation << AUDIO_CHANNEL_COUNT_MAX) | bits);
 }
 
+/*
+ * Returns true so long as Quadraphonic channels (FL, FR, BL, BR) are completely specified
+ * in the channel mask. We expect these 4 channels to be the minimum for
+ * reasonable spatializer effect quality.
+ *
+ * Note, this covers:
+ * AUDIO_CHANNEL_OUT_5POINT1
+ * AUDIO_CHANNEL_OUT_5POINT1POINT4
+ * AUDIO_CHANNEL_OUT_7POINT1
+ * AUDIO_CHANNEL_OUT_7POINT1POINT2
+ * AUDIO_CHANNEL_OUT_7POINT1POINT4
+ * AUDIO_CHANNEL_OUT_9POINT1POINT4
+ * AUDIO_CHANNEL_OUT_9POINT1POINT6
+ * AUDIO_CHANNEL_OUT_13POINT_360RA
+ * AUDIO_CHANNEL_OUT_22POINT2
+ */
+static inline bool audio_is_channel_mask_spatialized(audio_channel_mask_t channelMask) {
+    return audio_channel_mask_get_representation(channelMask)
+                == AUDIO_CHANNEL_REPRESENTATION_POSITION
+            && (channelMask & AUDIO_CHANNEL_OUT_QUAD) == AUDIO_CHANNEL_OUT_QUAD;
+}
+
 /**
  * Expresses the convention when stereo audio samples are stored interleaved
  * in an array.  This should improve readability by allowing code to use
@@ -1384,6 +1406,13 @@ static inline bool audio_is_ble_out_device(audio_devices_t device)
 {
     return audio_binary_search_device_array(
             AUDIO_DEVICE_OUT_ALL_BLE_ARRAY, 0 /*left*/, AUDIO_DEVICE_OUT_BLE_CNT, device);
+}
+
+static inline bool audio_is_ble_unicast_device(audio_devices_t device)
+{
+    return audio_binary_search_device_array(
+            AUDIO_DEVICE_OUT_BLE_UNICAST_ARRAY, 0 /*left*/,
+            AUDIO_DEVICE_OUT_BLE_UNICAST_CNT, device);
 }
 
 static inline bool audio_is_ble_in_device(audio_devices_t device)
