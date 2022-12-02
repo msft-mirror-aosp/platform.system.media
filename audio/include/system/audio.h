@@ -734,7 +734,7 @@ struct audio_port {
     } ext;
 };
 
-typedef enum {
+typedef enum : int32_t {
     AUDIO_STANDARD_NONE = 0,
     AUDIO_STANDARD_EDID = 1,
 } audio_standard_t;
@@ -1724,6 +1724,12 @@ static inline audio_channel_mask_t audio_channel_mask_out_to_in(audio_channel_ma
     }
 }
 
+static inline audio_channel_mask_t audio_channel_mask_out_to_in_index_mask(audio_channel_mask_t out)
+{
+    return audio_channel_mask_for_index_assignment_from_count(
+            audio_channel_count_from_out_mask(out));
+}
+
 static inline bool audio_channel_position_mask_is_out_canonical(audio_channel_mask_t channelMask)
 {
     if (audio_channel_mask_get_representation(channelMask)
@@ -1866,7 +1872,8 @@ static inline bool audio_is_valid_format(audio_format_t format)
     case AUDIO_FORMAT_LHDC_LL:
     case AUDIO_FORMAT_APTX_TWSP:
     case AUDIO_FORMAT_LC3:
-//    case AUDIO_FORMAT_APTX_ADAPTIVE_QLEA:
+    case AUDIO_FORMAT_APTX_ADAPTIVE_QLEA:
+    case AUDIO_FORMAT_APTX_ADAPTIVE_R4:
         return true;
     case AUDIO_FORMAT_MPEGH:
         switch (format) {
@@ -1881,6 +1888,8 @@ static inline bool audio_is_valid_format(audio_format_t format)
         /* not reached */
     case AUDIO_FORMAT_DTS_UHD:
     case AUDIO_FORMAT_DRA:
+    case AUDIO_FORMAT_DTS_HD_MA:
+    case AUDIO_FORMAT_DTS_UHD_P2:
         return true;
     default:
         return false;
