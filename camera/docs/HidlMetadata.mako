@@ -24,6 +24,14 @@
        type += '[]'
 
     return type
+
+  def annotated_enum_type(entry):
+    if entry.type == 'int64' and entry.container == 'array':
+       type = ' int64_t'
+    else:
+       type = ' uint32_t'
+
+    return type
 %>\
 
 /*
@@ -97,7 +105,7 @@ enum CameraMetadataSectionStart : ${'uint32_t' if first_hal_minor_version(hal_ma
 enum CameraMetadataTag : ${'uint32_t' if first_hal_minor_version(hal_major_version()) == hal_minor_version() else '@%d.%d::CameraMetadataTag' % (hal_major_version(), hal_minor_version()-1)} {
     % for sec in find_all_sections(metadata):
 <%    gotEntries = False %>\
-      % for idx,entry in enumerate(filter_added_in_hal_version(remove_synthetic_or_fwk_only(find_unique_entries(sec)), hal_major_version(), hal_minor_version())):
+      % for idx,entry in enumerate(filter_added_in_hal_version(remove_hal_non_visible(find_unique_entries(sec)), hal_major_version(), hal_minor_version())):
 <%      gotEntries = True %>\
     /** ${entry.name} [${entry.kind}, ${annotated_type(entry)}, ${entry.applied_visibility}]
         % if entry.description:
@@ -128,7 +136,7 @@ ${entry.description | hidldoc(metadata)}\
  * Enumeration definitions for the various entries that need them
  */
 % for sec in find_all_sections(metadata):
-  % for entry in filter_has_enum_values_added_in_hal_version(remove_synthetic_or_fwk_only(find_unique_entries(sec)), hal_major_version(), hal_minor_version()):
+  % for entry in filter_has_enum_values_added_in_hal_version(remove_hal_non_visible(find_unique_entries(sec)), hal_major_version(), hal_minor_version()):
     % if entry.enum:
 
 <%    isFirstValue = True %>\
@@ -143,7 +151,7 @@ ${entry.description | hidldoc(metadata)}\
               % endif
  * @see ${entry.name | csym}
  */
-enum CameraMetadataEnum${entry.name | pascal_case} :${' uint32_t' if prevValue is None else '\n        @%d.%d::CameraMetadataEnum%s' % (prevValue.hal_major_version, prevValue.hal_minor_version, pascal_case(entry.name))} {
+enum CameraMetadataEnum${entry.name | pascal_case} :${annotated_enum_type(entry) if prevValue is None else '\n        @%d.%d::CameraMetadataEnum%s' % (prevValue.hal_major_version, prevValue.hal_minor_version, pascal_case(entry.name))} {
           % endif
           % if val.id is None:
     ${entry.name | csym}_${val.name},
