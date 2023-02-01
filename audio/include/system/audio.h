@@ -78,7 +78,9 @@ typedef enum {
     AUDIO_MODE_IN_COMMUNICATION = HAL_AUDIO_MODE_IN_COMMUNICATION,
     AUDIO_MODE_CALL_SCREEN = HAL_AUDIO_MODE_CALL_SCREEN,
 #ifndef AUDIO_NO_SYSTEM_DECLARATIONS
-    AUDIO_MODE_MAX            = AUDIO_MODE_CALL_SCREEN,
+    AUDIO_MODE_CALL_REDIRECT = 5,
+    AUDIO_MODE_COMMUNICATION_REDIRECT = 6,
+    AUDIO_MODE_MAX            = AUDIO_MODE_COMMUNICATION_REDIRECT,
     AUDIO_MODE_CNT            = AUDIO_MODE_MAX + 1,
 #endif // AUDIO_NO_SYSTEM_DECLARATIONS
 } audio_mode_t;
@@ -104,6 +106,7 @@ typedef enum {
     AUDIO_FLAG_CAPTURE_PRIVATE            = 0X2000,
     AUDIO_FLAG_CONTENT_SPATIALIZED        = 0X4000,
     AUDIO_FLAG_NEVER_SPATIALIZE           = 0X8000,
+    AUDIO_FLAG_CALL_REDIRECTION           = 0X10000,
 } audio_flags_mask_t;
 
 /* Audio attributes */
@@ -317,6 +320,63 @@ static inline audio_channel_mask_t audio_channel_mask_from_representation_and_bi
         audio_channel_representation_t representation, uint32_t bits)
 {
     return (audio_channel_mask_t) ((representation << AUDIO_CHANNEL_COUNT_MAX) | bits);
+}
+
+/*
+ * Returns true so long as Quadraphonic channels (FL, FR, BL, BR) are completely specified
+ * in the channel mask. We expect these 4 channels to be the minimum for
+ * reasonable spatializer effect quality.
+ *
+ * Note, this covers:
+ * AUDIO_CHANNEL_OUT_5POINT1
+ * AUDIO_CHANNEL_OUT_5POINT1POINT4
+ * AUDIO_CHANNEL_OUT_7POINT1
+ * AUDIO_CHANNEL_OUT_7POINT1POINT2
+ * AUDIO_CHANNEL_OUT_7POINT1POINT4
+ * AUDIO_CHANNEL_OUT_9POINT1POINT4
+ * AUDIO_CHANNEL_OUT_9POINT1POINT6
+ * AUDIO_CHANNEL_OUT_13POINT_360RA
+ * AUDIO_CHANNEL_OUT_22POINT2
+ */
+static inline bool audio_is_channel_mask_spatialized(audio_channel_mask_t channelMask) {
+    return audio_channel_mask_get_representation(channelMask)
+                == AUDIO_CHANNEL_REPRESENTATION_POSITION
+            && (channelMask & AUDIO_CHANNEL_OUT_QUAD) == AUDIO_CHANNEL_OUT_QUAD;
+}
+
+/*
+ * MediaFormat channel masks follow the Java channel mask spec
+ * but might be specified as a native channel mask.  This method
+ * does a "smart" correction to ensure a native channel mask.
+ */
+static inline audio_channel_mask_t
+audio_channel_mask_from_media_format_mask(int32_t channelMaskFromFormat) {
+    // KEY_CHANNEL_MASK follows the android.media.AudioFormat java mask
+    // which is left-bitshifted by 2 relative to the native mask
+    if ((channelMaskFromFormat & 0b11) != 0) {
+        // received an unexpected mask (supposed to follow AudioFormat constants
+        // for output masks with the 2 least-significant bits at 0), but
+        // it may come from an extractor that uses native masks: keeping
+        // the mask as given is ok as it contains at least mono or stereo
+        // and potentially the haptic channels
+        return (audio_channel_mask_t)channelMaskFromFormat;
+    } else {
+        // We exclude bits from the lowest haptic bit all the way to the top of int.
+        // to avoid aliasing.  The remainder bits are position bits
+        // which must be shifted by 2 from Java to get native.
+        //
+        // Using the lowest set bit exclusion AND mask (x - 1), we find
+        // all the bits from lowest set bit to the top is m = x | ~(x - 1).
+        // Using the one's complement to two's complement formula ~x = -x - 1,
+        // we can reduce this to m = x | -x.
+        // (Note -x is also the lowest bit extraction AND mask; i.e. lowest_bit = x & -x).
+        const int32_t EXCLUDE_BITS = AUDIO_CHANNEL_HAPTIC_ALL | -AUDIO_CHANNEL_HAPTIC_ALL;
+        const int32_t positionBits = (channelMaskFromFormat & ~EXCLUDE_BITS) >> 2;
+
+        // Haptic bits are identical between Java and native.
+        const int32_t hapticBits = channelMaskFromFormat & AUDIO_CHANNEL_HAPTIC_ALL;
+        return (audio_channel_mask_t)(positionBits | hapticBits);
+    }
 }
 
 /**
@@ -576,13 +636,12 @@ enum {
     AUDIO_PORT_CONFIG_CHANNEL_MASK = 0x2u,
     AUDIO_PORT_CONFIG_FORMAT       = 0x4u,
     AUDIO_PORT_CONFIG_GAIN         = 0x8u,
-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
     AUDIO_PORT_CONFIG_FLAGS        = 0x10u,
-#endif
     AUDIO_PORT_CONFIG_ALL          = AUDIO_PORT_CONFIG_SAMPLE_RATE |
                                      AUDIO_PORT_CONFIG_CHANNEL_MASK |
                                      AUDIO_PORT_CONFIG_FORMAT |
-                                     AUDIO_PORT_CONFIG_GAIN,
+                                     AUDIO_PORT_CONFIG_GAIN |
+                                     AUDIO_PORT_CONFIG_FLAGS
 };
 
 typedef enum {
@@ -601,9 +660,7 @@ struct audio_port_config {
     audio_channel_mask_t     channel_mask; /* channel mask if applicable */
     audio_format_t           format;       /* format if applicable */
     struct audio_gain_config gain;         /* gain to apply if applicable */
-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
-    union audio_io_flags     flags;        /* framework only: HW_AV_SYNC, DIRECT, ... */
-#endif
+    union audio_io_flags     flags;        /* HW_AV_SYNC, DIRECT, ... */
     union {
         struct audio_port_config_device_ext  device;  /* device specific info */
         struct audio_port_config_mix_ext     mix;     /* mix specific info */
@@ -677,7 +734,7 @@ struct audio_port {
     } ext;
 };
 
-typedef enum {
+typedef enum : int32_t {
     AUDIO_STANDARD_NONE = 0,
     AUDIO_STANDARD_EDID = 1,
 } audio_standard_t;
@@ -884,12 +941,10 @@ static inline bool audio_port_configs_are_equal(
     }
     return
             lhs->config_mask == rhs->config_mask &&
-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
             ((lhs->config_mask & AUDIO_PORT_CONFIG_FLAGS) == 0 ||
                     (audio_port_config_has_input_direction(lhs) ?
                             lhs->flags.input == rhs->flags.input :
                             lhs->flags.output == rhs->flags.output)) &&
-#endif
             ((lhs->config_mask & AUDIO_PORT_CONFIG_SAMPLE_RATE) == 0 ||
                     lhs->sample_rate == rhs->sample_rate) &&
             ((lhs->config_mask & AUDIO_PORT_CONFIG_CHANNEL_MASK) == 0 ||
@@ -1388,6 +1443,13 @@ static inline bool audio_is_ble_out_device(audio_devices_t device)
             AUDIO_DEVICE_OUT_ALL_BLE_ARRAY, 0 /*left*/, AUDIO_DEVICE_OUT_BLE_CNT, device);
 }
 
+static inline bool audio_is_ble_unicast_device(audio_devices_t device)
+{
+    return audio_binary_search_device_array(
+            AUDIO_DEVICE_OUT_BLE_UNICAST_ARRAY, 0 /*left*/,
+            AUDIO_DEVICE_OUT_BLE_UNICAST_CNT, device);
+}
+
 static inline bool audio_is_ble_in_device(audio_devices_t device)
 {
     return audio_binary_search_device_array(
@@ -1560,6 +1622,9 @@ static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t ch
     case FCC_8:
         bits = AUDIO_CHANNEL_OUT_7POINT1;
         break;
+    case 10: // 5.1.4
+        bits = AUDIO_CHANNEL_OUT_5POINT1POINT4;
+        break;
     case FCC_12:
         bits = AUDIO_CHANNEL_OUT_7POINT1POINT4;
         break;
@@ -1660,6 +1725,12 @@ static inline audio_channel_mask_t audio_channel_mask_out_to_in(audio_channel_ma
     default:
         return AUDIO_CHANNEL_INVALID;
     }
+}
+
+static inline audio_channel_mask_t audio_channel_mask_out_to_in_index_mask(audio_channel_mask_t out)
+{
+    return audio_channel_mask_for_index_assignment_from_count(
+            audio_channel_count_from_out_mask(out));
 }
 
 static inline bool audio_channel_position_mask_is_out_canonical(audio_channel_mask_t channelMask)
@@ -1804,7 +1875,8 @@ static inline bool audio_is_valid_format(audio_format_t format)
     case AUDIO_FORMAT_LHDC_LL:
     case AUDIO_FORMAT_APTX_TWSP:
     case AUDIO_FORMAT_LC3:
-//    case AUDIO_FORMAT_APTX_ADAPTIVE_QLEA:
+    case AUDIO_FORMAT_APTX_ADAPTIVE_QLEA:
+    case AUDIO_FORMAT_APTX_ADAPTIVE_R4:
         return true;
     case AUDIO_FORMAT_MPEGH:
         switch (format) {
@@ -1819,6 +1891,8 @@ static inline bool audio_is_valid_format(audio_format_t format)
         /* not reached */
     case AUDIO_FORMAT_DTS_UHD:
     case AUDIO_FORMAT_DRA:
+    case AUDIO_FORMAT_DTS_HD_MA:
+    case AUDIO_FORMAT_DTS_UHD_P2:
         return true;
     default:
         return false;
@@ -2120,9 +2194,18 @@ static const audio_playback_rate_t AUDIO_PLAYBACK_RATE_INITIALIZER = {
 
 #ifndef AUDIO_NO_SYSTEM_DECLARATIONS
 typedef enum {
-    AUDIO_OFFLOAD_NOT_SUPPORTED = 0,
-    AUDIO_OFFLOAD_SUPPORTED = 1,
-    AUDIO_OFFLOAD_GAPLESS_SUPPORTED = 2
+    AUDIO_DIRECT_NOT_SUPPORTED = 0x0u,
+    AUDIO_DIRECT_OFFLOAD_SUPPORTED = 0x1u,
+    AUDIO_DIRECT_OFFLOAD_GAPLESS_SUPPORTED = 0x2u,
+    // TODO(b/211628732): may need an enum for direct pcm
+    AUDIO_DIRECT_BITSTREAM_SUPPORTED = 0x4u,
+} audio_direct_mode_t;
+
+// TODO: Deprecate audio_offload_mode_t and use audio_direct_mode_t instead.
+typedef enum {
+    AUDIO_OFFLOAD_NOT_SUPPORTED = AUDIO_DIRECT_NOT_SUPPORTED,
+    AUDIO_OFFLOAD_SUPPORTED = AUDIO_DIRECT_OFFLOAD_SUPPORTED,
+    AUDIO_OFFLOAD_GAPLESS_SUPPORTED = AUDIO_DIRECT_OFFLOAD_GAPLESS_SUPPORTED
 } audio_offload_mode_t;
 #endif // AUDIO_NO_SYSTEM_DECLARATIONS
 
