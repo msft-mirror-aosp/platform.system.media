@@ -18,6 +18,7 @@
 #ifndef ANDROID_AUDIO_CORE_H
 #define ANDROID_AUDIO_CORE_H
 
+#include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -1450,6 +1451,13 @@ static inline bool audio_is_ble_unicast_device(audio_devices_t device)
             AUDIO_DEVICE_OUT_BLE_UNICAST_CNT, device);
 }
 
+static inline bool audio_is_ble_broadcast_device(audio_devices_t device)
+{
+    return audio_binary_search_device_array(
+            AUDIO_DEVICE_OUT_BLE_BROADCAST_ARRAY, 0 /*left*/,
+            AUDIO_DEVICE_OUT_BLE_BROADCAST_CNT, device);
+}
+
 static inline bool audio_is_ble_in_device(audio_devices_t device)
 {
     return audio_binary_search_device_array(
@@ -1621,6 +1629,9 @@ static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t ch
         break;
     case FCC_8:
         bits = AUDIO_CHANNEL_OUT_7POINT1;
+        break;
+    case 10: // 5.1.4
+        bits = AUDIO_CHANNEL_OUT_5POINT1POINT4;
         break;
     case FCC_12:
         bits = AUDIO_CHANNEL_OUT_7POINT1POINT4;
