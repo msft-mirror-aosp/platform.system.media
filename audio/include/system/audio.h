@@ -18,6 +18,7 @@
 #ifndef ANDROID_AUDIO_CORE_H
 #define ANDROID_AUDIO_CORE_H
 
+#include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -118,6 +119,8 @@ typedef struct {
     audio_flags_mask_t   flags;
     char                 tags[AUDIO_ATTRIBUTES_TAGS_MAX_SIZE]; /* UTF8 */
 } __attribute__((packed)) audio_attributes_t; // sent through Binder;
+/** The separator for tags. */
+static const char AUDIO_ATTRIBUTES_TAGS_SEPARATOR = ';';
 
 static const audio_attributes_t AUDIO_ATTRIBUTES_INITIALIZER = {
     /* .content_type = */ AUDIO_CONTENT_TYPE_UNKNOWN,
@@ -193,7 +196,7 @@ static inline audio_unique_id_use_t audio_unique_id_get_use(audio_unique_id_t id
     return (audio_unique_id_use_t) (id & AUDIO_UNIQUE_ID_USE_MASK);
 }
 
-typedef enum {
+typedef enum : int32_t {
     AUDIO_SESSION_DEVICE = HAL_AUDIO_SESSION_DEVICE,
     AUDIO_SESSION_OUTPUT_STAGE = HAL_AUDIO_SESSION_OUTPUT_STAGE,
     AUDIO_SESSION_OUTPUT_MIX = HAL_AUDIO_SESSION_OUTPUT_MIX,
@@ -1450,6 +1453,13 @@ static inline bool audio_is_ble_unicast_device(audio_devices_t device)
     return audio_binary_search_device_array(
             AUDIO_DEVICE_OUT_BLE_UNICAST_ARRAY, 0 /*left*/,
             AUDIO_DEVICE_OUT_BLE_UNICAST_CNT, device);
+}
+
+static inline bool audio_is_ble_broadcast_device(audio_devices_t device)
+{
+    return audio_binary_search_device_array(
+            AUDIO_DEVICE_OUT_BLE_BROADCAST_ARRAY, 0 /*left*/,
+            AUDIO_DEVICE_OUT_BLE_BROADCAST_CNT, device);
 }
 
 static inline bool audio_is_ble_in_device(audio_devices_t device)
