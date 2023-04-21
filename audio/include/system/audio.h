@@ -45,6 +45,12 @@
 #endif // __cplusplus
 #endif // FALLTHROUGH_INTENDED
 
+#ifdef __cplusplus
+#define CONSTEXPR constexpr
+#else
+#define CONSTEXPR
+#endif
+
 __BEGIN_DECLS
 
 /* The enums were moved here mostly from
@@ -119,6 +125,8 @@ typedef struct {
     audio_flags_mask_t   flags;
     char                 tags[AUDIO_ATTRIBUTES_TAGS_MAX_SIZE]; /* UTF8 */
 } __attribute__((packed)) audio_attributes_t; // sent through Binder;
+/** The separator for tags. */
+static const char AUDIO_ATTRIBUTES_TAGS_SEPARATOR = ';';
 
 static const audio_attributes_t AUDIO_ATTRIBUTES_INITIALIZER = {
     /* .content_type = */ AUDIO_CONTENT_TYPE_UNKNOWN,
@@ -194,7 +202,7 @@ static inline audio_unique_id_use_t audio_unique_id_get_use(audio_unique_id_t id
     return (audio_unique_id_use_t) (id & AUDIO_UNIQUE_ID_USE_MASK);
 }
 
-typedef enum {
+typedef enum : int32_t {
     AUDIO_SESSION_DEVICE = HAL_AUDIO_SESSION_DEVICE,
     AUDIO_SESSION_OUTPUT_STAGE = HAL_AUDIO_SESSION_OUTPUT_STAGE,
     AUDIO_SESSION_OUTPUT_MIX = HAL_AUDIO_SESSION_OUTPUT_MIX,
@@ -268,7 +276,7 @@ enum {
 #define AUDIO_CHANNEL_REPRESENTATION_LOG2   2
 
 /* The return value is undefined if the channel mask is invalid. */
-static inline uint32_t audio_channel_mask_get_bits(audio_channel_mask_t channel)
+static inline CONSTEXPR uint32_t audio_channel_mask_get_bits(audio_channel_mask_t channel)
 {
     return channel & ((1 << AUDIO_CHANNEL_COUNT_MAX) - 1);
 }
@@ -279,7 +287,7 @@ typedef enum {
 } audio_channel_representation_t;
 
 /* The return value is undefined if the channel mask is invalid. */
-static inline audio_channel_representation_t audio_channel_mask_get_representation(
+static inline CONSTEXPR audio_channel_representation_t audio_channel_mask_get_representation(
         audio_channel_mask_t channel)
 {
     // The right shift should be sufficient, but also "and" for safety in case mask is not 32 bits
@@ -289,7 +297,7 @@ static inline audio_channel_representation_t audio_channel_mask_get_representati
 
 #ifdef __cplusplus
 // Some effects use `int32_t` directly for channel mask.
-static inline uint32_t audio_channel_mask_get_representation(int32_t mask) {
+static inline constexpr uint32_t audio_channel_mask_get_representation(int32_t mask) {
     return audio_channel_mask_get_representation(static_cast<audio_channel_mask_t>(mask));
 }
 #endif
@@ -301,7 +309,7 @@ static inline uint32_t audio_channel_mask_get_representation(int32_t mask) {
  * or because an input mask has an invalid input bit set.
  * All other APIs that take a channel mask assume that it is valid.
  */
-static inline bool audio_channel_mask_is_valid(audio_channel_mask_t channel)
+static inline CONSTEXPR bool audio_channel_mask_is_valid(audio_channel_mask_t channel)
 {
     uint32_t bits = audio_channel_mask_get_bits(channel);
     audio_channel_representation_t representation = audio_channel_mask_get_representation(channel);
@@ -317,14 +325,15 @@ static inline bool audio_channel_mask_is_valid(audio_channel_mask_t channel)
 }
 
 /* Not part of public API */
-static inline audio_channel_mask_t audio_channel_mask_from_representation_and_bits(
+static inline CONSTEXPR audio_channel_mask_t audio_channel_mask_from_representation_and_bits(
         audio_channel_representation_t representation, uint32_t bits)
 {
     return (audio_channel_mask_t) ((representation << AUDIO_CHANNEL_COUNT_MAX) | bits);
 }
 
 /*
- * Returns true so long as Quadraphonic channels (FL, FR, BL, BR) are completely specified
+ * Returns true so long as Quadraphonic channels (FL, FR, BL, BR)
+ * or (FL, FR, SL, SR) are completely specified
  * in the channel mask. We expect these 4 channels to be the minimum for
  * reasonable spatializer effect quality.
  *
@@ -339,10 +348,11 @@ static inline audio_channel_mask_t audio_channel_mask_from_representation_and_bi
  * AUDIO_CHANNEL_OUT_13POINT_360RA
  * AUDIO_CHANNEL_OUT_22POINT2
  */
-static inline bool audio_is_channel_mask_spatialized(audio_channel_mask_t channelMask) {
+static inline CONSTEXPR bool audio_is_channel_mask_spatialized(audio_channel_mask_t channelMask) {
     return audio_channel_mask_get_representation(channelMask)
                 == AUDIO_CHANNEL_REPRESENTATION_POSITION
-            && (channelMask & AUDIO_CHANNEL_OUT_QUAD) == AUDIO_CHANNEL_OUT_QUAD;
+            && ((channelMask & AUDIO_CHANNEL_OUT_QUAD) == AUDIO_CHANNEL_OUT_QUAD
+                || (channelMask & AUDIO_CHANNEL_OUT_QUAD_SIDE) == AUDIO_CHANNEL_OUT_QUAD_SIDE);
 }
 
 /*
@@ -1499,7 +1509,7 @@ static inline bool audio_is_input_channel(audio_channel_mask_t channel)
  *  there are no channel bits set which could _not_ correspond to an output channel.
  * Otherwise returns false.
  */
-static inline bool audio_is_output_channel(audio_channel_mask_t channel)
+static inline CONSTEXPR bool audio_is_output_channel(audio_channel_mask_t channel)
 {
     uint32_t bits = audio_channel_mask_get_bits(channel);
     switch (audio_channel_mask_get_representation(channel)) {
@@ -1521,7 +1531,7 @@ static inline bool audio_is_output_channel(audio_channel_mask_t channel)
  * it is excluded from the count.
  * Returns zero if the representation is invalid.
  */
-static inline uint32_t audio_channel_count_from_in_mask(audio_channel_mask_t channel)
+static inline CONSTEXPR uint32_t audio_channel_count_from_in_mask(audio_channel_mask_t channel)
 {
     uint32_t bits = audio_channel_mask_get_bits(channel);
     switch (audio_channel_mask_get_representation(channel)) {
@@ -1539,7 +1549,7 @@ static inline uint32_t audio_channel_count_from_in_mask(audio_channel_mask_t cha
 #ifdef __cplusplus
 // FIXME(b/169889714): buffer_config_t uses `uint32_t` for the mask.
 // A lot of effects code thus use `uint32_t` directly.
-static inline uint32_t audio_channel_count_from_in_mask(uint32_t mask) {
+static inline CONSTEXPR uint32_t audio_channel_count_from_in_mask(uint32_t mask) {
     return audio_channel_count_from_in_mask(static_cast<audio_channel_mask_t>(mask));
 }
 #endif
@@ -1550,7 +1560,7 @@ static inline uint32_t audio_channel_count_from_in_mask(uint32_t mask) {
  * it is excluded from the count.
  * Returns zero if the representation is invalid.
  */
-static inline uint32_t audio_channel_count_from_out_mask(audio_channel_mask_t channel)
+static inline CONSTEXPR uint32_t audio_channel_count_from_out_mask(audio_channel_mask_t channel)
 {
     uint32_t bits = audio_channel_mask_get_bits(channel);
     switch (audio_channel_mask_get_representation(channel)) {
@@ -1568,7 +1578,7 @@ static inline uint32_t audio_channel_count_from_out_mask(audio_channel_mask_t ch
 #ifdef __cplusplus
 // FIXME(b/169889714): buffer_config_t uses `uint32_t` for the mask.
 // A lot of effects code thus use `uint32_t` directly.
-static inline uint32_t audio_channel_count_from_out_mask(uint32_t mask) {
+static inline CONSTEXPR uint32_t audio_channel_count_from_out_mask(uint32_t mask) {
     return audio_channel_count_from_out_mask(static_cast<audio_channel_mask_t>(mask));
 }
 #endif
@@ -1578,7 +1588,7 @@ static inline uint32_t audio_channel_count_from_out_mask(uint32_t mask) {
  * or AUDIO_CHANNEL_NONE if the channel count is zero,
  * or AUDIO_CHANNEL_INVALID if the channel count exceeds AUDIO_CHANNEL_COUNT_MAX.
  */
-static inline audio_channel_mask_t audio_channel_mask_for_index_assignment_from_count(
+static inline CONSTEXPR audio_channel_mask_t audio_channel_mask_for_index_assignment_from_count(
         uint32_t channel_count)
 {
     if (channel_count == 0) {
@@ -1602,9 +1612,10 @@ static inline audio_channel_mask_t audio_channel_mask_for_index_assignment_from_
  * or AUDIO_CHANNEL_INVALID if the channel count exceeds that of the
  * configurations for which a default output channel mask is defined.
  */
-static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t channel_count)
+static inline CONSTEXPR audio_channel_mask_t audio_channel_out_mask_from_count(
+        uint32_t channel_count)
 {
-    uint32_t bits;
+    uint32_t bits = 0;
     switch (channel_count) {
     case 0:
         return AUDIO_CHANNEL_NONE;
@@ -1655,9 +1666,10 @@ static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t ch
  * or AUDIO_CHANNEL_INVALID if the channel count exceeds that of the
  * configurations for which a default input channel mask is defined.
  */
-static inline audio_channel_mask_t audio_channel_in_mask_from_count(uint32_t channel_count)
+static inline CONSTEXPR audio_channel_mask_t audio_channel_in_mask_from_count(
+        uint32_t channel_count)
 {
-    uint32_t bits;
+    uint32_t bits = 0;
     switch (channel_count) {
     case 0:
         return AUDIO_CHANNEL_NONE;
