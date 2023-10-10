@@ -9,6 +9,28 @@ package {
 }
 
 cc_test {
+    name: "audio_mutex_tests",
+    host_supported: true,
+
+    srcs: [
+        "audio_mutex_tests.cpp",
+    ],
+
+    static_libs: [
+        "libaudioutils",
+        "libbase",
+        "liblog",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wthread-safety",
+    ],
+}
+
+cc_test {
     name: "balance_tests",
     host_supported: true,
 
@@ -37,6 +59,56 @@ cc_binary {
 
     shared_libs: [
         "libaudioutils",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "mel_aggregator_tests",
+    host_supported: true,
+
+    srcs: [
+        "mel_aggregator_tests.cpp"
+    ],
+
+    shared_libs: [
+        "libaudioutils",
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "libgmock",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "mel_processor_tests",
+    host_supported: true,
+
+    srcs: [
+        "mel_processor_tests.cpp"
+    ],
+
+    shared_libs: [
+        "libaudioutils",
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "libgmock",
     ],
 
     cflags: [
