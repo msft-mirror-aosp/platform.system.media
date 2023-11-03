@@ -5670,8 +5670,14 @@ and the HAL queues the capture settings in its pipeline when processCaptureReque
 returns.<wbr/> However,<wbr/> when the settings override is enabled,<wbr/> the HAL can optimize the
 overridden controls' latency by applying them as soon as processCaptureRequest is
 called,<wbr/> rather than when it's unblocked.<wbr/></p>
-<p>If zoom settings override is on,<wbr/> when zooming in,<wbr/> the HAL must be able to apply the
-zoom related settings at least 1 frame ahead.<wbr/></p>
+<p>For devices launching with API level 35 or newer,<wbr/> to avoid regression on zoom
+smoothness,<wbr/> when zoom settings override is on during pinch zoom (zoom value gradually
+changes),<wbr/> the zoom effect in the camera output must not become more jittery.<wbr/> More
+specifically,<wbr/> the variation of zoom pipeline latency must not increase.<wbr/> The latency
+improvement must be at least 1 frame regardless of zoom in or zoom out.<wbr/></p>
+<p>For devices launched before API level 35,<wbr/> if zoom settings override is on,<wbr/> when
+zooming in,<wbr/> the HAL must be able to apply the zoom related settings at least 1
+frame ahead.<wbr/></p>
             </td>
           </tr>
 
@@ -11964,8 +11970,14 @@ and the HAL queues the capture settings in its pipeline when processCaptureReque
 returns.<wbr/> However,<wbr/> when the settings override is enabled,<wbr/> the HAL can optimize the
 overridden controls' latency by applying them as soon as processCaptureRequest is
 called,<wbr/> rather than when it's unblocked.<wbr/></p>
-<p>If zoom settings override is on,<wbr/> when zooming in,<wbr/> the HAL must be able to apply the
-zoom related settings at least 1 frame ahead.<wbr/></p>
+<p>For devices launching with API level 35 or newer,<wbr/> to avoid regression on zoom
+smoothness,<wbr/> when zoom settings override is on during pinch zoom (zoom value gradually
+changes),<wbr/> the zoom effect in the camera output must not become more jittery.<wbr/> More
+specifically,<wbr/> the variation of zoom pipeline latency must not increase.<wbr/> The latency
+improvement must be at least 1 frame regardless of zoom in or zoom out.<wbr/></p>
+<p>For devices launched before API level 35,<wbr/> if zoom settings override is on,<wbr/> when
+zooming in,<wbr/> the HAL must be able to apply the zoom related settings at least 1
+frame ahead.<wbr/></p>
             </td>
           </tr>
 
