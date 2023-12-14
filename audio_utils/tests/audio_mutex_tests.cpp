@@ -427,6 +427,68 @@ NO_THREAD_SAFETY_ANALYSIS {
     ASSERT_DEATH(m1.unlock(), ".*mutex unlock.*");
 }
 
+TEST(audio_mutex_tests, TimedLock) {
+    using ConditionVariable = android::audio_utils::condition_variable;
+    using Mutex = android::audio_utils::mutex;
+    using UniqueLock = android::audio_utils::unique_lock;
+    Mutex m, m1;
+    ConditionVariable cv;
+    bool quit = false;  // GUARDED_BY(m)
+
+    std::atomic<pid_t> tid1{};
+
+    // launch thread.
+    std::thread t1([&]() {
+        UniqueLock ul1(m1);
+        UniqueLock ul(m);
+        tid1 = android::audio_utils::gettid_wrapper();
+        while (!quit) {
+            cv.wait(ul, [&]{ return quit; });
+            if (quit) break;
+        }
+    });
+
+    // ensure thread tid1 has acquired all locks.
+    while (tid1 == 0) { usleep(1000); }
+
+    // try lock for 1s
+    constexpr int64_t kTimeoutNs = 1'000'000'000;
+    {
+        //  verify timed out state.
+        const int64_t beginNs = systemTime();
+        const bool success = m1.try_lock(kTimeoutNs);
+        const int64_t endNs = systemTime();
+        const int64_t diffNs = endNs - beginNs;
+
+        if (success) m1.unlock();
+        EXPECT_GT(diffNs, kTimeoutNs);
+        EXPECT_FALSE(success);
+    }
+
+    // exit the thread
+    {
+        UniqueLock ul(m);
+
+        quit = true;
+        cv.notify_one();
+    }
+
+    t1.join();
+
+    {
+        // verify success state.
+        const int64_t beginNs = systemTime();
+        const bool success = m1.try_lock(kTimeoutNs);
+        const int64_t endNs = systemTime();
+        const int64_t diffNs = endNs - beginNs;
+
+        if (success) m1.unlock();
+        constexpr int64_t kSuccessLockNs = kTimeoutNs / 4;
+        EXPECT_LT(diffNs, kSuccessLockNs);
+        EXPECT_TRUE(success);
+    }
+}
+
 // Test the deadlock detection algorithm for a single wait chain
 // (no cycle).
 
