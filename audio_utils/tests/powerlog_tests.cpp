@@ -28,13 +28,14 @@ static size_t countNewLines(const std::string &s) {
     return std::count(s.begin(), s.end(), '\n');
 }
 
-TEST(audio_utils_powerlog, basic) {
+TEST(audio_utils_powerlog, basic_level_1) {
     auto plog = std::make_unique<PowerLog>(
             48000 /* sampleRate */,
             1 /* channelCount */,
             AUDIO_FORMAT_PCM_16_BIT,
             100 /* entries */,
-            1 /* framesPerEntry */);
+            1 /* framesPerEntry */,
+            1 /* levels */);
 
     // header
     EXPECT_EQ((size_t)1, countNewLines(plog->dumpToString()));
