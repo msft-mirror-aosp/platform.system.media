@@ -1304,7 +1304,27 @@ inline thread_mutex_info<MutexHandle, Order, N>::~thread_mutex_info() {
 }
 
 // audio_utils::lock_guard only works with the defined mutex.
-using lock_guard = std::lock_guard<mutex>;
+//
+// We add [[nodiscard]] to prevent accidentally ignoring construction.
+class [[nodiscard]] SCOPED_CAPABILITY lock_guard {
+public:
+    explicit lock_guard(mutex& m) ACQUIRE(m)
+        : mutex_(m) {
+        mutex_.lock();
+    }
+
+    ~lock_guard() RELEASE() {
+        mutex_.unlock();
+    }
+
+    lock_guard(const lock_guard&) = delete;
+
+    // Note: a member reference will also delete this.
+    lock_guard& operator=(const lock_guard&) = delete;
+
+private:
+    mutex& mutex_;
+};
 
 // audio_utils::unique_lock is based on std::unique_lock<std::mutex>
 // because std::condition_variable is optimized for std::unique_lock<std::mutex>
@@ -1315,8 +1335,9 @@ using lock_guard = std::lock_guard<mutex>;
 //
 // We omit swap(), release() and move methods which don't have thread
 // safety annotations.
-
-class SCOPED_CAPABILITY unique_lock {
+//
+// We add [[nodiscard]] to prevent accidentally ignoring construction.
+class [[nodiscard]] SCOPED_CAPABILITY unique_lock {
 public:
     explicit unique_lock(mutex& m) ACQUIRE(m)
         : ul_(m.std_mutex(), std::defer_lock)
@@ -1455,12 +1476,13 @@ private:
 // audio_utils::scoped_lock has proper thread safety annotations.
 // std::scoped_lock does not have thread safety annotations for greater than 1 lock
 // since the variadic template doesn't convert to the variadic macro def.
-
+//
+// We add [[nodiscard]] to prevent accidentally ignoring construction.
 template <typename ...Mutexes>
 class scoped_lock;
 
 template <typename Mutex1>
-class SCOPED_CAPABILITY scoped_lock<Mutex1>
+class [[nodiscard]] SCOPED_CAPABILITY scoped_lock<Mutex1>
     : private std::scoped_lock<Mutex1> {
 public:
     explicit scoped_lock(Mutex1& m) ACQUIRE(m) : std::scoped_lock<Mutex1>(m) {}
@@ -1468,7 +1490,7 @@ public:
 };
 
 template <typename Mutex1, typename Mutex2>
-class SCOPED_CAPABILITY scoped_lock<Mutex1, Mutex2>
+class [[nodiscard]] SCOPED_CAPABILITY scoped_lock<Mutex1, Mutex2>
     : private std::scoped_lock<Mutex1, Mutex2> {
 public:
     scoped_lock(Mutex1& m1, Mutex2& m2) ACQUIRE(m1, m2)
@@ -1477,7 +1499,7 @@ public:
 };
 
 template <typename Mutex1, typename Mutex2, typename Mutex3>
-class SCOPED_CAPABILITY scoped_lock<Mutex1, Mutex2, Mutex3>
+class [[nodiscard]] SCOPED_CAPABILITY scoped_lock<Mutex1, Mutex2, Mutex3>
     : private std::scoped_lock<Mutex1, Mutex2, Mutex3> {
 public:
     scoped_lock(Mutex1& m1, Mutex2& m2, Mutex3& m3) ACQUIRE(m1, m2, m3)
@@ -1486,7 +1508,7 @@ public:
 };
 
 template <typename ...Mutexes>
-class scoped_lock : private std::scoped_lock<Mutexes...> {
+class [[nodiscard]] scoped_lock : private std::scoped_lock<Mutexes...> {
 public:
     scoped_lock(Mutexes&... mutexes)
       : std::scoped_lock<Mutexes...>(mutexes...) {}
