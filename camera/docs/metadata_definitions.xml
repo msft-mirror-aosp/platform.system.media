@@ -11303,7 +11303,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
       </dynamic>
       <static>
-        <entry name="readoutTimestamp" type="byte" visibility="fwk_java_public"
+        <entry name="readoutTimestamp" type="byte" visibility="java_public"
           enum="true" hwlevel="legacy" hal_version="3.8">
         <enum>
           <value>NOT_SUPPORTED
@@ -11345,7 +11345,10 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           generally constant over time for the same set of output resolutions and capture settings.
         </details>
         <hal_details>
-          This property is populated by the camera framework and must not be set at the HAL layer.
+          This property may be set by HAL layers that implement the AIDL interface. If not set
+          camera framework will implicitly set it to HARDWARE for all AIDL HALs. Camera framework
+          will force set this to NOT_SUPPORTED for all HIDL HALs, regerdless of whether the HAL
+          provided a value or not.
         </hal_details>
       </entry>
     </static>
