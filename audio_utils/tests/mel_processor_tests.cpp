@@ -158,7 +158,7 @@ TEST_P(MelProcessorFixtureTest, AttenuationCheck) {
     auto processorAttenuation =
         sp<MelProcessor>::make(mSampleRate, 1, AUDIO_FORMAT_PCM_FLOAT, mMelCallback, mDeviceId+1,
                      mDefaultRs2, mMaxMelsCallback);
-    float attenuationDB = -10.f;
+    float attenuationDB = 10.f;
     std::vector<float> bufferAttenuation;
     float melAttenuation = 0.f;
     float melNoAttenuation = 0.f;
@@ -191,7 +191,7 @@ TEST_P(MelProcessorFixtureTest, AttenuationCheck) {
     std::this_thread::sleep_for(std::chrono::milliseconds(kCallbackTimeoutInMs));
     // with attenuation for some frequencies the MEL callback does not exceed the RS1 threshold
     if (melAttenuation > 0.f) {
-        EXPECT_EQ(fabsf(melAttenuation - melNoAttenuation), fabsf(attenuationDB));
+        EXPECT_EQ(melNoAttenuation - melAttenuation, attenuationDB);
     }
 }
 

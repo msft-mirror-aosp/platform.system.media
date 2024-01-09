@@ -345,7 +345,7 @@ int32_t MelProcessor::process(const void* buffer, size_t bytes) {
             audio_utils_power_from_energy(getCombinedChannelEnergy_l())
                 + kMelAdjustmentDb
                 + kMeldBFSTodBSPLOffset
-                + mAttenuationDB, 0.0f));
+                - mAttenuationDB, 0.0f));
 
         samples -= processSamples;
         buffer =
