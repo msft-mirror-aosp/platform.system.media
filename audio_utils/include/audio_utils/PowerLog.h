@@ -105,7 +105,7 @@ public:
             audio_format_t format,
             size_t entries,
             size_t framesPerEntry,
-            size_t levels = 1)
+            size_t levels = 2)
             : mChannelCount(channelCount)
             , mFormat(format)
             , mSampleRate(sampleRate)
