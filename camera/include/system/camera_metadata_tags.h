@@ -403,7 +403,7 @@ typedef enum camera_metadata_tag {
     ANDROID_SENSOR_OPAQUE_RAW_SIZE_MAXIMUM_RESOLUTION,// int32[]      | system       | HIDL v3.6
     ANDROID_SENSOR_PIXEL_MODE,                        // enum         | public       | HIDL v3.6
     ANDROID_SENSOR_RAW_BINNING_FACTOR_USED,           // enum         | public       | HIDL v3.6
-    ANDROID_SENSOR_READOUT_TIMESTAMP,                 // enum         | fwk_java_public
+    ANDROID_SENSOR_READOUT_TIMESTAMP,                 // enum         | java_public  | HIDL v3.8
     ANDROID_SENSOR_END,
 
     ANDROID_SENSOR_INFO_ACTIVE_ARRAY_SIZE =           // int32[]      | public       | HIDL v3.2
@@ -1192,8 +1192,8 @@ typedef enum camera_metadata_enum_android_sensor_raw_binning_factor_used {
 
 // ANDROID_SENSOR_READOUT_TIMESTAMP
 typedef enum camera_metadata_enum_android_sensor_readout_timestamp {
-    ANDROID_SENSOR_READOUT_TIMESTAMP_NOT_SUPPORTED                  ,
-    ANDROID_SENSOR_READOUT_TIMESTAMP_HARDWARE                       ,
+    ANDROID_SENSOR_READOUT_TIMESTAMP_NOT_SUPPORTED                  , // HIDL v3.8
+    ANDROID_SENSOR_READOUT_TIMESTAMP_HARDWARE                       , // HIDL v3.8
 } camera_metadata_enum_android_sensor_readout_timestamp_t;
 
 
