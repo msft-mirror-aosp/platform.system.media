@@ -29,6 +29,10 @@ namespace aidl::android::hardware::audio::effect {
  * TODO: b/277900230, Define in future AIDL version.
  */
 static constexpr uint32_t kEventFlagNotEmpty = 0x1;
+/**
+ * EventFlag for the effect instance to indicate that the data FMQ needs to be updated.
+ */
+static constexpr uint32_t kEventFlagDataMqUpdate = 0x1 << 1;
 
 /**
  * Check the target Parameter with $Parameter$Range definition in Capability.
