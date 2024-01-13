@@ -29784,7 +29784,7 @@ the camera</p>
             <td class="entry_type">
                 <span class="entry_type_name entry_type_name_enum">byte</span>
 
-              <span class="entry_type_visibility"> [fwk_java_public]</span>
+              <span class="entry_type_visibility"> [java_public]</span>
 
 
               <span class="entry_type_hwlevel">[legacy] </span>
@@ -29858,7 +29858,10 @@ generally constant over time for the same set of output resolutions and capture 
           </tr>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
-              <p>This property is populated by the camera framework and must not be set at the HAL layer.<wbr/></p>
+              <p>This property may be set by HAL layers that implement the AIDL interface.<wbr/> If not set
+camera framework will implicitly set it to HARDWARE for all AIDL HALs.<wbr/> Camera framework
+will force set this to NOT_<wbr/>SUPPORTED for all HIDL HALs,<wbr/> regerdless of whether the HAL
+provided a value or not.<wbr/></p>
             </td>
           </tr>
 
