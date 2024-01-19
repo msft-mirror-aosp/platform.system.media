@@ -116,7 +116,8 @@ public:
                 size_t scale = 1;
                 for (size_t i = 0; i < levels; ++i) {
                     v[i] = std::make_shared<PowerLogBase>(
-                            sampleRate, channelCount, format, entries, framesPerEntry * scale);
+                            sampleRate, channelCount, format,
+                            entries / levels, framesPerEntry * scale);
                     scale *= 20;  // each level's entry is 20x the temporal width of the prior.
                 }
                 return v;
