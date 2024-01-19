@@ -113,7 +113,7 @@ TEST(audio_utils_powerlog, basic_level_2) {
             kSampleRate /* sampleRate */,
             1 /* channelCount */,
             AUDIO_FORMAT_PCM_16_BIT,
-            100 /* entries */,
+            200 /* entries */,
             1 /* framesPerEntry */,
             2 /* levels */);
 
