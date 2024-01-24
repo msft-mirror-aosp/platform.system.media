@@ -370,9 +370,14 @@ TEST(audio_mutex_tests, OrderDetection) {
     EXPECT_EQ(0, nil2.second.load());
 }
 
+// The following tests are evaluated for the android::audio_utils::mutex
+// Non-Priority Inheritance and Priority Inheritance cases.
+
+class MutexTestSuite : public testing::TestWithParam<bool> {};
+
 // Test that the mutex aborts on recursion (if the abort flag is set).
 
-TEST(audio_mutex_tests, FatalRecursiveMutex)
+TEST_P(MutexTestSuite, FatalRecursiveMutex)
 NO_THREAD_SAFETY_ANALYSIS {
     if (!android::audio_utils::AudioMutexAttributes::abort_on_recursion_check_
             || !audio_utils::mutex_get_enable_flag()) {
@@ -382,8 +387,9 @@ NO_THREAD_SAFETY_ANALYSIS {
 
     using Mutex = android::audio_utils::mutex;
     using LockGuard = android::audio_utils::lock_guard;
+    const bool priority_inheritance = GetParam();
 
-    Mutex m;
+    Mutex m(priority_inheritance);
     LockGuard lg(m);
 
     // Can't lock ourselves again.
@@ -392,7 +398,7 @@ NO_THREAD_SAFETY_ANALYSIS {
 
 // Test that the mutex aborts on lock order inversion (if the abort flag is set).
 
-TEST(audio_mutex_tests, FatalLockOrder)
+TEST_P(MutexTestSuite, FatalLockOrder)
 NO_THREAD_SAFETY_ANALYSIS {
     if (!android::audio_utils::AudioMutexAttributes::abort_on_order_check_
             || !audio_utils::mutex_get_enable_flag()) {
@@ -402,9 +408,10 @@ NO_THREAD_SAFETY_ANALYSIS {
 
     using Mutex = android::audio_utils::mutex;
     using LockGuard = android::audio_utils::lock_guard;
+    const bool priority_inheritance = GetParam();
 
-    Mutex m1{(android::audio_utils::AudioMutexAttributes::order_t)1};
-    Mutex m2{(android::audio_utils::AudioMutexAttributes::order_t)2};
+    Mutex m1{priority_inheritance, (android::audio_utils::AudioMutexAttributes::order_t)1};
+    Mutex m2{priority_inheritance, (android::audio_utils::AudioMutexAttributes::order_t)2};
 
     LockGuard lg2(m2);
     // m1 must be locked before m2 as 1 < 2.
@@ -413,7 +420,7 @@ NO_THREAD_SAFETY_ANALYSIS {
 
 // Test that the mutex aborts on lock order inversion (if the abort flag is set).
 
-TEST(audio_mutex_tests, UnexpectedUnlock)
+TEST_P(MutexTestSuite, UnexpectedUnlock)
 NO_THREAD_SAFETY_ANALYSIS {
     if (!android::audio_utils::AudioMutexAttributes::abort_on_invalid_unlock_
             || !audio_utils::mutex_get_enable_flag()) {
@@ -422,16 +429,19 @@ NO_THREAD_SAFETY_ANALYSIS {
     }
 
     using Mutex = android::audio_utils::mutex;
+    const bool priority_inheritance = GetParam();
 
-    Mutex m1{(android::audio_utils::AudioMutexAttributes::order_t)1};
+    Mutex m1{priority_inheritance, (android::audio_utils::AudioMutexAttributes::order_t)1};
     ASSERT_DEATH(m1.unlock(), ".*mutex unlock.*");
 }
 
-TEST(audio_mutex_tests, TimedLock) {
+TEST_P(MutexTestSuite, TimedLock) {
     using ConditionVariable = android::audio_utils::condition_variable;
     using Mutex = android::audio_utils::mutex;
     using UniqueLock = android::audio_utils::unique_lock;
-    Mutex m, m1;
+    const bool priority_inheritance = GetParam();
+
+    Mutex m{priority_inheritance}, m1{priority_inheritance};
     ConditionVariable cv;
     bool quit = false;  // GUARDED_BY(m)
 
@@ -492,10 +502,11 @@ TEST(audio_mutex_tests, TimedLock) {
 // Test the deadlock detection algorithm for a single wait chain
 // (no cycle).
 
-TEST(audio_mutex_tests, DeadlockDetection) {
+TEST_P(MutexTestSuite, DeadlockDetection) {
     using Mutex = android::audio_utils::mutex;
     using UniqueLock = android::audio_utils::unique_lock;
     using ConditionVariable = android::audio_utils::condition_variable;
+    const bool priority_inheritance = GetParam();
 
     // order checked below.
     constexpr size_t kOrder1 = 1;
@@ -503,11 +514,11 @@ TEST(audio_mutex_tests, DeadlockDetection) {
     constexpr size_t kOrder3 = 3;
     static_assert(Mutex::attributes_t::order_size_ > kOrder3);
 
-    Mutex m1{static_cast<Mutex::attributes_t::order_t>(kOrder1)};
-    Mutex m2{static_cast<Mutex::attributes_t::order_t>(kOrder2)};
-    Mutex m3{static_cast<Mutex::attributes_t::order_t>(kOrder3)};
-    Mutex m4;
-    Mutex m;
+    Mutex m1{priority_inheritance, static_cast<Mutex::attributes_t::order_t>(kOrder1)};
+    Mutex m2{priority_inheritance, static_cast<Mutex::attributes_t::order_t>(kOrder2)};
+    Mutex m3{priority_inheritance, static_cast<Mutex::attributes_t::order_t>(kOrder3)};
+    Mutex m4{priority_inheritance};
+    Mutex m{priority_inheritance};
     ConditionVariable cv;
     bool quit = false;  // GUARDED_BY(m)
     std::atomic<pid_t> tid1{}, tid2{}, tid3{}, tid4{};
@@ -592,6 +603,8 @@ TEST(audio_mutex_tests, DeadlockDetection) {
     t2.join();
     t1.join();
 }
+
+INSTANTIATE_TEST_SUITE_P(Mutex_NonPI_and_PI, MutexTestSuite, testing::Values(false, true));
 
 } // namespace android
 
