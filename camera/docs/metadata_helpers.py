@@ -28,6 +28,7 @@ import bs4
 bs4.builder.HTMLTreeBuilder.empty_element_tags.add("wbr")
 
 from collections import OrderedDict
+from os import path
 
 # Relative path from HTML file to the base directory used by <img> tags
 IMAGE_SRC_METADATA="images/camera2/metadata/"
@@ -1561,6 +1562,36 @@ def wbr(text):
 
 def copyright_year():
   return _copyright_year
+
+def infer_copyright_year_from_source(src_file, default_copyright_year):
+  """
+  Opens src_file and tries to infer the copyright year from the file
+  if it exists. Returns default_copyright_year if src_file is None, doesn't
+  exist, or the copyright year cannot be parsed from the first 15 lines.
+
+  Assumption:
+    - Copyright text must be in the first 15 lines of the src_file.
+      This should almost always be true.
+  """
+  if src_file is None:
+    return default_copyright_year
+
+  if not path.isfile(src_file):
+    return default_copyright_year
+
+  copyright_pattern = r"^.*Copyright \([Cc]\) (20\d\d) The Android Open Source Project$"
+  num_max_lines = 15
+
+  with open(src_file, "r") as f:
+    for i, line in enumerate(f):
+      if i >= num_max_lines:
+        break
+
+      years = re.findall(copyright_pattern, line.strip())
+      if len(years) > 0:
+        return years[0]
+
+  return default_copyright_year
 
 def enum():
   return _enum
