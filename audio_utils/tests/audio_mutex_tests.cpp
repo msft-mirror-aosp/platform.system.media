@@ -570,6 +570,9 @@ TEST_P(MutexTestSuite, DeadlockDetection) {
     // no cycle.
     EXPECT_EQ(false, deadlockInfo.has_cycle);
 
+    // no condition_variable detected
+    EXPECT_EQ(false, deadlockInfo.cv_detected);
+
     // thread1 is waiting on a chain of 3 other threads.
     const auto chain = deadlockInfo.chain;
     const size_t chain_size = chain.size();
@@ -604,7 +607,130 @@ TEST_P(MutexTestSuite, DeadlockDetection) {
     t1.join();
 }
 
+TEST_P(MutexTestSuite, DeadlockConditionVariableDetection) {
+    using Mutex = android::audio_utils::mutex;
+    using UniqueLock = android::audio_utils::unique_lock;
+    using ConditionVariable = android::audio_utils::condition_variable;
+    const bool priority_inheritance = GetParam();
+
+    // order checked below.
+    constexpr size_t kOrder1 = 1;
+    constexpr size_t kOrder2 = 2;
+    constexpr size_t kOrder3 = 3;
+    static_assert(Mutex::attributes_t::order_size_ > kOrder3);
+
+    Mutex m1{priority_inheritance, static_cast<Mutex::attributes_t::order_t>(kOrder1)};
+    Mutex m2{priority_inheritance, static_cast<Mutex::attributes_t::order_t>(kOrder2)};
+    Mutex m3{priority_inheritance, static_cast<Mutex::attributes_t::order_t>(kOrder3)};
+    Mutex m4{priority_inheritance};
+    Mutex m{priority_inheritance};
+    ConditionVariable cv, cv2, cv4;
+    bool quit = false;  // GUARDED_BY(m)
+    std::atomic<pid_t> tid1{}, tid2{}, tid3{}, tid4{};
+
+    std::thread t4([&]() {
+        // UniqueLock ul4(m4);
+        UniqueLock ul(m);
+        tid4 = android::audio_utils::gettid_wrapper();
+        while (!quit) {
+            cv.wait(ul, [&]{ return quit; });
+            if (quit) break;
+        }
+    });
+
+    while (tid4 == 0) { usleep(1000); }
+
+    std::thread t3([&]() {
+        UniqueLock ul3(m3);
+        tid3 = android::audio_utils::gettid_wrapper();
+        UniqueLock ul4(m4);
+        while (!quit) {
+            // use the wait method with the notifier_tid metadata.
+            cv4.wait(ul4, [&]{ return quit; }, tid4);
+            if (quit) break;
+        }
+    });
+
+    while (tid3 == 0) { usleep(1000); }
+
+    std::thread t2([&]() {
+        // UniqueLock ul2(m2);
+        tid2 = android::audio_utils::gettid_wrapper();
+        UniqueLock ul3(m3);
+    });
+
+    while (tid2 == 0) { usleep(1000); }
+
+    std::thread t1([&]() {
+        UniqueLock ul1(m1);
+        tid1 = android::audio_utils::gettid_wrapper();
+        UniqueLock ul2(m2);
+        while (!quit) {
+            // use the wait method with the notifier_tid metadata.
+            cv2.wait(ul2, [&]{ return quit; }, tid2);
+            if (quit) break;
+        }
+    });
+
+    while (tid1 == 0) { usleep(1000); }
+
+    // we know that the threads will now block in the proper order.
+    // however, we need to wait for the block to happen.
+    // this part is racy unless we check the thread state or use
+    // futexes directly in our mutex (which allows atomic accuracy of wait).
+    usleep(20000);
+
+    const auto deadlockInfo = android::audio_utils::mutex::deadlock_detection(tid1);
+
+    // no cycle.
+    EXPECT_EQ(false, deadlockInfo.has_cycle);
+
+    // condition_variable detected
+    EXPECT_EQ(true, deadlockInfo.cv_detected);
+
+    // thread1 is waiting on a chain of 3 other threads.
+    const auto chain = deadlockInfo.chain;
+    const size_t chain_size = chain.size();
+    EXPECT_EQ(3u, chain_size);
+
+    const auto default_idx = static_cast<size_t>(Mutex::attributes_t::order_default_);
+    if (chain_size > 0) {
+        EXPECT_EQ(tid2, chain[0].first);
+        EXPECT_EQ(std::string("cv-").append(Mutex::attributes_t::order_names_[kOrder2]).c_str(),
+                chain[0].second);
+    }
+    if (chain_size > 1) {
+        EXPECT_EQ(tid3, chain[1].first);
+        EXPECT_EQ(Mutex::attributes_t::order_names_[kOrder3], chain[1].second);
+    }
+    if (chain_size > 2) {
+        EXPECT_EQ(tid4, chain[2].first);
+        EXPECT_EQ(std::string("cv-").append(
+                Mutex::attributes_t::order_names_[default_idx]).c_str(), chain[2].second);
+    }
+
+    ALOGD("%s", android::audio_utils::mutex::all_threads_to_string().c_str());
+
+    {
+        UniqueLock ul(m);
+        quit = true;
+        cv.notify_one();
+    }
+    {
+        UniqueLock ul2(m);
+        cv2.notify_one();
+    }
+    {
+        UniqueLock ul4(m);
+        cv4.notify_one();
+    }
+
+    t4.join();
+    t3.join();
+    t2.join();
+    t1.join();
+}
+
 INSTANTIATE_TEST_SUITE_P(Mutex_NonPI_and_PI, MutexTestSuite, testing::Values(false, true));
 
 } // namespace android
-
