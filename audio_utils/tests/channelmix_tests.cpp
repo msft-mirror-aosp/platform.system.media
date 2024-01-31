@@ -24,6 +24,7 @@ static constexpr audio_channel_mask_t kOutputChannelMasks[] = {
     AUDIO_CHANNEL_OUT_5POINT1, // AUDIO_CHANNEL_OUT_5POINT1_BACK
     AUDIO_CHANNEL_OUT_7POINT1,
     AUDIO_CHANNEL_OUT_7POINT1POINT4,
+    AUDIO_CHANNEL_OUT_9POINT1POINT6,
 };
 
 static constexpr audio_channel_mask_t kInputChannelMasks[] = {
@@ -49,6 +50,7 @@ static constexpr audio_channel_mask_t kInputChannelMasks[] = {
     AUDIO_CHANNEL_OUT_5POINT1POINT4,
     AUDIO_CHANNEL_OUT_7POINT1POINT2,
     AUDIO_CHANNEL_OUT_7POINT1POINT4,
+    AUDIO_CHANNEL_OUT_9POINT1POINT6,
     AUDIO_CHANNEL_OUT_13POINT_360RA,
     AUDIO_CHANNEL_OUT_22POINT2,
     audio_channel_mask_t(AUDIO_CHANNEL_OUT_22POINT2
