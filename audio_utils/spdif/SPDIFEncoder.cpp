@@ -196,7 +196,16 @@ void SPDIFEncoder::flushBurstBuffer()
         mBurstBuffer[3] = mFramer->convertBytesToLengthCode(numBytes);
 
         sendZeroPad();
-        writeOutput(mBurstBuffer, mByteCursor);
+        size_t bytesWritten = 0;
+        while (mByteCursor > bytesWritten) {
+            ssize_t res = writeOutput(mBurstBuffer + bytesWritten, mByteCursor - bytesWritten);
+            if (res < 0) {
+                ALOGE("SPDIFEncoder::%s write error %zd", __func__, res);
+                break;
+            } else {
+                bytesWritten += res;
+            }
+        }
     }
     reset();
 }
