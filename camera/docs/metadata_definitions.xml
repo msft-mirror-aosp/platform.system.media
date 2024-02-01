@@ -13072,7 +13072,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
                 without an exception being thrown.
 
           * VIDEO_STABILIZATION_MODES: {OFF, PREVIEW}
-          * AE_TARGET_FPS_RANGE: {{*, 30}, {*, 60}}
+          * AE_TARGET_FPS_RANGE: { {*, 30}, {*, 60} }
           * DYNAMIC_RANGE_PROFILE: {STANDARD, HLG10}
 
           </details>
