@@ -392,12 +392,16 @@ constexpr bool fillChannelMatrix(audio_channel_mask_t INPUT_CHANNEL_MASK,
                     break;
 
                 case AUDIO_CHANNEL_OUT_BACK_LEFT:
-                case AUDIO_CHANNEL_OUT_TOP_BACK_LEFT:
                     matrix[index][BL] = 1.f;
                     break;
+                case AUDIO_CHANNEL_OUT_TOP_BACK_LEFT:
+                    matrix[index][TBL] = 1.f;
+                    break;
                 case AUDIO_CHANNEL_OUT_BACK_RIGHT:
-                case AUDIO_CHANNEL_OUT_TOP_BACK_RIGHT:
                     matrix[index][BR] = 1.f;
+                    break;
+                case AUDIO_CHANNEL_OUT_TOP_BACK_RIGHT:
+                    matrix[index][TBR] = 1.f;
                     break;
 
                 case AUDIO_CHANNEL_OUT_SIDE_LEFT:
