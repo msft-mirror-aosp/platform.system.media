@@ -1,0 +1,308 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <audio_utils/power.h>
+
+#include <random>
+#include <vector>
+
+#include <audio_utils/format.h>
+#include <benchmark/benchmark.h>
+#include <log/log.h>
+
+/*
+Pixel 7 (USE_NEON code) 1024 frames
+------------------------------------------------------------------------------------
+Benchmark                       Time                      CPU             Iteration
+------------------------------------------------------------------------------------
+audio_power_benchmark:
+  #BM_Power_PCM16/0      182.2241901911555 ns     181.4585420030687 ns      3856373
+  #BM_Power_PCM16/1      182.3181837746463 ns    181.48175238693838 ns      3856614
+  #BM_Power_PCM16/2      368.0452274813401 ns     366.3017598457351 ns      1912554
+  #BM_Power_PCM16/3      554.2789131893876 ns     551.5793025147027 ns      1272715
+  #BM_Power_PCM16/4       734.544472135247 ns      730.801475058127 ns       957386
+  #BM_Power_PCM16/5       734.432967920759 ns     731.1678748377902 ns       957094
+  #BM_Power_PCM16/6      733.8069997996705 ns     730.5650734403838 ns       958056
+  #BM_Power_PCM16/7      731.1269183224047 ns     727.9060141898467 ns       957868
+  #BM_Power_PCM16/8      915.4654669581546 ns     910.8886686647353 ns       768409
+  #BM_Power_PCM16/9      916.2991591460016 ns     911.7267578221812 ns       766602
+  #BM_Power_PCM16/10     916.2899150794203 ns     912.0552662308543 ns       767304
+  #BM_Power_PCM16/11    1096.5960966896591 ns    1091.2493295035579 ns       640943
+  #BM_Power_PCM16/12    1097.8511309779592 ns    1091.0261081397603 ns       640375
+  #BM_Power_PCM16/13    1097.9944254893203 ns    1091.1471948274514 ns       641850
+  #BM_Power_PCM16/14     1279.808649441679 ns    1273.7557073893663 ns       550602
+  #BM_Power_PCM16/15    1458.9768502853626 ns    1451.9896279814072 ns       481777
+  #BM_Power_PCM16/16    1458.2711695604448 ns    1451.9060239613882 ns       481942
+  #BM_Power_PCM16/17    1819.4835449076445 ns    1812.0266937315016 ns       386233
+  #BM_Power_PCM16/18    1820.3459564206057 ns    1812.1602221110884 ns       385933
+  #BM_Power_PCM16/19     2181.369784896039 ns     2171.339075235256 ns       322309
+  #BM_Power_PCM16/20    2905.2177625941545 ns    2891.0355549312485 ns       242048
+  #BM_Power_PCM16/21     2364.132933388578 ns    2353.0530248033974 ns       297540
+  #BM_Power_PCM16/22     4349.369949027189 ns     4330.079046346484 ns       161652
+  #BM_Power_PCM24/0      726.8133229852367 ns     723.3602813367419 ns       967666
+  #BM_Power_PCM24/1      726.8365225340423 ns      723.350181307502 ns       967693
+  #BM_Power_PCM24/2      1453.469049006606 ns    1446.6400141353229 ns       483894
+  #BM_Power_PCM24/3      2180.028380578979 ns     2169.873979821151 ns       322615
+  #BM_Power_PCM24/4     2906.8811984734084 ns    2892.9251947515163 ns       241975
+  #BM_Power_PCM24/5      2905.392592651063 ns     2892.431327900298 ns       241976
+  #BM_Power_PCM24/6     2906.3533070213225 ns    2892.6723102671663 ns       241985
+  #BM_Power_PCM24/7      2906.669533308557 ns    2892.9162117373876 ns       241979
+  #BM_Power_PCM24/8     3634.8299686929113 ns    3616.1580312219085 ns       193582
+  #BM_Power_PCM24/9     3646.2416687724785 ns    3615.1269559198017 ns       193579
+  #BM_Power_PCM24/10    3641.1275370266394 ns     3615.927121699737 ns       193583
+  #BM_Power_PCM24/11     4355.066508388703 ns     4339.191726899678 ns       161318
+  #BM_Power_PCM24/12     4360.341786985582 ns     4339.590976436824 ns       161311
+  #BM_Power_PCM24/13     4358.200731467333 ns     4339.247979171812 ns       161320
+  #BM_Power_PCM24/14     5086.769189048403 ns     5062.498152152655 ns       138269
+  #BM_Power_PCM24/15     5810.423653580803 ns     5785.767373623829 ns       120988
+  #BM_Power_PCM24/16      5812.39702625609 ns     5786.230130917745 ns       120992
+  #BM_Power_PCM24/17     7265.510668878706 ns     7232.779768427578 ns        96730
+  #BM_Power_PCM24/18     7264.246771353663 ns      7231.77107139167 ns        96790
+  #BM_Power_PCM24/19      8722.56894669041 ns     8684.567792613941 ns        80584
+  #BM_Power_PCM24/20    11628.424309578584 ns    11575.683942450829 ns        60470
+  #BM_Power_PCM24/21     9448.977902926888 ns      9406.63598973104 ns        74399
+  #BM_Power_PCM24/22    17459.032419808307 ns    17375.671358355692 ns        40284
+  #BM_Power_PCM32/0     180.64821432650652 ns    179.97205866590213 ns      3890437
+  #BM_Power_PCM32/1     180.59328255286601 ns    180.00214854248506 ns      3890079
+  #BM_Power_PCM32/2      367.3883165270478 ns     365.8843055170383 ns      1910990
+  #BM_Power_PCM32/3       547.961739191163 ns     545.3393246259511 ns      1283585
+  #BM_Power_PCM32/4      732.3382747450341 ns     729.2189395984298 ns       963220
+  #BM_Power_PCM32/5      729.9914091395625 ns     726.6235749813377 ns       963233
+  #BM_Power_PCM32/6      730.3738877114395 ns     726.9318824314772 ns       963217
+  #BM_Power_PCM32/7       729.978907085062 ns     726.8274224511407 ns       963167
+  #BM_Power_PCM32/8      912.4335730958729 ns     908.6304864721727 ns       770486
+  #BM_Power_PCM32/9       915.197196607744 ns      910.899041307122 ns       770424
+  #BM_Power_PCM32/10     912.5102563972879 ns     908.5750461421018 ns       770446
+  #BM_Power_PCM32/11    1098.4029936865272 ns    1093.6704840140765 ns       641283
+  #BM_Power_PCM32/12     1096.636110073461 ns    1091.8296782198036 ns       639971
+  #BM_Power_PCM32/13     1096.700748278668 ns     1091.723232471321 ns       641206
+  #BM_Power_PCM32/14     1278.092437845839 ns    1273.2958269366497 ns       549764
+  #BM_Power_PCM32/15    1461.4543514169204 ns    1454.7416748932296 ns       481165
+  #BM_Power_PCM32/16    1461.7273813451243 ns    1454.7411392391905 ns       481251
+  #BM_Power_PCM32/17     1825.907444290439 ns    1817.8784066977225 ns       385087
+  #BM_Power_PCM32/18     1825.381231595566 ns    1817.6661308667603 ns       385094
+  #BM_Power_PCM32/19     2190.975242630068 ns     2180.597490904206 ns       320753
+  #BM_Power_PCM32/20    2928.6714986526026 ns     2914.821292933981 ns       240136
+  #BM_Power_PCM32/21     2372.874287158484 ns     2361.940219335247 ns       296350
+  #BM_Power_PCM32/22     4388.368818947491 ns      4369.06687184351 ns       160187
+  #BM_Power_FLOAT/0     168.00676835156023 ns    167.22008168082328 ns      4185805
+  #BM_Power_FLOAT/1      167.9938065702452 ns    167.21758154288213 ns      4186049
+  #BM_Power_FLOAT/2     351.86860213833324 ns    350.24728499757555 ns      1998617
+  #BM_Power_FLOAT/3      532.7485100122135 ns     530.3216093916758 ns      1319977
+  #BM_Power_FLOAT/4       716.865648210546 ns     713.9932490536078 ns       980307
+  #BM_Power_FLOAT/5      717.0498470928635 ns     713.9746434393012 ns       980338
+  #BM_Power_FLOAT/6      717.1775874821899 ns     713.9746211792758 ns       980345
+  #BM_Power_FLOAT/7       717.286950836443 ns     713.9845488011172 ns       980377
+  #BM_Power_FLOAT/8       899.506933295295 ns     895.4523624630964 ns       781663
+  #BM_Power_FLOAT/9      899.6416845109553 ns     895.4465512345158 ns       781758
+  #BM_Power_FLOAT/10     899.7137607146544 ns     895.4340975403337 ns       781769
+  #BM_Power_FLOAT/11    1080.3481243192064 ns     1075.391753733447 ns       650937
+  #BM_Power_FLOAT/12    1080.3754966280014 ns    1075.4162669575685 ns       650890
+  #BM_Power_FLOAT/13    1080.4839543269304 ns     1075.418525654029 ns       650892
+  #BM_Power_FLOAT/14    1260.9659337690678 ns    1255.3850934907016 ns       557649
+  #BM_Power_FLOAT/15     1441.347092340657 ns    1435.2933780849712 ns       487729
+  #BM_Power_FLOAT/16    1441.0252178558349 ns    1435.2747308851679 ns       487710
+  #BM_Power_FLOAT/17     1803.174621574897 ns     1795.239832164671 ns       389906
+  #BM_Power_FLOAT/18    1803.6167320222003 ns    1795.1778607571464 ns       389923
+  #BM_Power_FLOAT/19    2164.5316780757366 ns     2155.090783692497 ns       324783
+  #BM_Power_FLOAT/20    2895.0966589259547 ns     2881.551857432239 ns       242916
+  #BM_Power_FLOAT/21    2346.6239754749067 ns     2335.133450977916 ns       299773
+  #BM_Power_FLOAT/22     4336.788207490892 ns     4319.045067224524 ns       162069
+
+Pixel 7 (without NEON)
+audio_power_benchmark:
+  #BM_Power_PCM16/0      710.0176225862541 ns     706.5369398066563 ns       990774
+  #BM_Power_PCM16/1      709.5382576613781 ns     706.4966294743109 ns       990795
+  #BM_Power_PCM16/2       1432.22333510522 ns    1425.8151113120955 ns       490917
+  #BM_Power_PCM16/3     2154.9135527473695 ns     2144.662213834012 ns       326384
+  #BM_Power_PCM16/4      2878.298555528755 ns    2864.2879572796446 ns       244380
+  #BM_Power_PCM16/5     2876.5968518680247 ns    2864.1508803227484 ns       244399
+  #BM_Power_PCM16/6      2876.786253481042 ns      2864.19396835658 ns       244411
+  #BM_Power_PCM16/7     2877.9274599737573 ns     2864.401922234998 ns       244403
+  #BM_Power_PCM16/8     3599.2718202583505 ns    3583.2360171183445 ns       195346
+  #BM_Power_PCM16/9     3598.8521185858167 ns     3583.090189695244 ns       195366
+  #BM_Power_PCM16/10    3607.3259044670376 ns    3583.0856094265077 ns       195364
+  #BM_Power_PCM16/11     4322.178672831243 ns     4301.900640355943 ns       162722
+  #BM_Power_PCM16/12     4322.413127245351 ns     4301.978619057853 ns       162715
+  #BM_Power_PCM16/13     4321.293715661808 ns      4301.96961074716 ns       162722
+  #BM_Power_PCM16/14     5045.423164118614 ns     5021.725069589923 ns       139388
+  #BM_Power_PCM16/15     5771.999819383823 ns     5746.762121734573 ns       121806
+  #BM_Power_PCM16/16     5772.041574304546 ns     5746.705014531301 ns       121806
+  #BM_Power_PCM16/17     7215.511103357703 ns     7184.062689844849 ns        97448
+  #BM_Power_PCM16/18     7218.193087948947 ns     7183.934522282532 ns        97453
+  #BM_Power_PCM16/19     8664.970089320619 ns     8623.758558669555 ns        81175
+  #BM_Power_PCM16/20    11552.535965953697 ns     11497.46184930272 ns        60877
+  #BM_Power_PCM16/21      9388.44799135153 ns      9344.99919894262 ns        74901
+  #BM_Power_PCM16/22    17318.294772901812 ns    17250.841042955355 ns        40577
+  #BM_Power_PCM24/0      726.1379773475074 ns     722.8207160621033 ns       968659
+  #BM_Power_PCM24/1      726.2071634525643 ns     722.8022114316173 ns       968332
+  #BM_Power_PCM24/2     1453.0095285897585 ns    1446.1379218461464 ns       484122
+  #BM_Power_PCM24/3     2178.8762811180095 ns    2169.3027238608242 ns       322667
+  #BM_Power_PCM24/4     2906.0304321240224 ns     2892.507449982226 ns       242014
+  #BM_Power_PCM24/5     2905.6813512412673 ns    2892.5476900826334 ns       242000
+  #BM_Power_PCM24/6      2905.133137183084 ns     2892.546958357953 ns       241991
+  #BM_Power_PCM24/7     2904.9541637755087 ns    2892.5035497041163 ns       241992
+  #BM_Power_PCM24/8      3631.119642357674 ns    3615.6040123552484 ns       193602
+  #BM_Power_PCM24/9     3630.0929723231857 ns     3615.540825181041 ns       193606
+  #BM_Power_PCM24/10    3633.1367688699947 ns    3615.7981963182615 ns       193604
+  #BM_Power_PCM24/11     4359.021829536821 ns     4338.925567586662 ns       161341
+  #BM_Power_PCM24/12    4359.9166083010205 ns     4338.934589518691 ns       161335
+  #BM_Power_PCM24/13     4359.522224219495 ns     4338.965623895894 ns       161333
+  #BM_Power_PCM24/14     5084.233240033068 ns     5062.102226947575 ns       138261
+  #BM_Power_PCM24/15     5812.489557247782 ns     5785.279710396485 ns       120993
+  #BM_Power_PCM24/16     5813.233703335974 ns     5785.328950087162 ns       120991
+  #BM_Power_PCM24/17     7263.762055413714 ns     7236.184253515309 ns        96720
+  #BM_Power_PCM24/18     7268.666932026325 ns     7235.481695528568 ns        96725
+  #BM_Power_PCM24/19     8724.851571115321 ns     8682.925320365706 ns        80611
+  #BM_Power_PCM24/20     11627.03445538921 ns    11574.680163349089 ns        60484
+  #BM_Power_PCM24/21     9446.979585525633 ns     9401.467625609412 ns        74457
+  #BM_Power_PCM24/22     17453.76751577347 ns    17376.240230398802 ns        40278
+  #BM_Power_PCM32/0      707.1022650419995 ns     704.1584563736747 ns       993712
+  #BM_Power_PCM32/1      707.6617193193007 ns     704.0883302075107 ns       994405
+  #BM_Power_PCM32/2     1429.6476727153045 ns     1423.189700138329 ns       491560
+  #BM_Power_PCM32/3     2155.1067918033104 ns     2145.802709002737 ns       326467
+  #BM_Power_PCM32/4     2879.5403983345095 ns    2866.2732763350723 ns       244218
+  #BM_Power_PCM32/5      2879.848013559709 ns    2866.3107704151535 ns       244206
+  #BM_Power_PCM32/6     2877.9152711001893 ns      2866.44009237345 ns       244226
+  #BM_Power_PCM32/7     2879.7659499561555 ns     2866.283334084033 ns       244217
+  #BM_Power_PCM32/8     3602.6533810677543 ns    3585.3524729960113 ns       195249
+  #BM_Power_PCM32/9     3600.7437134450106 ns    3585.2641581906905 ns       195258
+  #BM_Power_PCM32/10     3601.967841229724 ns     3585.171620998731 ns       195250
+  #BM_Power_PCM32/11      4323.25945603472 ns     4304.413593570312 ns       162621
+  #BM_Power_PCM32/12     4324.284355266607 ns     4304.535958725075 ns       162617
+  #BM_Power_PCM32/13      4324.75273181278 ns     4304.458329490036 ns       162621
+  #BM_Power_PCM32/14     5045.495830640872 ns     5023.208295658413 ns       139350
+  #BM_Power_PCM32/15     5766.477377491339 ns     5741.618567186731 ns       121914
+  #BM_Power_PCM32/16     5768.763821447558 ns     5742.042194369716 ns       121912
+  #BM_Power_PCM32/17     7213.064382792687 ns     7179.561977537295 ns        97495
+  #BM_Power_PCM32/18     7213.149411254583 ns     7179.568925904638 ns        97496
+  #BM_Power_PCM32/19     8659.201942841833 ns     8618.064860073133 ns        81221
+  #BM_Power_PCM32/20    11554.875168393679 ns     11501.10802418425 ns        60866
+  #BM_Power_PCM32/21     9382.646321933518 ns     9338.843445662977 ns        74958
+  #BM_Power_PCM32/22     17333.68259326782 ns    17248.919274555337 ns        40582
+  #BM_Power_FLOAT/0      701.9890055797536 ns     698.8782105756134 ns      1001417
+  #BM_Power_FLOAT/1      702.0201509805795 ns     698.8716249878825 ns      1001589
+  #BM_Power_FLOAT/2      1424.347226948063 ns    1417.6723436056996 ns       493752
+  #BM_Power_FLOAT/3     2146.7867642580077 ns     2136.673361251187 ns       327628
+  #BM_Power_FLOAT/4     2871.9139060421503 ns    2858.4790952007725 ns       244872
+  #BM_Power_FLOAT/5     2871.9435091015116 ns     2858.480589164847 ns       244889
+  #BM_Power_FLOAT/6      2871.525335064572 ns    2858.4684700136518 ns       244878
+  #BM_Power_FLOAT/7      2872.250985165238 ns    2858.5650821004274 ns       244883
+  #BM_Power_FLOAT/8     3594.7066331346323 ns    3577.8518291342452 ns       195639
+  #BM_Power_FLOAT/9       3593.90243503874 ns    3578.0740988734437 ns       195644
+  #BM_Power_FLOAT/10     3594.786827430224 ns    3577.8794729336846 ns       195649
+  #BM_Power_FLOAT/11     4316.386219808971 ns     4296.510088082756 ns       162915
+  #BM_Power_FLOAT/12     4315.539684876495 ns     4296.500868519076 ns       162921
+  #BM_Power_FLOAT/13      4316.70090107445 ns     4296.524116722725 ns       162916
+  #BM_Power_FLOAT/14     5038.922920398046 ns      5015.71531847824 ns       139570
+  #BM_Power_FLOAT/15     5760.129063966319 ns     5734.677856142363 ns       122079
+  #BM_Power_FLOAT/16     5761.676214194108 ns     5734.530059972358 ns       122056
+  #BM_Power_FLOAT/17     7205.371829030732 ns    7172.0947809516465 ns        97604
+  #BM_Power_FLOAT/18     7204.279098831734 ns     7172.448840759307 ns        97607
+  #BM_Power_FLOAT/19     8648.461918826724 ns     8610.035399754119 ns        81300
+  #BM_Power_FLOAT/20     11543.84161358285 ns    11492.703027516904 ns        60908
+  #BM_Power_FLOAT/21      9375.01953072149 ns     9331.312011731832 ns        75010
+  #BM_Power_FLOAT/22     17322.77400363915 ns    17240.430710872355 ns        40598
+
+ */
+
+static constexpr audio_channel_mask_t kChannelPositionMasks[] = {
+    AUDIO_CHANNEL_OUT_FRONT_LEFT,
+    AUDIO_CHANNEL_OUT_FRONT_CENTER,
+    AUDIO_CHANNEL_OUT_STEREO,
+    AUDIO_CHANNEL_OUT_2POINT1,
+    AUDIO_CHANNEL_OUT_2POINT0POINT2,
+    AUDIO_CHANNEL_OUT_QUAD, // AUDIO_CHANNEL_OUT_QUAD_BACK
+    AUDIO_CHANNEL_OUT_QUAD_SIDE,
+    AUDIO_CHANNEL_OUT_SURROUND,
+    AUDIO_CHANNEL_OUT_2POINT1POINT2,
+    AUDIO_CHANNEL_OUT_3POINT0POINT2,
+    AUDIO_CHANNEL_OUT_PENTA,
+    AUDIO_CHANNEL_OUT_3POINT1POINT2,
+    AUDIO_CHANNEL_OUT_5POINT1, // AUDIO_CHANNEL_OUT_5POINT1_BACK
+    AUDIO_CHANNEL_OUT_5POINT1_SIDE,
+    AUDIO_CHANNEL_OUT_6POINT1,
+    AUDIO_CHANNEL_OUT_5POINT1POINT2,
+    AUDIO_CHANNEL_OUT_7POINT1,
+    AUDIO_CHANNEL_OUT_5POINT1POINT4,
+    AUDIO_CHANNEL_OUT_7POINT1POINT2,
+    AUDIO_CHANNEL_OUT_7POINT1POINT4,
+    AUDIO_CHANNEL_OUT_9POINT1POINT6,
+    AUDIO_CHANNEL_OUT_13POINT_360RA,
+    AUDIO_CHANNEL_OUT_22POINT2,
+};
+
+template<audio_format_t FORMAT>
+static void BenchmarkPower(benchmark::State& state) {
+    const audio_channel_mask_t channelMask = kChannelPositionMasks[state.range(0)];
+    const size_t channels = audio_channel_count_from_out_mask(channelMask);
+
+    // set up random generator.
+    constexpr float amplitude = 0.01f;
+    std::minstd_rand gen(channelMask);
+    std::uniform_real_distribution<> dis(-amplitude, amplitude);
+
+    // get random audio data.
+    constexpr size_t frameCount = 1024;
+    std::vector<float> input(channels * frameCount);
+    for (auto& in : input) {
+        in = dis(gen);
+    }
+
+    // convert to proper PCM format.
+    std::vector<uint8_t> buffer(channels * frameCount *  audio_bytes_per_sample(FORMAT));
+    memcpy_by_audio_format(buffer.data(), FORMAT, input.data(),
+                           AUDIO_FORMAT_PCM_FLOAT, input.size());
+
+    // run the test
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(buffer);
+        audio_utils_compute_energy_mono(buffer.data(), FORMAT, input.size());
+        benchmark::ClobberMemory();
+    }
+
+    state.SetComplexityN(channels);
+    state.SetLabel(audio_channel_out_mask_to_string(channelMask));
+}
+
+static void ChannelArgs(benchmark::internal::Benchmark* b) {
+    for (int i = 0; i < (int)std::size(kChannelPositionMasks); i++) {
+        b->Args({i});
+    }
+}
+
+static void BM_Power_PCM16(benchmark::State& state) {
+    BenchmarkPower<AUDIO_FORMAT_PCM_16_BIT>(state);
+}
+
+static void BM_Power_PCM24(benchmark::State& state) {
+    BenchmarkPower<AUDIO_FORMAT_PCM_24_BIT_PACKED>(state);
+}
+
+static void BM_Power_PCM32(benchmark::State& state) {
+    BenchmarkPower<AUDIO_FORMAT_PCM_32_BIT>(state);
+}
+
+static void BM_Power_FLOAT(benchmark::State& state) {
+    BenchmarkPower<AUDIO_FORMAT_PCM_FLOAT>(state);
+}
+
+BENCHMARK(BM_Power_PCM16)->Apply(ChannelArgs);
+BENCHMARK(BM_Power_PCM24)->Apply(ChannelArgs);
+BENCHMARK(BM_Power_PCM32)->Apply(ChannelArgs);
+BENCHMARK(BM_Power_FLOAT)->Apply(ChannelArgs);
+
+BENCHMARK_MAIN();
