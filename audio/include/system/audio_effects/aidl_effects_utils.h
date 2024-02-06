@@ -25,6 +25,11 @@
 namespace aidl::android::hardware::audio::effect {
 
 /**
+ * The first AIDL version that introduced the IEffect::reopen method.
+ */
+static constexpr int32_t kReopenSupportedVersion = 2;
+
+/**
  * EventFlag to indicate that the client has written data to the FMQ, align with EffectHalAidl.
  * TODO: b/277900230, Define in future AIDL version.
  */
