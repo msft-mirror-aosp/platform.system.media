@@ -156,11 +156,14 @@ inline void energy(const void *amplitudes, size_t size, size_t numChannels, floa
 // faster than the NEON intrinsic version.  Optimize this.
 #ifdef USE_NEON
 // The type conversion appears faster if we use a neon accumulator type.
-constexpr size_t kVectorWidth = 4;
-using AccumulatorType = float32x4_t;
+// Using a vector length of 4 triggers the code below to use the neon type float32x4_t.
+constexpr size_t kVectorWidth16 = 4;     // neon float32x4_t
+constexpr size_t kVectorWidth32 = 4;     // neon float32x4_t
+constexpr size_t kVectorWidthFloat = 8;  // use generic intrinsics for float.
 #else
-constexpr size_t kVectorWidth = 4;
-using AccumulatorType = android::audio_utils::intrinsics::internal_array_t<float, kVectorWidth>;
+constexpr size_t kVectorWidth16 = 8;
+constexpr size_t kVectorWidth32 = 8;
+constexpr size_t kVectorWidthFloat = 8;
 #endif
 
 template <typename Scalar, size_t N>
@@ -171,6 +174,13 @@ inline float energyMonoVector(const void *amplitudes, size_t size)
             "Non-element aligned address: %p %zu", samplitudes, alignof(Scalar));
 
     float accumulator = 0;
+
+#ifdef USE_NEON
+    using AccumulatorType = std::conditional_t<N == 4, float32x4_t,
+            android::audio_utils::intrinsics::internal_array_t<float, N>>;
+#else
+    using AccumulatorType = android::audio_utils::intrinsics::internal_array_t<float, N>;
+#endif
 
     // seems that loading input data is fine using our generic intrinsic.
     using Vector = android::audio_utils::intrinsics::internal_array_t<Scalar, N>;
@@ -210,13 +220,13 @@ inline float energyMonoVector(const void *amplitudes, size_t size)
 template <>
 inline float energyMono<AUDIO_FORMAT_PCM_FLOAT>(const void *amplitudes, size_t size)
 {
-    return energyMonoVector<float, kVectorWidth>(amplitudes, size);
+    return energyMonoVector<float, kVectorWidthFloat>(amplitudes, size);
 }
 
 template <>
 inline float energyMono<AUDIO_FORMAT_PCM_16_BIT>(const void *amplitudes, size_t size)
 {
-    return energyMonoVector<int16_t, kVectorWidth>(amplitudes, size)
+    return energyMonoVector<int16_t, kVectorWidth16>(amplitudes, size)
             * normalizeEnergy<AUDIO_FORMAT_PCM_16_BIT>();
 }
 
@@ -224,7 +234,7 @@ inline float energyMono<AUDIO_FORMAT_PCM_16_BIT>(const void *amplitudes, size_t 
 template <>
 inline float energyMono<AUDIO_FORMAT_PCM_32_BIT>(const void *amplitudes, size_t size)
 {
-    return energyMonoVector<int32_t, kVectorWidth>(amplitudes, size)
+    return energyMonoVector<int32_t, kVectorWidth32>(amplitudes, size)
             * normalizeEnergy<AUDIO_FORMAT_PCM_32_BIT>();
 }
 
@@ -232,7 +242,7 @@ inline float energyMono<AUDIO_FORMAT_PCM_32_BIT>(const void *amplitudes, size_t 
 template <>
 inline float energyMono<AUDIO_FORMAT_PCM_8_24_BIT>(const void *amplitudes, size_t size)
 {
-    return energyMonoVector<int32_t, kVectorWidth>(amplitudes, size)
+    return energyMonoVector<int32_t, kVectorWidth32>(amplitudes, size)
             * normalizeEnergy<AUDIO_FORMAT_PCM_8_24_BIT>();
 }
 
