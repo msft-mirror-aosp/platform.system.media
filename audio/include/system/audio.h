@@ -332,6 +332,24 @@ static inline CONSTEXPR audio_channel_mask_t audio_channel_mask_from_representat
 }
 
 /*
+ * Returns true so long as stereo channels are present in the channel mask.
+ *
+ * This is the minimum constraint for spatialization in Android V.
+ *
+ * Prior to V, AUDIO_CHANNEL_OUT_QUAD was the minimum constraint.
+ * Prior to T, AUDIO_CHANNEL_OUT_5POINT1 was the minimum constraint.
+ *
+ * TODO(b/303920722) rename to audio_is_channel_mask_spatialized() after testing
+ * is complete.
+ * TODO(b/316909431) flagged at caller due to lack of native_bridge flag support.
+ */
+static inline CONSTEXPR bool audio_channel_mask_contains_stereo(audio_channel_mask_t channelMask) {
+    return audio_channel_mask_get_representation(channelMask)
+                == AUDIO_CHANNEL_REPRESENTATION_POSITION
+            && (channelMask & AUDIO_CHANNEL_OUT_STEREO) == AUDIO_CHANNEL_OUT_STEREO;
+}
+
+/*
  * Returns true so long as Quadraphonic channels (FL, FR, BL, BR)
  * or (FL, FR, SL, SR) are completely specified
  * in the channel mask. We expect these 4 channels to be the minimum for
