@@ -9492,13 +9492,15 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
 
           should be interpreted in the effective after raw crop field-of-view coordinate system.
           In this coordinate system,
-          {preCorrectionActiveArraySize.left, preCorrectionActiveArraySize.top} corresponds to the
+          {android.sensor.info.preCorrectionActiveArraySize.left,
+           android.sensor.info.preCorrectionActiveArraySize.top} corresponds to the
           the top left corner of the cropped RAW frame and
-          {preCorrectionActiveArraySize.right, preCorrectionActiveArraySize.bottom} corresponds to
+          {android.sensor.info.preCorrectionActiveArraySize.right,
+           android.sensor.info.preCorrectionActiveArraySize.bottom} corresponds to
           the bottom right corner. Client applications must use the values of the keys
           in the CaptureResult metadata if present.
 
-          Crop regions (android.scaler.CropRegion), AE/AWB/AF regions and face coordinates still
+          Crop regions android.scaler.cropRegion, AE/AWB/AF regions and face coordinates still
           use the android.sensor.info.activeArraySize coordinate system as usual.
           </details>
         </entry>
