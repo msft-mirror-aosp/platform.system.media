@@ -68,6 +68,31 @@ def find_all_sections(root):
   """
   return root.find_all(_is_sec_or_ins)
 
+def find_all_sections_filtered(root, visibility):
+  """
+  Find all descendants that are Section or InnerNamespace instances that do not
+  contain entries of the supplied visibility
+
+  Args:
+    root: a Metadata instance
+    visibilities: An iterable of visibilities to filter against
+
+  Returns:
+    A list of Section/InnerNamespace instances
+
+  Remarks:
+    These are known as "sections" in the generated C code.
+  """
+  sections = root.find_all(_is_sec_or_ins)
+
+  filtered_sections = []
+  for sec in sections:
+    if not any(filter_visibility(find_unique_entries(sec), visibility)):
+      filtered_sections.append(sec)
+
+  return filtered_sections
+
+
 def find_parent_section(entry):
   """
   Find the closest ancestor that is either a Section or InnerNamespace.
@@ -1364,7 +1389,7 @@ def filter_visibility(entries, visibilities):
 def remove_hal_non_visible(entries):
   """
   Filter the given entries by removing those that are not HAL visible:
-  synthetic, fwk_only, or fwk_java_public.
+  synthetic, fwk_only, extension, or fwk_java_public.
 
   Args:
     entries: An iterable of Entry nodes
@@ -1373,7 +1398,8 @@ def remove_hal_non_visible(entries):
     An iterable of Entry nodes
   """
   return (e for e in entries if not (e.synthetic or e.visibility == 'fwk_only'
-                                     or e.visibility == 'fwk_java_public'))
+                                     or e.visibility == 'fwk_java_public' or
+                                     e.visibility == 'extension'))
 
 """
   Return the vndk version for a given hal minor version. The major version is assumed to be 3
