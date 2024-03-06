@@ -39,8 +39,8 @@ cc_library_shared {
 
     cflags: [
         "-Wall",
-        "-Wextra",
         "-Werror",
+        "-Wextra",
         "-fvisibility=hidden",
         "-std=c11",
     ],
@@ -49,8 +49,8 @@ cc_library_shared {
         eng: {
             // Enable assert()
             cflags: [
-                "-UNDEBUG",
                 "-DLOG_NDEBUG=1",
+                "-UNDEBUG",
             ],
         },
     },
@@ -72,8 +72,8 @@ cc_library_shared {
 
     cflags: [
         "-Wall",
-        "-Wextra",
         "-Werror",
+        "-Wextra",
         "-fvisibility=hidden",
         "-std=c11",
     ],

@@ -50,11 +50,11 @@ cc_benchmark {
 
     srcs: ["biquad_filter_benchmark.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
         "-ffast-math",
-      //  "-fno-vectorize",      // (test only)
-      //  "-fno-slp-vectorize",  // (test only)
+        //  "-fno-vectorize",      // (test only)
+        //  "-fno-slp-vectorize",  // (test only)
     ],
     static_libs: [
         "libaudioutils",
@@ -83,11 +83,11 @@ cc_benchmark {
 
     srcs: ["intrinsic_benchmark.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
         "-ffast-math",
-      //  "-fno-vectorize",      // (test only)
-      //  "-fno-slp-vectorize",  // (test only)
+        //  "-fno-vectorize",      // (test only)
+        //  "-fno-slp-vectorize",  // (test only)
     ],
     static_libs: [
         "libaudioutils",
@@ -105,8 +105,8 @@ cc_benchmark {
 
     srcs: ["primitives_benchmark.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
     static_libs: [
         "libaudioutils",
@@ -119,8 +119,8 @@ cc_benchmark {
 
     srcs: ["statistics_benchmark.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
     static_libs: [
         "libaudioutils",
