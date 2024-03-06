@@ -17,6 +17,15 @@
 #include <audio_utils/mutex.h>
 #include <gtest/gtest.h>
 
+#include <thread>
+
+// Currently tests mutex priority-inheritance (or not) based on flag
+// adb shell setprop \
+// persist.device_config.aconfig_flags.media_audio.\
+// com.android.media.audio.flags.mutex_priority_inheritance true
+//
+// TODO(b/209491695) enable both PI/non-PI mutex tests regardless of flag.
+
 namespace android {
 
 namespace audio_locks {
@@ -213,7 +222,7 @@ private:
     int v3_ GUARDED_BY(cap3) = 3;
 };
 
-TEST(audio_lock_tests, Container) {
+TEST(audio_mutex_tests, Container) {
     Container c;
 
     EXPECT_EQ(1, c.value1()); // success
@@ -236,7 +245,7 @@ TEST(audio_lock_tests, Container) {
 // see that mutex checking is done without knowledge of
 // the actual implementation.
 
-TEST(audio_lock_tests, Interface) {
+TEST(audio_mutex_tests, Interface) {
     Container c;
     IContainer *i = static_cast<IContainer*>(&c);
 
@@ -254,6 +263,272 @@ TEST(audio_lock_tests, Interface) {
         audio_utils::lock_guard l(i->mutex1());
         EXPECT_EQ(3, i->combo12_l()); // success
     }
+
+    ALOGD("%s: %s", __func__, audio_utils::mutex::all_stats_to_string().c_str());
+}
+
+TEST(audio_mutex_tests, Stack) {
+    android::audio_utils::atomic_stack<int, int, 2> as;
+
+    // set up stack
+    EXPECT_EQ(0UL, as.size());
+    as.push(1, 10);
+    EXPECT_EQ(1UL, as.size());
+    as.push(2, 20);
+    EXPECT_EQ(2UL, as.size());
+
+    // 3rd item exceeds the stack capacity.
+    as.push(3, 30);
+    // 2 items tracked (subset)
+    EXPECT_EQ(2UL, as.size());
+    // 3 items total.
+    EXPECT_EQ(3UL, as.true_size());
+
+    const auto& bot = as.bottom();
+    const auto& top = as.top();
+
+    // these are the 2 items tracked:
+    EXPECT_EQ(1, bot.first.load());
+    EXPECT_EQ(10, bot.second.load());
+
+    EXPECT_EQ(3, top.first.load());
+    EXPECT_EQ(30, top.second.load());
+
+    // remove the bottom item.
+    EXPECT_EQ(true, as.remove(1));
+    EXPECT_EQ(1UL, as.size());
+    EXPECT_EQ(2UL, as.true_size());
+
+    // now remove the "virtual" item.
+    // (actually any non-existing item value works).
+    EXPECT_EQ(true, as.remove(2));
+    EXPECT_EQ(1UL, as.size());
+    EXPECT_EQ(1UL, as.true_size());
+
+    // now an invalid removal
+    EXPECT_EQ(false, as.remove(5));
+    EXPECT_EQ(1UL, as.size());
+    EXPECT_EQ(1UL, as.true_size());
+
+    // now remove the final item.
+    EXPECT_EQ(true, as.remove(3));
+    EXPECT_EQ(0UL, as.size());
+    EXPECT_EQ(0UL, as.true_size());
+}
+
+TEST(audio_mutex_tests, RecursiveLockDetection) {
+    constexpr pid_t pid = 0;  // avoid registry shutdown.
+    android::audio_utils::thread_mutex_info<int, int, 8 /* stack depth */> tmi(pid);
+
+    // set up stack
+    tmi.push_held(50, 1);
+    tmi.push_held(40, 2);
+    tmi.push_held(30, 3);
+    EXPECT_EQ(3UL, tmi.stack().size());
+
+    // remove bottom.
+    tmi.remove_held(50);
+    EXPECT_EQ(2UL, tmi.stack().size());
+
+    // test recursive lock detection.
+
+    // same order, same item is recursive.
+    const auto& recursive = tmi.check_held(30, 3);
+    EXPECT_EQ(30, recursive.first.load());
+    EXPECT_EQ(3, recursive.second.load());
+
+    // same order but different item (10 != 30) is OK.
+    const auto& nil = tmi.check_held(10, 3);
+    EXPECT_EQ(0, nil.first.load());
+    EXPECT_EQ(0, nil.second.load());
+}
+
+TEST(audio_mutex_tests, OrderDetection) {
+    constexpr pid_t pid = 0;  // avoid registry shutdown.
+    android::audio_utils::thread_mutex_info<int, int, 8 /* stack depth */> tmi(pid);
+
+    // set up stack
+    tmi.push_held(50, 1);
+    tmi.push_held(40, 2);
+    tmi.push_held(30, 3);
+    EXPECT_EQ(3UL, tmi.stack().size());
+
+    // remove middle
+    tmi.remove_held(40);
+    EXPECT_EQ(2UL, tmi.stack().size());
+
+    // test inversion detection.
+
+    // lower order is a problem 1 < 3.
+    const auto& inversion = tmi.check_held(1, 1);
+    EXPECT_EQ(30, inversion.first.load());
+    EXPECT_EQ(3, inversion.second.load());
+
+    // higher order is OK.
+    const auto& nil2 = tmi.check_held(4, 4);
+    EXPECT_EQ(0, nil2.first.load());
+    EXPECT_EQ(0, nil2.second.load());
+}
+
+// Test that the mutex aborts on recursion (if the abort flag is set).
+
+TEST(audio_mutex_tests, FatalRecursiveMutex)
+NO_THREAD_SAFETY_ANALYSIS {
+    if (!android::audio_utils::AudioMutexAttributes::abort_on_recursion_check_
+            || !audio_utils::mutex_get_enable_flag()) {
+        ALOGD("Test FatalRecursiveMutex skipped");
+        return;
+    }
+
+    using Mutex = android::audio_utils::mutex;
+    using LockGuard = android::audio_utils::lock_guard;
+
+    Mutex m;
+    LockGuard lg(m);
+
+    // Can't lock ourselves again.
+    ASSERT_DEATH(m.lock(), ".*recursive mutex.*");
+}
+
+// Test that the mutex aborts on lock order inversion (if the abort flag is set).
+
+TEST(audio_mutex_tests, FatalLockOrder)
+NO_THREAD_SAFETY_ANALYSIS {
+    if (!android::audio_utils::AudioMutexAttributes::abort_on_order_check_
+            || !audio_utils::mutex_get_enable_flag()) {
+        ALOGD("Test FatalLockOrder skipped");
+        return;
+    }
+
+    using Mutex = android::audio_utils::mutex;
+    using LockGuard = android::audio_utils::lock_guard;
+
+    Mutex m1{(android::audio_utils::AudioMutexAttributes::order_t)1};
+    Mutex m2{(android::audio_utils::AudioMutexAttributes::order_t)2};
+
+    LockGuard lg2(m2);
+    // m1 must be locked before m2 as 1 < 2.
+    ASSERT_DEATH(m1.lock(), ".*mutex order.*");
+}
+
+// Test that the mutex aborts on lock order inversion (if the abort flag is set).
+
+TEST(audio_mutex_tests, UnexpectedUnlock)
+NO_THREAD_SAFETY_ANALYSIS {
+    if (!android::audio_utils::AudioMutexAttributes::abort_on_invalid_unlock_
+            || !audio_utils::mutex_get_enable_flag()) {
+        ALOGD("Test UnexpectedUnlock skipped");
+        return;
+    }
+
+    using Mutex = android::audio_utils::mutex;
+
+    Mutex m1{(android::audio_utils::AudioMutexAttributes::order_t)1};
+    ASSERT_DEATH(m1.unlock(), ".*mutex unlock.*");
+}
+
+// Test the deadlock detection algorithm for a single wait chain
+// (no cycle).
+
+TEST(audio_mutex_tests, DeadlockDetection) {
+    using Mutex = android::audio_utils::mutex;
+    using UniqueLock = android::audio_utils::unique_lock;
+    using ConditionVariable = android::audio_utils::condition_variable;
+
+    // order checked below.
+    constexpr size_t kOrder1 = 1;
+    constexpr size_t kOrder2 = 2;
+    constexpr size_t kOrder3 = 3;
+    static_assert(Mutex::attributes_t::order_size_ > kOrder3);
+
+    Mutex m1{static_cast<Mutex::attributes_t::order_t>(kOrder1)};
+    Mutex m2{static_cast<Mutex::attributes_t::order_t>(kOrder2)};
+    Mutex m3{static_cast<Mutex::attributes_t::order_t>(kOrder3)};
+    Mutex m4;
+    Mutex m;
+    ConditionVariable cv;
+    bool quit = false;  // GUARDED_BY(m)
+    std::atomic<pid_t> tid1{}, tid2{}, tid3{}, tid4{};
+
+    std::thread t4([&]() {
+        UniqueLock ul4(m4);
+        UniqueLock ul(m);
+        tid4 = android::audio_utils::gettid_wrapper();
+        while (!quit) {
+            cv.wait(ul, [&]{ return quit; });
+            if (quit) break;
+        }
+    });
+
+    while (tid4 == 0) { usleep(1000); }
+
+    std::thread t3([&]() {
+        UniqueLock ul3(m3);
+        tid3 = android::audio_utils::gettid_wrapper();
+        UniqueLock ul4(m4);
+    });
+
+    while (tid3 == 0) { usleep(1000); }
+
+    std::thread t2([&]() {
+        UniqueLock ul2(m2);
+        tid2 = android::audio_utils::gettid_wrapper();
+        UniqueLock ul3(m3);
+    });
+
+    while (tid2 == 0) { usleep(1000); }
+
+    std::thread t1([&]() {
+        UniqueLock ul1(m1);
+        tid1 = android::audio_utils::gettid_wrapper();
+        UniqueLock ul2(m2);
+    });
+
+    while (tid1 == 0) { usleep(1000); }
+
+    // we know that the threads will now block in the proper order.
+    // however, we need to wait for the block to happen.
+    // this part is racy unless we check the thread state or use
+    // futexes directly in our mutex (which allows atomic accuracy of wait).
+    usleep(20000);
+
+    const auto deadlockInfo = android::audio_utils::mutex::deadlock_detection(tid1);
+
+    // no cycle.
+    EXPECT_EQ(false, deadlockInfo.has_cycle);
+
+    // thread1 is waiting on a chain of 3 other threads.
+    const auto chain = deadlockInfo.chain;
+    const size_t chain_size = chain.size();
+    EXPECT_EQ(3u, chain_size);
+
+    const auto default_idx = static_cast<size_t>(Mutex::attributes_t::order_default_);
+    if (chain_size > 0) {
+        EXPECT_EQ(tid2, chain[0].first);
+        EXPECT_EQ(Mutex::attributes_t::order_names_[kOrder2], chain[0].second);
+    }
+    if (chain_size > 1) {
+        EXPECT_EQ(tid3, chain[1].first);
+        EXPECT_EQ(Mutex::attributes_t::order_names_[kOrder3], chain[1].second);
+    }
+    if (chain_size > 2) {
+        EXPECT_EQ(tid4, chain[2].first);
+        EXPECT_EQ(Mutex::attributes_t::order_names_[default_idx], chain[2].second);
+    }
+
+    ALOGD("%s", android::audio_utils::mutex::all_threads_to_string().c_str());
+
+    {
+        UniqueLock ul(m);
+
+        quit = true;
+        cv.notify_one();
+    }
+
+    t4.join();
+    t3.join();
+    t2.join();
+    t1.join();
 }
 
 } // namespace android
