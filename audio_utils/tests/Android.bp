@@ -31,7 +31,7 @@ cc_defaults {
     host_supported: true,
 
     srcs: [
-        "audio_math_tests.cpp"
+        "audio_math_tests.cpp",
     ],
 
     shared_libs: [
@@ -141,7 +141,7 @@ cc_binary {
     host_supported: true,
 
     srcs: [
-        "biquad_filter.cpp"
+        "biquad_filter.cpp",
     ],
 
     shared_libs: [
@@ -179,7 +179,7 @@ cc_test {
     host_supported: true,
 
     srcs: [
-        "mel_aggregator_tests.cpp"
+        "mel_aggregator_tests.cpp",
     ],
 
     shared_libs: [
@@ -204,7 +204,7 @@ cc_test {
     host_supported: true,
 
     srcs: [
-        "mel_processor_tests.cpp"
+        "mel_processor_tests.cpp",
     ],
 
     shared_libs: [
@@ -330,13 +330,13 @@ cc_test {
     host_supported: true,
 
     shared_libs: [
-        "liblog",
         "libcutils",
+        "liblog",
     ],
     srcs: ["primitives_tests.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
     target: {
         android: {
@@ -345,7 +345,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_binary {
@@ -355,8 +355,8 @@ cc_binary {
     shared_libs: ["libaudioutils"],
     static_libs: ["libsndfile"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
 }
 
@@ -364,11 +364,14 @@ cc_binary {
     name: "fifo_multiprocess",
     host_supported: true,
     srcs: ["fifo_multiprocess.cpp"],
-    shared_libs: ["libaudioutils", "libcutils"],
+    shared_libs: [
+        "libaudioutils",
+        "libcutils",
+    ],
     static_libs: ["libsndfile"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
 }
 
@@ -384,8 +387,8 @@ cc_binary_host {
         "liblog",
     ],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
 }
 
@@ -394,9 +397,9 @@ cc_binary_host {
     srcs: ["limiter_tests.c"],
     static_libs: ["libaudioutils"],
     cflags: [
-        "-Werror",
-        "-Wall",
         "-UNDEBUG",
+        "-Wall",
+        "-Werror",
     ],
 }
 
@@ -421,7 +424,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -445,7 +448,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -469,7 +472,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_binary {
@@ -505,7 +508,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -529,7 +532,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -552,7 +555,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -569,7 +572,7 @@ cc_test {
         host: {
             shared_libs: ["libcutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -581,8 +584,8 @@ cc_test {
     ],
     srcs: ["format_tests.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
     target: {
         android: {
@@ -591,7 +594,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -638,13 +641,13 @@ cc_test {
     host_supported: true,
 
     shared_libs: [
-        "liblog",
         "libcutils",
+        "liblog",
     ],
     srcs: ["logplot_tests.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
     target: {
         android: {
@@ -653,7 +656,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -661,13 +664,13 @@ cc_test {
     host_supported: true,
 
     shared_libs: [
-        "liblog",
         "libcutils",
+        "liblog",
     ],
     srcs: ["sample_tests.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
     target: {
         android: {
@@ -676,7 +679,7 @@ cc_test {
         host: {
             static_libs: ["libaudioutils"],
         },
-    }
+    },
 }
 
 cc_test {
@@ -700,14 +703,14 @@ cc_test {
     host_supported: true,
 
     shared_libs: [
-        "libaudioutils",
         "libaudiospdif",
-        "liblog",
+        "libaudioutils",
         "libcutils",
+        "liblog",
     ],
     srcs: ["spdif_tests.cpp"],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
 }
