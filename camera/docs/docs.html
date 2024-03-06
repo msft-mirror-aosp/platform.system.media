@@ -20633,10 +20633,10 @@ callback.<wbr/></li>
 </ul>
 <p>Combinations of logical and physical streams,<wbr/> or physical streams from different
 physical cameras are not guaranteed.<wbr/> However,<wbr/> if the camera device supports
-<a href="https://developer.android.com/reference/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>,<wbr/>
+<a href="https://developer.android.com/reference/CameraDevice.html#isSessionConfigurationSupported">CameraDevice#isSessionConfigurationSupported</a>,<wbr/>
 application must be able to query whether a stream combination involving physical
 streams is supported by calling
-<a href="https://developer.android.com/reference/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>.<wbr/></p>
+<a href="https://developer.android.com/reference/CameraDevice.html#isSessionConfigurationSupported">CameraDevice#isSessionConfigurationSupported</a>.<wbr/></p>
 <p>Camera application shouldn't assume that there are at most 1 rear camera and 1 front
 camera in the system.<wbr/> For an application that switches between front and back cameras,<wbr/>
 the recommendation is to switch between the first rear camera and the first front
@@ -25075,7 +25075,7 @@ if the camera device does not list SECURE_<wbr/>IMAGE_<wbr/>DATA capability.<wbr
 <p>When the key is present,<wbr/> only a PRIVATE/<wbr/>YUV output of the specified size is guaranteed
 to be supported by the camera HAL in the secure camera mode.<wbr/> Any other format or
 resolutions might not be supported.<wbr/> Use
-<a href="https://developer.android.com/reference/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>
+<a href="https://developer.android.com/reference/CameraDevice.html#isSessionConfigurationSupported">CameraDevice#isSessionConfigurationSupported</a>
 API to query if a secure session configuration is supported if the device supports this
 API.<wbr/></p>
 <p>If this key returns null on a device with SECURE_<wbr/>IMAGE_<wbr/>DATA capability,<wbr/> the application
@@ -36726,7 +36726,7 @@ supported device state bitwise combination.<wbr/></p>
 
             <td class="entry_description">
               <p>The version of the session configuration query
-<a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice/CameraDeviceSetup.html#isSessionConfigurationSupported">CameraDeviceSetup#isSessionConfigurationSupported</a>
 API</p>
             </td>
 
@@ -36752,13 +36752,13 @@ API</p>
               <p>The possible values in this key correspond to the values defined in
 android.<wbr/>os.<wbr/>Build.<wbr/>VERSION_<wbr/>CODES.<wbr/> Each version defines a set of feature combinations the
 camera device must reliably report whether they are supported via
-<a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice/CameraDeviceSetup.html#isSessionConfigurationSupported">CameraDeviceSetup#isSessionConfigurationSupported</a>
 API.<wbr/> And the version is always less or equal to android.<wbr/>os.<wbr/>Build.<wbr/>VERSION.<wbr/>SDK_<wbr/>INT.<wbr/></p>
 <p>If set to UPSIDE_<wbr/>DOWN_<wbr/>CAKE,<wbr/> this camera device doesn't support
-<a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>.<wbr/>
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice/CameraDeviceSetup.html#isSessionConfigurationSupported">CameraDeviceSetup#isSessionConfigurationSupported</a>.<wbr/>
 Calling the method for this camera ID throws an UnsupportedOperationException.<wbr/></p>
 <p>If set to VANILLA_<wbr/>ICE_<wbr/>CREAM,<wbr/> the application can call
-<a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager.html#isSessionConfigurationWithParametersSupported">CameraManager#isSessionConfigurationWithParametersSupported</a>
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice/CameraDeviceSetup.html#isSessionConfigurationSupported">CameraDeviceSetup#isSessionConfigurationSupported</a>
 to check if the combinations of below features are supported.<wbr/></p>
 <ul>
 <li>A subset of LIMITED-level device stream combinations.<wbr/></li>

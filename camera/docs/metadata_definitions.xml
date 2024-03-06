@@ -6524,10 +6524,10 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
 
               Combinations of logical and physical streams, or physical streams from different
               physical cameras are not guaranteed. However, if the camera device supports
-              {@link CameraManager#isSessionConfigurationWithParametersSupported|ACameraDevice_isSessionConfigurationSupported},
+              {@link CameraDevice#isSessionConfigurationSupported|ACameraDevice_isSessionConfigurationSupported},
               application must be able to query whether a stream combination involving physical
               streams is supported by calling
-              {@link CameraManager#isSessionConfigurationWithParametersSupported|ACameraDevice_isSessionConfigurationSupported}.
+              {@link CameraDevice#isSessionConfigurationSupported|ACameraDevice_isSessionConfigurationSupported}.
 
               Camera application shouldn't assume that there are at most 1 rear camera and 1 front
               camera in the system. For an application that switches between front and back cameras,
@@ -8873,7 +8873,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             When the key is present, only a PRIVATE/YUV output of the specified size is guaranteed
             to be supported by the camera HAL in the secure camera mode. Any other format or
             resolutions might not be supported. Use
-            {@link CameraManager#isSessionConfigurationWithParametersSupported|ACameraDevice_isSessionConfigurationSupported}
+            {@link CameraDevice#isSessionConfigurationSupported|ACameraDevice_isSessionConfigurationSupported}
             API to query if a secure session configuration is supported if the device supports this
             API.
 
@@ -13009,21 +13009,21 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <value id="35">VANILLA_ICE_CREAM</value>
           </enum>
           <description>The version of the session configuration query
-          {@link android.hardware.camera2.CameraManager#isSessionConfigurationWithParametersSupported}
+          {@link android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported}
           API
           </description>
           <details>The possible values in this key correspond to the values defined in
           android.os.Build.VERSION_CODES. Each version defines a set of feature combinations the
           camera device must reliably report whether they are supported via
-          {@link android.hardware.camera2.CameraManager#isSessionConfigurationWithParametersSupported}
+          {@link android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported}
           API. And the version is always less or equal to android.os.Build.VERSION.SDK_INT.
 
           If set to UPSIDE_DOWN_CAKE, this camera device doesn't support
-          {@link android.hardware.camera2.CameraManager#isSessionConfigurationWithParametersSupported}.
+          {@link android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported}.
           Calling the method for this camera ID throws an UnsupportedOperationException.
 
           If set to VANILLA_ICE_CREAM, the application can call
-          {@link android.hardware.camera2.CameraManager#isSessionConfigurationWithParametersSupported}
+          {@link android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported}
           to check if the combinations of below features are supported.
 
           * A subset of LIMITED-level device stream combinations.
