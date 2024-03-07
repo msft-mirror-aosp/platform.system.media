@@ -13,16 +13,16 @@ cc_test {
     test_suites: ["device-tests"],
 
     shared_libs: [
-        "libutils",
         "libcamera_metadata",
+        "libutils",
     ],
 
     include_dirs: ["system/media/private/camera/include"],
 
     cflags: [
         "-Wall",
-        "-Wextra",
         "-Werror",
+        "-Wextra",
     ],
 
     multilib: {
