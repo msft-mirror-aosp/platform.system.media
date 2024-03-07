@@ -13,14 +13,14 @@ cc_defaults {
     srcs: ["audio_route.c"],
     export_include_dirs: ["include"],
     shared_libs: [
-        "liblog",
         "libcutils",
-        "libutils",
         "libexpat",
+        "liblog",
+        "libutils",
     ],
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
 }
 
