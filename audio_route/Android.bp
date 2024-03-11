@@ -27,9 +27,6 @@ cc_defaults {
 cc_library_shared {
     name: "libaudioroute",
     defaults: ["libaudioroute_defaults"],
-    vndk: {
-        enabled: true,
-    },
     shared_libs: [
         "libtinyalsa",
     ],

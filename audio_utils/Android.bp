@@ -35,9 +35,6 @@ cc_library {
     name: "libaudioutils",
     vendor_available: true,
     product_available: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     host_supported: true,
     defaults: ["audio_utils_defaults"],
@@ -121,9 +118,6 @@ cc_library_static {
     name: "libaudioutils_fastmath",
     vendor_available: true,
     product_available: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     host_supported: true,
     defaults: ["audio_utils_defaults"],
