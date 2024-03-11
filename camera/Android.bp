@@ -62,7 +62,6 @@ cc_library_shared {
 
     srcs: [
         "src/camera_metadata_asserts.cpp",
-        "src/ndk_camera_metadata_asserts.cpp",
     ],
 
     include_dirs: ["system/media/private/camera/include"],
@@ -70,9 +69,6 @@ cc_library_shared {
 
     static_libs: [
         "android.hardware.camera.metadata-V3-ndk",
-    ],
-    shared_libs: [
-        "libcamera2ndk",
     ],
 
     cflags: [
