@@ -84,7 +84,7 @@ typedef enum acamera_metadata_tag {
       if skip_sec:
         continue
 %>\
-      % for idx,entry in enumerate(remove_hal_non_visible(find_unique_entries(sec))):
+      % for idx,entry in enumerate(remove_synthetic(find_unique_entries(sec))):
         % if entry.applied_ndk_visible == "true":
           % if entry.deprecated:
     ${ndk(entry.name) + " = " | csym,ljust(60)}// Deprecated! DO NOT USE
