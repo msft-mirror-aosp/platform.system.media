@@ -882,7 +882,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
 
           Note that the actual achievable max framerate also depends on the minimum frame
           duration of the output streams. The max frame rate will be
-          `min(aeTargetFpsRange.maxFps, 1 / max(individual stream min durations)`. For example,
+          `min(aeTargetFpsRange.maxFps, 1 / max(individual stream min durations))`. For example,
           if the application sets this key to `{60, 60}`, but the maximum minFrameDuration among
           all configured streams is 33ms, the maximum framerate won't be 60fps, but will be
           30fps.
