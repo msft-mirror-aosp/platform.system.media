@@ -461,6 +461,8 @@ private:
     T t_;
 };
 
+inline constexpr pid_t kInvalidTid = -1;
+
 // While std::atomic with the default std::memory_order_seq_cst
 // access could be used, it results in performance loss over less
 // restrictive memory access.
@@ -884,6 +886,23 @@ public:
         return mutexes_held_.remove(mutex);
     }
 
+    // Variants used by condition_variable on wait() that handle
+    // hint metadata. This is used by deadlock detection algorithm to inform we
+    // are waiting on a worker thread identified by notifier_tid.
+
+    void push_held_for_cv(MutexHandle mutex, Order order) {
+        push_held(mutex, order);
+        // condition wait has expired.  always invalidate.
+        cv_info_.first = kInvalidTid;
+    }
+
+    bool remove_held_for_cv(MutexHandle mutex, Order order, pid_t notifier_tid) {
+        // last condition on the mutex overwrites.
+        cv_info_.second = order;
+        cv_info_.first = notifier_tid;
+        return remove_held(mutex);
+    }
+
     /*
      * Due to the fact that the thread_mutex_info contents are not globally locked,
      * there may be temporal shear.  The string representation is
@@ -894,6 +913,12 @@ public:
         s.append("tid: ").append(std::to_string(static_cast<int>(tid_)));
         s.append("\nwaiting: ").append(std::to_string(
                 reinterpret_cast<uintptr_t>(mutex_wait_.load())));
+        // inform if there is a condition variable wait associated with a known thread.
+        if (cv_info_.first != kInvalidTid) {
+            s.append("\ncv_tid: ").append(std::to_string(cv_info_.first.load()))
+                    .append("  cv_order: ").append(std::to_string(
+                            static_cast<size_t>(cv_info_.second.load())));
+        }
         s.append("\nheld: ").append(mutexes_held_.to_string());
         return s;
     }
@@ -912,6 +937,8 @@ public:
 
     const pid_t tid_;                                   // me
     thread_atomic<MutexHandle> mutex_wait_{};           // mutex waiting for
+    std::pair<thread_atomic<pid_t>, thread_atomic<Order>> cv_info_{
+        kInvalidTid, (Order)-1 };  // condition variable wait with known notifier tid.
     atomic_stack_t mutexes_held_;  // mutexes held
 };
 
@@ -951,6 +978,7 @@ public:
 
     const pid_t tid;         // tid for which the deadlock was checked
     bool has_cycle = false;  // true if there is a cycle detected
+    bool cv_detected = false; // true if the logic went through a condition variable.
     std::vector<std::pair<pid_t, std::string>> chain;  // wait chain of tids and mutexes.
 };
 
@@ -1039,20 +1067,18 @@ public:
     }
 
     /**
-     * Returns the tid mutex pointer (a void*) if it is waiting.
+     * Returns the thread info for a pid_t.
      *
      * It should use a copy of the registry map which is not changing
      * as it does not take any lock.
      */
-    static void* tid_to_mutex_wait(
+    static std::shared_ptr<ThreadInfo> tid_to_info(
             const std::unordered_map<pid_t, std::weak_ptr<ThreadInfo>>& registry_map,
             pid_t tid) {
         const auto it = registry_map.find(tid);
         if (it == registry_map.end()) return {};
         const auto& weak_info = it->second;  // unmapped returns empty weak_ptr.
-        const auto info = weak_info.lock();
-        if (!info) return {};
-        return info->mutex_wait_.load();
+        return weak_info.lock();
     }
 
     /**
@@ -1078,8 +1104,14 @@ public:
         deadlock_info_t deadlock_info{tid};
 
         // if tid not waiting, return.
-        void* m = tid_to_mutex_wait(registry_map, tid);
-        if (m == nullptr) return deadlock_info;
+
+        const auto tinfo_original_tid = tid_to_info(registry_map, tid);
+        if (tinfo_original_tid == nullptr) return deadlock_info;
+
+        void* m = tinfo_original_tid->mutex_wait_.load();
+        pid_t cv_tid = tinfo_original_tid->cv_info_.first;
+        if (m == nullptr && cv_tid == kInvalidTid) return deadlock_info;
+        size_t cv_order = static_cast<size_t>(tinfo_original_tid->cv_info_.second.load());
 
         bool subset = false; // do we have missing mutex data per thread?
 
@@ -1129,14 +1161,29 @@ public:
         // until we get no more tids, or a tid cycle.
         std::unordered_set<pid_t> visited;
         visited.insert(tid);  // mark the original tid, we start there for cycle detection.
-        while (true) {
-            // no tid associated with the mutex.
-            if (mutex_to_tid.count(m) == 0) return deadlock_info;
-            const auto [tid2, order] = mutex_to_tid[m];
+        for (pid_t tid2 = tid; true;) {
+            size_t order;
+            bool cv_detected = false;  // current wait relationship is through condition_variable.
+
+            if (m != nullptr && mutex_to_tid.count(m)) {
+                // waiting on mutex held by another tid.
+                std::tie(tid2, order) = mutex_to_tid[m];
+            }  else if (cv_tid != kInvalidTid) {
+                // condition variable waiting on tid.
+                tid2 = cv_tid;
+                order = cv_order;
+                deadlock_info.cv_detected = true;
+                cv_detected = true;
+            } else {
+                // no mutex or cv info.
+                return deadlock_info;
+            }
 
             // add to chain.
+            // if waiting through a condition variable, we prefix with "cv-".
             const auto name = order < std::size(mutex_names) ? mutex_names[order] : "unknown";
-            deadlock_info.chain.emplace_back(tid2, name);
+            deadlock_info.chain.emplace_back(tid2, cv_detected ?
+                    std::string("cv-").append(name).c_str() : name);
 
             // cycle detected
             if (visited.count(tid2)) {
@@ -1146,8 +1193,10 @@ public:
             visited.insert(tid2);
 
             // if tid not waiting return (could be blocked on binder).
-            m = tid_to_mutex_wait(registry_map, tid2);
-            if (m == nullptr) return deadlock_info;
+            const auto tinfo = tid_to_info(registry_map, tid2);
+            m = tinfo->mutex_wait_.load();
+            cv_tid = tinfo->cv_info_.first;
+            cv_order = static_cast<size_t>(tinfo->cv_info_.second.load());
         }
     }
 
@@ -1423,9 +1472,12 @@ public:
     // helper class for registering statistics for a cv wait.
     class cv_wait_scoped_stat_enabled {
     public:
-        explicit cv_wait_scoped_stat_enabled(mutex& m) : mutex_(m) {
+        explicit cv_wait_scoped_stat_enabled(mutex& m, pid_t notifier_tid = kInvalidTid)
+            : mutex_(m) {
             ++mutex_.stat_.unlocks;
-            const bool success = mutex_.get_thread_mutex_info()->remove_held(&mutex_);
+            // metadata that we relinquish lock.
+            const bool success = mutex_.get_thread_mutex_info()->remove_held_for_cv(
+                    &mutex_, mutex_.order_, notifier_tid);
             LOG_ALWAYS_FATAL_IF(Attributes::abort_on_invalid_unlock_
                     && mutex_get_enable_flag()
                     && !success,
@@ -1434,7 +1486,8 @@ public:
 
         ~cv_wait_scoped_stat_enabled() {
             ++mutex_.stat_.locks;
-            mutex_.get_thread_mutex_info()->push_held(&mutex_, mutex_.order_);
+            // metadata that we are reacquiring lock.
+            mutex_.get_thread_mutex_info()->push_held_for_cv(&mutex_, mutex_.order_);
         }
     private:
         mutex& mutex_;
@@ -1592,6 +1645,9 @@ private:
 // It is possible to use std::condition_variable_any for a generic mutex type,
 // but it is less efficient.
 
+// The audio_utils condition_variable permits speicifying a "notifier_tid"
+// metadata in the wait() methods, which states the expected tid of the
+// notification thread for deadlock / wait detection purposes.
 class condition_variable {
 public:
     void notify_one() noexcept {
@@ -1602,44 +1658,46 @@ public:
         cv_.notify_all();
     }
 
-    void wait(unique_lock& lock) {
-        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex());
+    void wait(unique_lock& lock, pid_t notifier_tid = kInvalidTid) {
+        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex(), notifier_tid);
         cv_.wait(lock.std_unique_lock());
     }
 
     template<typename Predicate>
-    void wait(unique_lock& lock, Predicate stop_waiting) {
-        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex());
+    void wait(unique_lock& lock, Predicate stop_waiting, pid_t notifier_tid = kInvalidTid) {
+        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex(), notifier_tid);
         cv_.wait(lock.std_unique_lock(), std::move(stop_waiting));
     }
 
     template<typename Rep, typename Period>
     std::cv_status wait_for(unique_lock& lock,
-            const std::chrono::duration<Rep, Period>& rel_time) {
-        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex());
+            const std::chrono::duration<Rep, Period>& rel_time,
+            pid_t notifier_tid = kInvalidTid) {
+        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex(), notifier_tid);
         return cv_.wait_for(lock.std_unique_lock(), rel_time);
     }
 
     template<typename Rep, typename Period, typename Predicate>
     bool wait_for(unique_lock& lock,
             const std::chrono::duration<Rep, Period>& rel_time,
-            Predicate stop_waiting) {
-        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex());
+            Predicate stop_waiting, pid_t notifier_tid = kInvalidTid) {
+        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex(), notifier_tid);
         return cv_.wait_for(lock.std_unique_lock(), rel_time, std::move(stop_waiting));
     }
 
     template<typename Clock, typename Duration>
     std::cv_status wait_until(unique_lock& lock,
-            const std::chrono::time_point<Clock, Duration>& timeout_time) {
-        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex());
+            const std::chrono::time_point<Clock, Duration>& timeout_time,
+            pid_t notifier_tid = kInvalidTid) {
+        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex(), notifier_tid);
         return cv_.wait_until(lock.std_unique_lock(), timeout_time);
     }
 
     template<typename Clock, typename Duration, typename Predicate>
     bool wait_until(unique_lock& lock,
             const std::chrono::time_point<Clock, Duration>& timeout_time,
-            Predicate stop_waiting) {
-        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex());
+            Predicate stop_waiting, pid_t notifier_tid = kInvalidTid) {
+        mutex::cv_wait_scoped_stat_t ws(lock.native_mutex(), notifier_tid);
         return cv_.wait_until(lock.std_unique_lock(), timeout_time, std::move(stop_waiting));
     }
 
