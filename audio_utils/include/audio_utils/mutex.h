@@ -394,12 +394,21 @@ public:
  * prior to C++23 support of atomic<float> atomic<double> accumulation.
  */
 template <typename AccumulateType, typename ValueType>
-void atomic_add_to(std::atomic<AccumulateType> &dst, ValueType src) {
+requires std::is_floating_point<AccumulateType>::value
+void atomic_add_to(std::atomic<AccumulateType> &dst, ValueType src,
+        std::memory_order order = std::memory_order_seq_cst) {
     static_assert(std::atomic<AccumulateType>::is_always_lock_free);
     AccumulateType expected;
     do {
         expected = dst;
-    } while (!dst.compare_exchange_weak(expected, expected + src));
+    } while (!dst.compare_exchange_weak(expected, expected + src, order));
+}
+
+template <typename AccumulateType, typename ValueType>
+requires std::is_integral<AccumulateType>::value
+void atomic_add_to(std::atomic<AccumulateType> &dst, ValueType src,
+        std::memory_order order = std::memory_order_seq_cst) {
+    dst.fetch_add(src, order);
 }
 
 /**
@@ -416,6 +425,8 @@ template <typename CounterType, typename AccumulatorType>
 struct mutex_stat {
     static_assert(std::is_floating_point_v<AccumulatorType>);
     static_assert(std::is_integral_v<CounterType>);
+    static_assert(std::atomic<CounterType>::is_always_lock_free);
+    static_assert(std::atomic<AccumulatorType>::is_always_lock_free);
     std::atomic<CounterType> locks = 0;        // number of times locked
     std::atomic<CounterType> unlocks = 0;      // number of times unlocked
     std::atomic<CounterType> waits = 0;         // number of locks that waitedwa
@@ -1013,7 +1024,15 @@ public:
 
     // We use composition here.
     // No copy/move ctors as the member std::mutex has it deleted.
+
+    // Constructor selects priority inheritance based on the platform default.
     mutex_impl(typename Attributes::order_t order = Attributes::order_default_)
+        : mutex_impl(mutex_get_enable_flag(), order)
+    {}
+
+    // Constructor selects priority inheritance based on input argument.
+    mutex_impl(bool priority_inheritance,
+            typename Attributes::order_t order = Attributes::order_default_)
         : order_(order)
         , stat_{get_mutex_stat_array()[static_cast<size_t>(order)]}
     {
@@ -1021,7 +1040,7 @@ public:
                 "mutex order %u is equal to or greater than order limit:%zu",
                 order, Attributes::order_size_);
 
-        if (!mutex_get_enable_flag()) return;
+        if (!priority_inheritance) return;
 
         pthread_mutexattr_t attr;
         int ret = pthread_mutexattr_init(&attr);
