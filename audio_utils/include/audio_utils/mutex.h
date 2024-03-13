@@ -397,7 +397,7 @@ public:
 template <typename T>
 class relaxed_atomic : private std::atomic<T> {
 public:
-    constexpr relaxed_atomic(T desired) : std::atomic<T>(desired) {}
+    constexpr relaxed_atomic(T desired = {}) : std::atomic<T>(desired) {}
     operator T() const { return std::atomic<T>::load(std::memory_order_relaxed); }
     T operator=(T desired) {
         std::atomic<T>::store(desired, std::memory_order_relaxed); return desired;
@@ -446,8 +446,7 @@ template <typename T>
 class unordered_atomic {
     static_assert(std::atomic<T>::is_always_lock_free);
 public:
-    unordered_atomic() = default;
-    constexpr unordered_atomic(T desired) : t_(desired) {}
+    constexpr unordered_atomic(T desired = {}) : t_(desired) {}
     operator T() const { return t_; }
     T& operator=(T desired) { return t_ = desired; }
 
@@ -1236,8 +1235,8 @@ public:
         , stat_{get_mutex_stat_array()[static_cast<size_t>(order)]}
     {
         LOG_ALWAYS_FATAL_IF(static_cast<size_t>(order) >= Attributes::order_size_,
-                "mutex order %u is equal to or greater than order limit:%zu",
-                order, Attributes::order_size_);
+                "mutex order %zu is equal to or greater than order limit:%zu",
+                static_cast<size_t>(order), Attributes::order_size_);
 
         if (!priority_inheritance) return;
 
@@ -1260,7 +1259,8 @@ public:
         if (ret != 0) {
             ALOGW("%s, pthread_mutex_init returned %d", __func__, ret);
         }
-        ALOGV("%s: audio_mutex initialized: ret:%d  order:%u", __func__, ret, order_);
+        ALOGV("%s: audio_mutex initialized: ret:%d  order:%zu",
+                __func__, ret, static_cast<size_t>(order_));
     }
 
     ~mutex_impl() {
