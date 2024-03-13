@@ -14752,7 +14752,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
     <section name="efv">
       <static>
         <entry name="paddingZoomFactorRange" type="float" visibility="extension"
-            optional="true" container="array" typedef="rangeFloat" aconfig_flag="concert_mode"
+            optional="true" container="array" typedef="rangeFloat" aconfig_flag="concert_mode_api"
             hal_version="3.9">
           <array>
             <size>2</size>
@@ -14779,7 +14779,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
       </static>
       <controls>
         <entry name="paddingZoomFactor" type="float" visibility="extension"
-            aconfig_flag="concert_mode" hal_version="3.9">
+            aconfig_flag="concert_mode_api" hal_version="3.9">
           <description>Used to apply an additional digital zoom factor for the
           {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_EYES_FREE_VIDEOGRAPHY}
           extension in {@link android.hardware.camera2.CameraMetadata#EFV_STABILIZATION_MODE_LOCKED} mode.
@@ -14804,7 +14804,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="autoZoom" type="byte" visibility="extension" enum="true"
-            typedef="boolean" aconfig_flag="concert_mode" hal_version="3.9">
+            typedef="boolean" aconfig_flag="concert_mode_api" hal_version="3.9">
           <enum>
             <value>TRUE</value>
             <value>FALSE</value>
@@ -14826,7 +14826,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="maxPaddingZoomFactor" type="float" visibility="extension"
-            aconfig_flag="concert_mode" hal_version="3.9">
+            aconfig_flag="concert_mode_api" hal_version="3.9">
           <description>Used to limit the android.efv.paddingZoomFactor if
           android.efv.autoZoom is enabled for the
           {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_EYES_FREE_VIDEOGRAPHY}
@@ -14843,7 +14843,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="stabilizationMode" type="int32" visibility="extension" enum="true"
-            aconfig_flag="concert_mode" hal_version="3.9">
+            aconfig_flag="concert_mode_api" hal_version="3.9">
           <enum>
             <value>OFF
               <notes>
@@ -14873,7 +14873,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="translateViewport" type="int32" visibility="extension"
-            typedef="pairIntegerInteger" aconfig_flag="concert_mode" hal_version="3.9">
+            typedef="pairIntegerInteger" aconfig_flag="concert_mode_api" hal_version="3.9">
           <description>Used to update the target region for the
           {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_EYES_FREE_VIDEOGRAPHY}
           extension in {@link android.hardware.camera2.CameraMetadata#EFV_STABILIZATION_MODE_LOCKED} mode.
@@ -14892,7 +14892,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="rotateViewport" type="float" visibility="extension"
-            aconfig_flag="concert_mode" hal_version="3.9">
+            aconfig_flag="concert_mode_api" hal_version="3.9">
           <description>Representing the desired clockwise rotation
           of the target region in degrees for the
           {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_EYES_FREE_VIDEOGRAPHY}
@@ -14908,7 +14908,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
       </controls>
       <dynamic>
         <entry name="paddingRegion" type="int32" visibility="extension" container="array"
-            aconfig_flag="concert_mode" hal_version="3.9">
+            aconfig_flag="concert_mode_api" hal_version="3.9">
           <array>
             <size>4</size>
           </array>
@@ -14933,7 +14933,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="autoZoomPaddingRegion" type="int32" visibility="extension"
-            container="array" aconfig_flag="concert_mode" hal_version="3.9">
+            container="array" aconfig_flag="concert_mode_api" hal_version="3.9">
           <array>
             <size>4</size>
           </array>
@@ -14954,7 +14954,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="targetCoordinates" type="float" visibility="extension"
-            container="array" typedef="pointF" aconfig_flag="concert_mode" hal_version="3.9">
+            container="array" typedef="pointF" aconfig_flag="concert_mode_api" hal_version="3.9">
           <array>
             <size>4</size>
             <size>n</size>
