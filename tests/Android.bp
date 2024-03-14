@@ -73,8 +73,8 @@ cc_test {
     header_libs: ["libmedia_headers"],
 
     srcs: [
-        "static_checks_c.c",
         "static_checks.cpp",
+        "static_checks_c.c",
         "systemaudio_tests.cpp",
     ],
 

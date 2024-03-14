@@ -14,13 +14,13 @@ cc_library_shared {
     },
 
     srcs: [
-        "src/radio_metadata.c",
         "src/RadioMetadataWrapper.cpp",
+        "src/radio_metadata.c",
     ],
 
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
         "-fvisibility=hidden",
     ],
 
