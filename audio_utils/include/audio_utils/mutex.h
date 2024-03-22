@@ -599,7 +599,8 @@ struct mutex_stat {
         AccumulatorType recip = waits == 0 ? 0. : 1. / waits;
         AccumulatorType avg_wait_ms = waits == 0 ? 0. : wait_sum_ns * 1e-6 * recip;
         AccumulatorType std_wait_ms = waits < 2 ? 0. :
-                std::sqrt(wait_sumsq_ns * recip * 1e-12 - avg_wait_ms * avg_wait_ms);
+                std::sqrt(std::max(wait_sumsq_ns * recip * 1e-12 - avg_wait_ms * avg_wait_ms,
+                        0.));
         return std::string("locks: ").append(std::to_string(locks))
             .append("\nuncontested: ").append(std::to_string(uncontested))
             .append("\nwaits: ").append(std::to_string(waits))
@@ -796,7 +797,7 @@ public:
    /*
     * stack configuration
     */
-    static size_t capacity() { return N; }
+    static consteval size_t capacity() { return N; }
     size_t true_size() const { return true_top_; }
     size_t size() const { return top_; }
     const auto& invalid() const { return invalid_; }
@@ -819,7 +820,7 @@ private:
      * The invalid pair is returned when top() is called without a tracked item.
      * This might occur with an empty subset of the "true" stack.
      */
-    static constexpr item_payload_pair_t invalid_{};
+    static inline const item_payload_pair_t invalid_{};  // volatile != constexpr, if so qualified
 };
 
 /**
@@ -1143,8 +1144,10 @@ public:
             const auto info = weak_info.lock();
             if (info == nullptr) continue;
             const auto& stack = info->mutexes_held_;
-            subset = subset || stack.size() != stack.true_size();
-            for (size_t i = 0; i < stack.size(); ++i) {
+            static constinit size_t capacity = std::decay_t<decltype(stack)>::capacity();
+            const size_t size = std::min(stack.size(), capacity);
+            subset = subset || size != stack.true_size();
+            for (size_t i = 0; i < size; ++i) {
                 const auto& mutex_order_pair = stack.bottom(i);
                 // if this method is not called by the writer thread
                 // it is possible for data to change.
@@ -1219,7 +1222,7 @@ private:
 extern bool mutex_get_enable_flag();
 
 template <typename Attributes>
-class CAPABILITY("mutex") mutex_impl {
+class CAPABILITY("mutex") [[nodiscard]] mutex_impl {
 public:
     using attributes_t = Attributes;
 
@@ -1390,7 +1393,7 @@ public:
 
     // helper class for registering statistics for a mutex lock.
 
-    class lock_scoped_stat_enabled {
+    class [[nodiscard]] lock_scoped_stat_enabled {
     public:
         explicit lock_scoped_stat_enabled(mutex& m)
             : mutex_(m)
@@ -1473,7 +1476,7 @@ public:
             lock_scoped_stat_enabled, lock_scoped_stat_disabled>;
 
     // helper class for registering statistics for a cv wait.
-    class cv_wait_scoped_stat_enabled {
+    class [[nodiscard]] cv_wait_scoped_stat_enabled {
     public:
         explicit cv_wait_scoped_stat_enabled(mutex& m, pid_t notifier_tid = kInvalidTid)
             : mutex_(m) {
@@ -1496,7 +1499,7 @@ public:
         mutex& mutex_;
     };
 
-    class cv_wait_scoped_stat_disabled {
+    class [[nodiscard]] cv_wait_scoped_stat_disabled {
         explicit cv_wait_scoped_stat_disabled(mutex&) {}
     };
 
@@ -1575,7 +1578,7 @@ public:
     }
 
     ~unique_lock() RELEASE() {
-        if (held) unlock();
+        if (owns_lock()) unlock();
     }
 
     void lock() ACQUIRE() {
@@ -1585,13 +1588,11 @@ public:
             ul_.lock();
         }
         mutex::lock_scoped_stat_t::post_lock(mutex_);
-        held = true;
         metadata_memory_barrier_if_needed();
     }
 
     void unlock() RELEASE() {
         mutex::lock_scoped_stat_t::pre_unlock(mutex_);
-        held = false;
         ul_.unlock();
         metadata_memory_barrier_if_needed();
     }
@@ -1600,7 +1601,6 @@ public:
         mutex::lock_scoped_stat_t::pre_lock(mutex_);
         if (!ul_.try_lock()) return false;
         mutex::lock_scoped_stat_t::post_lock(mutex_);
-        held = true;
         metadata_memory_barrier_if_needed();
         return true;
     }
@@ -1611,7 +1611,6 @@ public:
         mutex::lock_scoped_stat_t::pre_lock(mutex_);
         if (!ul_.try_lock_for(timeout_duration)) return false;
         mutex::lock_scoped_stat_t::post_lock(mutex_);
-        held = true;
         metadata_memory_barrier_if_needed();
         return true;
     }
@@ -1622,9 +1621,16 @@ public:
         mutex::lock_scoped_stat_t::pre_lock(mutex_);
         if (!ul_.try_lock_until(timeout_time)) return false;
         mutex::lock_scoped_stat_t::post_lock(mutex_);
-        held = true;
         metadata_memory_barrier_if_needed();
         return true;
+    }
+
+    bool owns_lock() const {
+        return ul_.owns_lock();
+    }
+
+    explicit operator bool() const {
+        return owns_lock();
     }
 
     // additional method to obtain the underlying std::unique_lock
@@ -1639,7 +1645,6 @@ public:
 
 private:
     std::unique_lock<std::mutex> ul_;
-    bool held = false;
     mutex& mutex_;
 };
 
@@ -1651,7 +1656,7 @@ private:
 // The audio_utils condition_variable permits speicifying a "notifier_tid"
 // metadata in the wait() methods, which states the expected tid of the
 // notification thread for deadlock / wait detection purposes.
-class condition_variable {
+class [[nodiscard]] condition_variable {
 public:
     void notify_one() noexcept {
         cv_.notify_one();
