@@ -1237,6 +1237,8 @@
             ><a href="#static_android.info.deviceStateOrientations">android.info.deviceStateOrientations</a></li>
             <li
             ><a href="#static_android.info.sessionConfigurationQueryVersion">android.info.sessionConfigurationQueryVersion</a></li>
+            <li
+            ><a href="#static_android.info.deviceId">android.info.deviceId</a></li>
           </ul>
         </li>
       </ul> <!-- toc_section -->
@@ -37025,6 +37027,58 @@ to check if the combinations of below features are supported.<wbr/></p>
 <li>AE_<wbr/>TARGET_<wbr/>FPS_<wbr/>RANGE: { {<em>,<wbr/> 30},<wbr/> {</em>,<wbr/> 60} }</li>
 <li>DYNAMIC_<wbr/>RANGE_<wbr/>PROFILE: {STANDARD,<wbr/> HLG10}</li>
 </ul>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.info.deviceId">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>info.<wbr/>device<wbr/>Id
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int32</span>
+
+              <span class="entry_type_visibility"> [fwk_only]</span>
+
+
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Id of the device that owns this camera.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>2</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>In case of a virtual camera,<wbr/> this would be the id of the virtual device
+owning the camera.<wbr/> For any other camera,<wbr/> this key would not be present.<wbr/>
+Callers should assume <a href="https://developer.android.com/reference/android/content/Context.html#DEVICE_ID_DEFAULT">Context#DEVICE_<wbr/>ID_<wbr/>DEFAULT</a>
+in case this key is not present.<wbr/></p>
             </td>
           </tr>
 
