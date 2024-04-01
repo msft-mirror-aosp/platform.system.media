@@ -27,7 +27,8 @@ import bs4
 # Monkey-patch BS4. WBR element must not have an end tag.
 bs4.builder.HTMLTreeBuilder.empty_element_tags.add("wbr")
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+from operator import itemgetter
 from os import path
 
 # Relative path from HTML file to the base directory used by <img> tags
@@ -1444,6 +1445,36 @@ def get_api_level_to_keys(sections, metadata, kind):
   for api_level_ordered in sorted(api_level_to_keys.keys()):
     api_level_to_keys_ordered[api_level_ordered] = sorted(api_level_to_keys[api_level_ordered])
   return api_level_to_keys_ordered
+
+
+def get_api_level_to_session_characteristic_keys(sections):
+  """
+  Returns a mapping of api_level -> list session characteristics tag keys where api_level
+  is the level at which they became a part of getSessionCharacteristics call.
+
+  Args:
+    sections : metadata sections to create the mapping for
+
+  Returns:
+    A dictionary mapping api level to a list of metadata tags.
+  """
+  api_level_to_keys = defaultdict(list)
+  for sec in sections:
+    for entry in remove_synthetic(find_unique_entries(sec)):
+      if entry.session_characteristics_key_since is None:
+        continue
+
+      api_level = entry.session_characteristics_key_since
+      api_level_to_keys[api_level].append(entry.name)
+
+  # sort dictionary on its key (api_level)
+  api_level_to_keys = OrderedDict(sorted(api_level_to_keys.items(), key=itemgetter(0)))
+  # sort the keys for each api_level
+  for api_level, keys in api_level_to_keys.items():
+    api_level_to_keys[api_level] = sorted(keys)
+
+  return api_level_to_keys
+
 
 def remove_synthetic(entries):
   """
