@@ -3412,7 +3412,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
       <static>
         <entry name="zoomRatioRange" type="float" visibility="public"
                type_notes="The range of zoom ratios that this camera device supports."
-               container="array" typedef="rangeFloat" hwlevel="limited" hal_version="3.5">
+               container="array" typedef="rangeFloat" hwlevel="limited" hal_version="3.5"
+               session_characteristics_key_since="35">
           <array>
             <size>2</size>
           </array>
@@ -7806,7 +7807,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           <tag id="BC" />
         </entry>
         <entry name="availableMaxDigitalZoom" type="float" visibility="public"
-              hwlevel="legacy">
+              hwlevel="legacy" session_characteristics_key_since="35">
           <description>The maximum ratio between both active area width
           and crop region width, and active area height and
           crop region height, for android.scaler.cropRegion.
@@ -13087,6 +13088,17 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
 
           </details>
         </entry>
+        <entry name="deviceId" type="int32" visibility="fwk_only">
+          <description>
+            Id of the device that owns this camera.
+          </description>
+          <details>
+            In case of a virtual camera, this would be the id of the virtual device
+            owning the camera. For any other camera, this key would not be present.
+            Callers should assume {@link android.content.Context#DEVICE_ID_DEFAULT}
+            in case this key is not present.
+          </details>
+        </entry>
       </static>
     </section>
     <section name="blackLevel">
@@ -14801,7 +14813,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           android.efv.paddingZoomFactor to at least 1.5.
 
           If android.efv.autoZoom is enabled, the requested android.efv.paddingZoomFactor will be overridden.
-          android.efv.maxPaddingZoomFactor can be checked for more details on controlling the 
+          android.efv.maxPaddingZoomFactor can be checked for more details on controlling the
           padding zoom factor during android.efv.autoZoom.
           </details>
         </entry>
