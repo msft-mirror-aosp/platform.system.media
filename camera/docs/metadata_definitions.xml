@@ -3750,8 +3750,15 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             overridden controls' latency by applying them as soon as processCaptureRequest is
             called, rather than when it's unblocked.
 
-            If zoom settings override is on, when zooming in, the HAL must be able to apply the
-            zoom related settings at least 1 frame ahead.
+            For devices launching with API level 35 or newer, to avoid regression on zoom
+            smoothness, when zoom settings override is on during pinch zoom (zoom value gradually
+            changes), the zoom effect in the camera output must not become more jittery. More
+            specifically, the variation of zoom pipeline latency must not increase. The latency
+            improvement must be at least 1 frame regardless of zoom in or zoom out.
+
+            For devices launched before API level 35, if zoom settings override is on, when
+            zooming in, the HAL must be able to apply the zoom related settings at least 1
+            frame ahead.
           </hal_details>
         </entry>
     </controls>
