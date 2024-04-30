@@ -40,8 +40,10 @@ cc_library {
     },
     double_loadable: true,
     host_supported: true,
-    defaults: ["audio_utils_defaults"],
-
+    defaults: [
+        "aconfig_lib_cc_static_link.defaults",
+        "audio_utils_defaults",
+    ],
     srcs: [
         "Balance.cpp",
         "ErrorLog.cpp",
