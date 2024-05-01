@@ -717,7 +717,11 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
                 If the session configuration is not supported, the AE mode reported in the
                 CaptureResult will be 'ON' instead of 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY'.
 
-                The application can observe the CapturerResult field
+                When this AE mode is enabled, the CaptureResult field
+                android.control.lowLightBoostState will be present and not null. Otherwise, the
+                android.control.lowLightBoostState field will not be present in the CaptureResult.
+
+                The application can observe the CaptureResult field
                 android.control.lowLightBoostState to determine when low light boost is 'ACTIVE' or
                 'INACTIVE'.
 
@@ -882,7 +886,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
 
           Note that the actual achievable max framerate also depends on the minimum frame
           duration of the output streams. The max frame rate will be
-          `min(aeTargetFpsRange.maxFps, 1 / max(individual stream min durations)`. For example,
+          `min(aeTargetFpsRange.maxFps, 1 / max(individual stream min durations))`. For example,
           if the application sets this key to `{60, 60}`, but the maximum minFrameDuration among
           all configured streams is 33ms, the maximum framerate won't be 60fps, but will be
           30fps.
@@ -3948,6 +3952,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             When low light boost is enabled by setting the AE mode to
             'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY', it can dynamically apply a low light
             boost when the light level threshold is exceeded.
+
+            This field is present in the CaptureResult when the AE mode is set to
+            'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY'. Otherwise, the field is not present.
 
             This state indicates when low light boost is 'ACTIVE' and applied. Similarly, it can
             indicate when it is not being applied by returning 'INACTIVE'.
