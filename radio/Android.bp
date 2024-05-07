@@ -9,9 +9,6 @@ package {
 cc_library_shared {
     name: "libradio_metadata",
     vendor_available: true,
-    vndk: {
-        enabled: true,
-    },
 
     srcs: [
         "src/RadioMetadataWrapper.cpp",
