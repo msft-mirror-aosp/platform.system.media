@@ -54,6 +54,8 @@ cc_benchmark {
         "-Wall",
         "-Werror",
         "-ffast-math",
+        "-fhonor-infinities",
+        "-fhonor-nans",
         //  "-fno-vectorize",      // (test only)
         //  "-fno-slp-vectorize",  // (test only)
     ],
@@ -87,6 +89,8 @@ cc_benchmark {
         "-Wall",
         "-Werror",
         "-ffast-math",
+        "-fhonor-infinities",
+        "-fhonor-nans",
         //  "-fno-vectorize",      // (test only)
         //  "-fno-slp-vectorize",  // (test only)
     ],
