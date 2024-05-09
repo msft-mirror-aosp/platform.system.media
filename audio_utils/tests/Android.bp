@@ -60,6 +60,8 @@ cc_test {
     cflags: [
         "-DFAST_MATH_ENABLED",
         "-ffast-math",
+        "-fhonor-infinities",
+        "-fhonor-nans",
     ],
 }
 
