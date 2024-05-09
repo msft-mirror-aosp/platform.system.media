@@ -141,6 +141,8 @@ cc_library_static {
     cflags: [
         "-Werror",
         "-ffast-math",
+        "-fhonor-infinities",
+        "-fhonor-nans",
     ],
     apex_available: [
         "//apex_available:platform",
