@@ -15,9 +15,6 @@ cc_library_shared {
     // TODO(b/153609531): remove when no longer needed.
     native_bridge_supported: true,
     host_supported: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     srcs: ["src/camera_metadata.c"],
 
@@ -39,8 +36,8 @@ cc_library_shared {
 
     cflags: [
         "-Wall",
-        "-Wextra",
         "-Werror",
+        "-Wextra",
         "-fvisibility=hidden",
         "-std=c11",
     ],
@@ -49,8 +46,8 @@ cc_library_shared {
         eng: {
             // Enable assert()
             cflags: [
-                "-UNDEBUG",
                 "-DLOG_NDEBUG=1",
+                "-UNDEBUG",
             ],
         },
     },
@@ -67,13 +64,13 @@ cc_library_shared {
     local_include_dirs: ["include"],
 
     static_libs: [
-        "android.hardware.camera.metadata-V1-ndk",
+        "android.hardware.camera.metadata-V3-ndk",
     ],
 
     cflags: [
         "-Wall",
-        "-Wextra",
         "-Werror",
+        "-Wextra",
         "-fvisibility=hidden",
         "-std=c11",
     ],

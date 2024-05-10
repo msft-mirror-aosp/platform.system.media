@@ -38,8 +38,7 @@ ${value.notes | javadoc(metadata)}\
 ${value.sdk_notes | javadoc(metadata)}\
     % endif
      * @see ${target_class}#${entry.name | jkey_identifier}
-## TODO: Remove fwk_java_public
-    % if entry.applied_visibility in ('hidden', 'ndk_public', 'fwk_java_public') or value.hidden:
+    % if entry.applied_visibility in ('hidden', 'ndk_public') or value.hidden:
      * @hide
     %endif
     % if value.deprecated:
@@ -51,6 +50,9 @@ ${value.sdk_notes | javadoc(metadata)}\
     % endif
     % if value.visibility == 'test':
     @TestApi
+    % endif
+    % if value.aconfig_flag:
+    @FlaggedApi(Flags.FLAG_${value.aconfig_flag | jkey_identifier})
     % endif
     public static final int ${jenum_value(entry, value)} = ${enum_calculate_value_string(value)};
 

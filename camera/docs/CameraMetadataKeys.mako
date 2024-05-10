@@ -42,10 +42,11 @@
     concatenated_info = description + details + extra_detail
 %>\
 ## Glue description and details together before javadoc-izing. Otherwise @see in middle of javadoc.
+## Avoid @see across differently-flagged API entries for now.
 ${concatenated_info | javadoc(metadata)}\
   % if entry.enum and not (entry.typedef and entry.typedef.languages.get('java')):
     % for value in entry.enum.values:
-     % if not value.hidden:
+     % if not value.hidden and (value.aconfig_flag == entry.aconfig_flag):
      * @see #${jenum_value(entry, value)}
      % endif
     % endfor
@@ -54,8 +55,7 @@ ${concatenated_info | javadoc(metadata)}\
      * @deprecated
 ${entry.deprecation_description | javadoc(metadata)}
   % endif
-  ## TODO: Remove fwk_java_public
-  % if entry.applied_visibility in ('hidden', 'ndk_public', 'fwk_only', 'fwk_java_public'):
+  % if entry.applied_visibility in ('hidden', 'ndk_public', 'fwk_only'):
      * @hide
   % endif
      */
@@ -68,6 +68,9 @@ ${entry.deprecation_description | javadoc(metadata)}
   % endif
   % if entry.synthetic:
     @SyntheticKey
+  % endif
+  % if entry.aconfig_flag:
+    @FlaggedApi(Flags.FLAG_${entry.aconfig_flag | jkey_identifier})
   % endif
     public static final Key<${jtype_boxed(entry)}> ${entry.name | jkey_identifier} =
             new Key<${jtype_boxed(entry)}>("${entry.name}", ${jkey_type_token(entry)});
