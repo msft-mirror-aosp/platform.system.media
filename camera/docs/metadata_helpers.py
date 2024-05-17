@@ -1712,3 +1712,19 @@ def aidl_enum_values(entry):
   return [
     val for val in entry.enum.values if '%s_%s'%(csym(entry.name), val.name) not in ignoreList
   ]
+
+def java_symbol_for_aconfig_flag(flag_name):
+  """
+  Returns the java symbol for a give aconfig flag. This means converting
+  snake_case to lower camelCase. For example: The aconfig flag
+  'camera_ae_mode_low_light_boost' becomes 'cameraAeModeLowLightBoost'.
+
+  Args:
+    flag_name: str. aconfig flag in snake_case
+
+  Return:
+    Java symbol for the a config flag.
+  """
+  camel_case = "".join([t.capitalize() for t in flag_name.split("_")])
+  # first character should be lowercase
+  return camel_case[0].lower() + camel_case[1:]
