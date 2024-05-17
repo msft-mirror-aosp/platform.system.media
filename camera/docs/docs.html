@@ -2871,7 +2871,10 @@ or MediaRecorder.<wbr/> This mode cannot be used with a target FPS range higher 
 FPS.<wbr/></p>
 <p>If the session configuration is not supported,<wbr/> the AE mode reported in the
 CaptureResult will be 'ON' instead of 'ON_<wbr/>LOW_<wbr/>LIGHT_<wbr/>BOOST_<wbr/>BRIGHTNESS_<wbr/>PRIORITY'.<wbr/></p>
-<p>The application can observe the CapturerResult field
+<p>When this AE mode is enabled,<wbr/> the CaptureResult field
+<a href="#dynamic_android.control.lowLightBoostState">android.<wbr/>control.<wbr/>low<wbr/>Light<wbr/>Boost<wbr/>State</a> will be present and not null.<wbr/> Otherwise,<wbr/> the
+<a href="#dynamic_android.control.lowLightBoostState">android.<wbr/>control.<wbr/>low<wbr/>Light<wbr/>Boost<wbr/>State</a> field will not be present in the CaptureResult.<wbr/></p>
+<p>The application can observe the CaptureResult field
 <a href="#dynamic_android.control.lowLightBoostState">android.<wbr/>control.<wbr/>low<wbr/>Light<wbr/>Boost<wbr/>State</a> to determine when low light boost is 'ACTIVE' or
 'INACTIVE'.<wbr/></p>
 <p>The low light boost is 'ACTIVE' once the scene lighting condition is less than the
@@ -8249,7 +8252,10 @@ or MediaRecorder.<wbr/> This mode cannot be used with a target FPS range higher 
 FPS.<wbr/></p>
 <p>If the session configuration is not supported,<wbr/> the AE mode reported in the
 CaptureResult will be 'ON' instead of 'ON_<wbr/>LOW_<wbr/>LIGHT_<wbr/>BOOST_<wbr/>BRIGHTNESS_<wbr/>PRIORITY'.<wbr/></p>
-<p>The application can observe the CapturerResult field
+<p>When this AE mode is enabled,<wbr/> the CaptureResult field
+<a href="#dynamic_android.control.lowLightBoostState">android.<wbr/>control.<wbr/>low<wbr/>Light<wbr/>Boost<wbr/>State</a> will be present and not null.<wbr/> Otherwise,<wbr/> the
+<a href="#dynamic_android.control.lowLightBoostState">android.<wbr/>control.<wbr/>low<wbr/>Light<wbr/>Boost<wbr/>State</a> field will not be present in the CaptureResult.<wbr/></p>
+<p>The application can observe the CaptureResult field
 <a href="#dynamic_android.control.lowLightBoostState">android.<wbr/>control.<wbr/>low<wbr/>Light<wbr/>Boost<wbr/>State</a> to determine when low light boost is 'ACTIVE' or
 'INACTIVE'.<wbr/></p>
 <p>The low light boost is 'ACTIVE' once the scene lighting condition is less than the
@@ -12255,6 +12261,8 @@ state will be CONVERGED.<wbr/></li>
               <p>When low light boost is enabled by setting the AE mode to
 'ON_<wbr/>LOW_<wbr/>LIGHT_<wbr/>BOOST_<wbr/>BRIGHTNESS_<wbr/>PRIORITY',<wbr/> it can dynamically apply a low light
 boost when the light level threshold is exceeded.<wbr/></p>
+<p>This field is present in the CaptureResult when the AE mode is set to
+'ON_<wbr/>LOW_<wbr/>LIGHT_<wbr/>BOOST_<wbr/>BRIGHTNESS_<wbr/>PRIORITY'.<wbr/> Otherwise,<wbr/> the field is not present.<wbr/></p>
 <p>This state indicates when low light boost is 'ACTIVE' and applied.<wbr/> Similarly,<wbr/> it can
 indicate when it is not being applied by returning 'INACTIVE'.<wbr/></p>
 <p>This key will be absent from the CaptureResult if AE mode is not set to
