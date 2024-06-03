@@ -239,6 +239,9 @@ gen_file ndk_camera_metadata_asserts.mako ../src/ndk_camera_metadata_asserts.cpp
 #Generate tags with vndk versions for filtering
 gen_file_abs vndk_camera_metadata_tags.mako "$libcameraservice_aidl_dir/VndkVersionMetadataTags.h" yes || exit 1
 
+#Generate Session Characteristics Keys
+gen_file_abs session_characteristics_tags.mako "$libcameraservice_aidl_dir/SessionCharacteristicsTags.h" yes || exit 1
+
 #Generate NDK header
 gen_file_abs ndk_camera_metadata_tags.mako "$ndk_header_dir/NdkCameraMetadataTags.h" yes || exit 1
 

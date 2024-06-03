@@ -35,13 +35,12 @@ cc_library {
     name: "libaudioutils",
     vendor_available: true,
     product_available: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     host_supported: true,
-    defaults: ["audio_utils_defaults"],
-
+    defaults: [
+        "aconfig_lib_cc_static_link.defaults",
+        "audio_utils_defaults",
+    ],
     srcs: [
         "Balance.cpp",
         "ErrorLog.cpp",
@@ -121,9 +120,6 @@ cc_library_static {
     name: "libaudioutils_fastmath",
     vendor_available: true,
     product_available: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     host_supported: true,
     defaults: ["audio_utils_defaults"],
@@ -145,6 +141,8 @@ cc_library_static {
     cflags: [
         "-Werror",
         "-ffast-math",
+        "-fhonor-infinities",
+        "-fhonor-nans",
     ],
     apex_available: [
         "//apex_available:platform",
