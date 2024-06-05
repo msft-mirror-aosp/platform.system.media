@@ -43,9 +43,14 @@ using ::testing::Combine;
 // Contains the sample rate and frequency for sine wave
 using AudioParam = std::tuple<int32_t, int32_t>;
 
-const std::unordered_map<int32_t, int32_t> kAWeightDelta1000 =
-    {{80, 23}, {100, 19}, {500, 3}, {1000, 0}, {2000, 1}, {3000, 1},
-     {8000, 1}};
+// Contains the frequency response in dB for an ideal A-weight filter
+const std::unordered_map<int32_t, float> kAWeightFResponse =
+    {{80, -22.5}, {100, -19.1}, {500, -3.2}, {1000, 0}, {2000, 1.2}, {4000, 1.0},
+     {8000, -1.1}, {12000, -4.3}};
+
+// MEL values have a range between  0 .. 110dB(A). When comparing to the estimated
+// attenuation of 1kHz this will result to approx. kFilterAccuracy/2 percent accuracy
+constexpr float kFilterAccuracy = 2.f;
 
 // TODO(b/276849537): should replace this with proper synchornization
 constexpr size_t kCallbackTimeoutInMs = 20;
@@ -53,7 +58,7 @@ constexpr size_t kCallbackTimeoutInMs = 20;
 class MelCallbackMock : public MelProcessor::MelCallback {
 public:
     MOCK_METHOD(void, onNewMelValues, (const std::vector<float>&, size_t, size_t,
-              audio_port_handle_t), (const override));
+              audio_port_handle_t, bool), (const override));
     MOCK_METHOD(void, onMomentaryExposure, (float, audio_port_handle_t), (const override));
 };
 
@@ -80,7 +85,9 @@ protected:
                                             mMelCallback,
                                             mDeviceId,
                                             mDefaultRs2,
-                                            mMaxMelsCallback)) {}
+                                            mMaxMelsCallback)) {
+              ALOGV("Starting test for freq / sr: %d / %d", mFrequency, mSampleRate);
+          }
 
 
     int32_t mSampleRate;
@@ -114,7 +121,8 @@ TEST_P(MelProcessorFixtureTest, CheckNumberOfCallbacks) {
 
     EXPECT_CALL(*mMelCallback.get(), onMomentaryExposure(Gt(mDefaultRs2), Eq(mDeviceId)))
         .Times(AtMost(2));
-    EXPECT_CALL(*mMelCallback.get(), onNewMelValues(_, _, Le(size_t{2}), Eq(mDeviceId))).Times(1);
+    EXPECT_CALL(*mMelCallback.get(),
+                onNewMelValues(_, _, Le(size_t{2}), Eq(mDeviceId), Eq(true))).Times(1);
 
     EXPECT_GT(mProcessor->process(mBuffer.data(), mBuffer.size() * sizeof(float)), 0);
     std::this_thread::sleep_for(std::chrono::milliseconds(kCallbackTimeoutInMs));
@@ -126,16 +134,20 @@ TEST_P(MelProcessorFixtureTest, CheckAWeightingFrequency) {
 
     EXPECT_CALL(*mMelCallback.get(), onMomentaryExposure(Gt(mDefaultRs2), Eq(mDeviceId)))
         .Times(AtMost(2));
-    EXPECT_CALL(*mMelCallback.get(), onNewMelValues(_, _, _, Eq(mDeviceId)))
+    EXPECT_CALL(*mMelCallback.get(), onNewMelValues(_, _, _, Eq(mDeviceId), Eq(true)))
         .Times(1)
         .WillRepeatedly([&] (const std::vector<float>& mel, size_t offset, size_t length,
-                                audio_port_handle_t deviceId) {
+                                audio_port_handle_t deviceId, bool attenuated) {
             EXPECT_EQ(offset, size_t{0});
             EXPECT_EQ(length, mMaxMelsCallback);
             EXPECT_EQ(deviceId, mDeviceId);
-            int32_t deltaValue = abs(mel[0] - mel[1]);
+            EXPECT_EQ(true, attenuated);
+            float deltaValue = mel[0] - mel[1];
             ALOGV("MEL[%d] = %.2f,  MEL[1000] = %.2f\n", mFrequency, mel[0], mel[1]);
-            EXPECT_TRUE(abs(deltaValue - kAWeightDelta1000.at(mFrequency)) <= 1.f);
+            EXPECT_TRUE(abs(deltaValue - kAWeightFResponse.at(mFrequency)) <= kFilterAccuracy)
+                << "Freq response of " << mFrequency << " and sample rate "
+                << mSampleRate << " compared to 1kHz is " << deltaValue
+                << ". Should be " << kAWeightFResponse.at(mFrequency);
         });
 
     EXPECT_GT(mProcessor->process(mBuffer.data(), mBuffer.size() * sizeof(float)), 0);
@@ -146,7 +158,7 @@ TEST_P(MelProcessorFixtureTest, AttenuationCheck) {
     auto processorAttenuation =
         sp<MelProcessor>::make(mSampleRate, 1, AUDIO_FORMAT_PCM_FLOAT, mMelCallback, mDeviceId+1,
                      mDefaultRs2, mMaxMelsCallback);
-    float attenuationDB = -10.f;
+    float attenuationDB = 10.f;
     std::vector<float> bufferAttenuation;
     float melAttenuation = 0.f;
     float melNoAttenuation = 0.f;
@@ -158,12 +170,13 @@ TEST_P(MelProcessorFixtureTest, AttenuationCheck) {
 
     EXPECT_CALL(*mMelCallback.get(), onMomentaryExposure(Gt(mDefaultRs2), _))
         .Times(AtMost(2 * mMaxMelsCallback));
-    EXPECT_CALL(*mMelCallback.get(), onNewMelValues(_, _, _, _))
+    EXPECT_CALL(*mMelCallback.get(), onNewMelValues(_, _, _, _, Eq(true)))
         .Times(AtMost(2))
         .WillRepeatedly([&] (const std::vector<float>& mel, size_t offset, size_t length,
-                                audio_port_handle_t deviceId) {
+                                audio_port_handle_t deviceId, bool attenuated) {
             EXPECT_EQ(offset, size_t{0});
             EXPECT_EQ(length, mMaxMelsCallback);
+            EXPECT_EQ(true, attenuated);
 
             if (deviceId == mDeviceId) {
                 melNoAttenuation = mel[0];
@@ -178,13 +191,32 @@ TEST_P(MelProcessorFixtureTest, AttenuationCheck) {
     std::this_thread::sleep_for(std::chrono::milliseconds(kCallbackTimeoutInMs));
     // with attenuation for some frequencies the MEL callback does not exceed the RS1 threshold
     if (melAttenuation > 0.f) {
-        EXPECT_EQ(fabsf(melAttenuation - melNoAttenuation), fabsf(attenuationDB));
+        EXPECT_EQ(melNoAttenuation - melAttenuation, attenuationDB);
     }
 }
 
+// A-weight filter loses precision around Nyquist frequency
+// Splitting into multiple suites that are capable to have an accurate
+// estimation for a-weight frequency response.
 INSTANTIATE_TEST_SUITE_P(MelProcessorTestSuite,
     MelProcessorFixtureTest,
-    Combine(Values(44100, 48000), Values(80, 100, 500, 1000, 2000, 3000, 8000))
+    Combine(Values(192000, 176400, 96000, 88200, 64000, 48000),
+            Values(80, 100, 500, 1000, 2000, 4000, 8000, 12000))
+);
+INSTANTIATE_TEST_SUITE_P(MelProcessorTestSuite2,
+    MelProcessorFixtureTest,
+    Combine(Values(44100, 32000),
+            Values(80, 100, 500, 1000, 2000, 4000, 8000))
+);
+INSTANTIATE_TEST_SUITE_P(MelProcessorTestSuite3,
+    MelProcessorFixtureTest,
+    Combine(Values(24000, 22050, 16000, 12000, 11025),
+            Values(80, 100, 500, 1000, 2000, 4000))
+);
+INSTANTIATE_TEST_SUITE_P(MelProcessorTestSuite4,
+    MelProcessorFixtureTest,
+    Combine(Values(8000),
+            Values(80, 100, 500, 1000, 2000))
 );
 
 }  // namespace

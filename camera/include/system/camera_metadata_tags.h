@@ -69,6 +69,7 @@ typedef enum camera_metadata_section {
     ANDROID_AUTOMOTIVE_LENS,
     ANDROID_EXTENSION,
     ANDROID_JPEGR,
+    ANDROID_EFV,
     ANDROID_SECTION_COUNT,
 
     VENDOR_SECTION = 0x8000
@@ -117,6 +118,7 @@ typedef enum camera_metadata_section_start {
     ANDROID_AUTOMOTIVE_LENS_START  = ANDROID_AUTOMOTIVE_LENS   << 16,
     ANDROID_EXTENSION_START        = ANDROID_EXTENSION         << 16,
     ANDROID_JPEGR_START            = ANDROID_JPEGR             << 16,
+    ANDROID_EFV_START              = ANDROID_EFV               << 16,
     VENDOR_SECTION_START           = VENDOR_SECTION            << 16
 } camera_metadata_section_start_t;
 
@@ -200,6 +202,9 @@ typedef enum camera_metadata_tag {
     ANDROID_CONTROL_AUTOFRAMING,                      // enum         | public       | HIDL v3.9
     ANDROID_CONTROL_AUTOFRAMING_AVAILABLE,            // enum         | public       | HIDL v3.9
     ANDROID_CONTROL_AUTOFRAMING_STATE,                // enum         | public       | HIDL v3.9
+    ANDROID_CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE,
+                                                      // float[]      | public       | HIDL v3.10
+    ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE,            // enum         | public       | HIDL v3.10
     ANDROID_CONTROL_END,
 
     ANDROID_DEMOSAIC_MODE =                           // enum         | system       | HIDL v3.2
@@ -219,6 +224,11 @@ typedef enum camera_metadata_tag {
     ANDROID_FLASH_COLOR_TEMPERATURE,                  // byte         | system       | HIDL v3.2
     ANDROID_FLASH_MAX_ENERGY,                         // byte         | system       | HIDL v3.2
     ANDROID_FLASH_STATE,                              // enum         | public       | HIDL v3.2
+    ANDROID_FLASH_STRENGTH_LEVEL,                     // int32        | public       | HIDL v3.10
+    ANDROID_FLASH_SINGLE_STRENGTH_MAX_LEVEL,          // int32        | public       | HIDL v3.10
+    ANDROID_FLASH_SINGLE_STRENGTH_DEFAULT_LEVEL,      // int32        | public       | HIDL v3.10
+    ANDROID_FLASH_TORCH_STRENGTH_MAX_LEVEL,           // int32        | public       | HIDL v3.10
+    ANDROID_FLASH_TORCH_STRENGTH_DEFAULT_LEVEL,       // int32        | public       | HIDL v3.10
     ANDROID_FLASH_END,
 
     ANDROID_FLASH_INFO_AVAILABLE =                    // enum         | public       | HIDL v3.2
@@ -395,7 +405,7 @@ typedef enum camera_metadata_tag {
     ANDROID_SENSOR_OPAQUE_RAW_SIZE_MAXIMUM_RESOLUTION,// int32[]      | system       | HIDL v3.6
     ANDROID_SENSOR_PIXEL_MODE,                        // enum         | public       | HIDL v3.6
     ANDROID_SENSOR_RAW_BINNING_FACTOR_USED,           // enum         | public       | HIDL v3.6
-    ANDROID_SENSOR_READOUT_TIMESTAMP,                 // enum         | fwk_java_public
+    ANDROID_SENSOR_READOUT_TIMESTAMP,                 // enum         | java_public  | HIDL v3.8
     ANDROID_SENSOR_END,
 
     ANDROID_SENSOR_INFO_ACTIVE_ARRAY_SIZE =           // int32[]      | public       | HIDL v3.2
@@ -448,6 +458,8 @@ typedef enum camera_metadata_tag {
     ANDROID_STATISTICS_OIS_TIMESTAMPS,                // int64[]      | ndk_public   | HIDL v3.3
     ANDROID_STATISTICS_OIS_X_SHIFTS,                  // float[]      | ndk_public   | HIDL v3.3
     ANDROID_STATISTICS_OIS_Y_SHIFTS,                  // float[]      | ndk_public   | HIDL v3.3
+    ANDROID_STATISTICS_LENS_INTRINSIC_TIMESTAMPS,     // int64[]      | ndk_public   | HIDL v3.10
+    ANDROID_STATISTICS_LENS_INTRINSIC_SAMPLES,        // float[]      | ndk_public   | HIDL v3.10
     ANDROID_STATISTICS_END,
 
     ANDROID_STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES = 
@@ -486,6 +498,8 @@ typedef enum camera_metadata_tag {
     ANDROID_INFO_VERSION,                             // byte         | public       | HIDL v3.3
     ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION, // enum         | system       | HIDL v3.4
     ANDROID_INFO_DEVICE_STATE_ORIENTATIONS,           // int64[]      | ndk_public   | HIDL v3.7
+    ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION, // enum         | fwk_java_public
+    ANDROID_INFO_DEVICE_ID,                           // int32        | fwk_only
     ANDROID_INFO_END,
 
     ANDROID_BLACK_LEVEL_LOCK =                        // enum         | public       | HIDL v3.2
@@ -535,6 +549,8 @@ typedef enum camera_metadata_tag {
             ANDROID_LOGICAL_MULTI_CAMERA_START,
     ANDROID_LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE,    // enum         | public       | HIDL v3.3
     ANDROID_LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID,  // byte         | public       | HIDL v3.4
+    ANDROID_LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_SENSOR_CROP_REGION,
+                                                      // int32[]      | public       | HIDL v3.10
     ANDROID_LOGICAL_MULTI_CAMERA_END,
 
     ANDROID_DISTORTION_CORRECTION_MODE =              // enum         | public       | HIDL v3.3
@@ -587,6 +603,19 @@ typedef enum camera_metadata_tag {
                                                       // int64[]      | ndk_public   | HIDL v3.9
     ANDROID_JPEGR_END,
 
+    ANDROID_EFV_PADDING_ZOOM_FACTOR_RANGE =           // float[]      | extension    | HIDL v3.10
+            ANDROID_EFV_START,
+    ANDROID_EFV_PADDING_ZOOM_FACTOR,                  // float        | extension    | HIDL v3.10
+    ANDROID_EFV_AUTO_ZOOM,                            // enum         | extension    | HIDL v3.10
+    ANDROID_EFV_MAX_PADDING_ZOOM_FACTOR,              // float        | extension    | HIDL v3.10
+    ANDROID_EFV_STABILIZATION_MODE,                   // enum         | extension    | HIDL v3.10
+    ANDROID_EFV_TRANSLATE_VIEWPORT,                   // int32        | extension    | HIDL v3.10
+    ANDROID_EFV_ROTATE_VIEWPORT,                      // float        | extension    | HIDL v3.10
+    ANDROID_EFV_PADDING_REGION,                       // int32[]      | extension    | HIDL v3.10
+    ANDROID_EFV_AUTO_ZOOM_PADDING_REGION,             // int32[]      | extension    | HIDL v3.10
+    ANDROID_EFV_TARGET_COORDINATES,                   // float[]      | extension    | HIDL v3.10
+    ANDROID_EFV_END,
+
 } camera_metadata_tag_t;
 
 /**
@@ -630,6 +659,7 @@ typedef enum camera_metadata_enum_android_control_ae_mode {
     ANDROID_CONTROL_AE_MODE_ON_ALWAYS_FLASH                         , // HIDL v3.2
     ANDROID_CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE                    , // HIDL v3.2
     ANDROID_CONTROL_AE_MODE_ON_EXTERNAL_FLASH                       , // HIDL v3.3
+    ANDROID_CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY  , // HIDL v3.10
 } camera_metadata_enum_android_control_ae_mode_t;
 
 // ANDROID_CONTROL_AE_PRECAPTURE_TRIGGER
@@ -847,6 +877,12 @@ typedef enum camera_metadata_enum_android_control_autoframing_state {
     ANDROID_CONTROL_AUTOFRAMING_STATE_FRAMING                       , // HIDL v3.9
     ANDROID_CONTROL_AUTOFRAMING_STATE_CONVERGED                     , // HIDL v3.9
 } camera_metadata_enum_android_control_autoframing_state_t;
+
+// ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE
+typedef enum camera_metadata_enum_android_control_low_light_boost_state {
+    ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE_INACTIVE                  , // HIDL v3.10
+    ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE                    , // HIDL v3.10
+} camera_metadata_enum_android_control_low_light_boost_state_t;
 
 
 // ANDROID_DEMOSAIC_MODE
@@ -1172,8 +1208,8 @@ typedef enum camera_metadata_enum_android_sensor_raw_binning_factor_used {
 
 // ANDROID_SENSOR_READOUT_TIMESTAMP
 typedef enum camera_metadata_enum_android_sensor_readout_timestamp {
-    ANDROID_SENSOR_READOUT_TIMESTAMP_NOT_SUPPORTED                  ,
-    ANDROID_SENSOR_READOUT_TIMESTAMP_HARDWARE                       ,
+    ANDROID_SENSOR_READOUT_TIMESTAMP_NOT_SUPPORTED                  , // HIDL v3.8
+    ANDROID_SENSOR_READOUT_TIMESTAMP_HARDWARE                       , // HIDL v3.8
 } camera_metadata_enum_android_sensor_readout_timestamp_t;
 
 
@@ -1295,7 +1331,17 @@ typedef enum camera_metadata_enum_android_info_supported_hardware_level {
 // ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION
 typedef enum camera_metadata_enum_android_info_supported_buffer_management_version {
     ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION_HIDL_DEVICE_3_5, // HIDL v3.4
+    ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION_SESSION_CONFIGURABLE
+                                                                     , // HIDL v3.10
 } camera_metadata_enum_android_info_supported_buffer_management_version_t;
+
+// ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION
+typedef enum camera_metadata_enum_android_info_session_configuration_query_version {
+    ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_UPSIDE_DOWN_CAKE
+                                                                      = 34,
+    ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_VANILLA_ICE_CREAM
+                                                                      = 35,
+} camera_metadata_enum_android_info_session_configuration_query_version_t;
 
 
 // ANDROID_BLACK_LEVEL_LOCK
@@ -1443,5 +1489,19 @@ typedef enum camera_metadata_enum_android_jpegr_available_jpeg_r_stream_configur
     ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_INPUT
                                                                      , // HIDL v3.9
 } camera_metadata_enum_android_jpegr_available_jpeg_r_stream_configurations_maximum_resolution_t;
+
+
+// ANDROID_EFV_AUTO_ZOOM
+typedef enum camera_metadata_enum_android_efv_auto_zoom {
+    ANDROID_EFV_AUTO_ZOOM_TRUE                                      , // HIDL v3.10
+    ANDROID_EFV_AUTO_ZOOM_FALSE                                     , // HIDL v3.10
+} camera_metadata_enum_android_efv_auto_zoom_t;
+
+// ANDROID_EFV_STABILIZATION_MODE
+typedef enum camera_metadata_enum_android_efv_stabilization_mode {
+    ANDROID_EFV_STABILIZATION_MODE_OFF                              , // HIDL v3.10
+    ANDROID_EFV_STABILIZATION_MODE_GIMBAL                           , // HIDL v3.10
+    ANDROID_EFV_STABILIZATION_MODE_LOCKED                           , // HIDL v3.10
+} camera_metadata_enum_android_efv_stabilization_mode_t;
 
 

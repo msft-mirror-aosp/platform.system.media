@@ -108,11 +108,13 @@ constexpr char kEffectImplUuidVisualizer[] = "d069d9e0-8329-11df-9168-0002a5d5c5
 constexpr char kEffectImplUuidVisualizerProxy[] = "1d0a1a53-7d5d-48f2-8e71-27fbd10d842c";
 constexpr char kEffectImplUuidVolumeSw[] = "fa81a718-588b-11ed-9b6a-0242ac120002";
 constexpr char kEffectImplUuidVolumeBundle[] = "119341a0-8469-11df-81f9-0002a5d5c51b";
+constexpr char kEffectImplUuidSpatializerSw[] = "fa81a880-588b-11ed-9b6a-0242ac120002";
+
 
 constexpr char kEffectUuidNull[] = "ec7178ec-e5e1-4432-a3f4-4657e6795210";
 constexpr char kEffectUuidZero[] = "00000000-0000-0000-0000-000000000000";
-constexpr char kEffectUuidExtensionType[] = "fa81dbde-588b-11ed-9b6a-0242ac120002";
-constexpr char kEffectUuidExtensionImpl[] = "fa81dd00-588b-11ed-9b6a-0242ac120002";
+constexpr char kEffectTypeUuidExtension[] = "fa81dbde-588b-11ed-9b6a-0242ac120002";
+constexpr char kEffectImplUuidExtension[] = "fa81dd00-588b-11ed-9b6a-0242ac120002";
 
 #define EFFECT_TYPE_UUID_LIST_DEF(V)  \
     V(TypeUuidAcousticEchoCanceler)   \
@@ -122,6 +124,7 @@ constexpr char kEffectUuidExtensionImpl[] = "fa81dd00-588b-11ed-9b6a-0242ac12000
     V(TypeUuidDownmix)                \
     V(TypeUuidDynamicsProcessing)     \
     V(TypeUuidEqualizer)              \
+    V(TypeUuidExtension)              \
     V(TypeUuidHapticGenerator)        \
     V(TypeUuidLoudnessEnhancer)       \
     V(TypeUuidEnvReverb)              \
@@ -146,6 +149,7 @@ constexpr char kEffectUuidExtensionImpl[] = "fa81dd00-588b-11ed-9b6a-0242ac12000
     V(ImplUuidEqualizerSw)              \
     V(ImplUuidEqualizerBundle)          \
     V(ImplUuidEqualizerProxy)           \
+    V(ImplUuidExtension)                \
     V(ImplUuidHapticGeneratorSw)        \
     V(ImplUuidHapticGenerator)          \
     V(ImplUuidLoudnessEnhancerSw)       \
@@ -164,13 +168,12 @@ constexpr char kEffectUuidExtensionImpl[] = "fa81dd00-588b-11ed-9b6a-0242ac12000
     V(ImplUuidVisualizer)               \
     V(ImplUuidVisualizerProxy)          \
     V(ImplUuidVolumeSw)                 \
-    V(ImplUuidVolumeBundle)
+    V(ImplUuidVolumeBundle)             \
+    V(ImplUuidSpatializerSw)
 
 #define EFFECT_OTHER_UUID_LIST_DEF(V) \
     V(UuidNull)                           \
     V(UuidZero)                           \
-    V(UuidExtensionType)                  \
-    V(UuidExtensionImpl)
 
 #define GENERATE_UUID_GETTER_V(symbol)                            \
     inline const AudioUuid& getEffect##symbol() {                 \
