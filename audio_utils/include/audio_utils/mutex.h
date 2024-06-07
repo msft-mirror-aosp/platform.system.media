@@ -17,6 +17,7 @@
 #pragma once
 
 #include <android-base/thread_annotations.h>
+#include <audio_utils/safe_math.h>
 #include <audio_utils/threads.h>
 #include <utils/Log.h>
 #include <utils/Timers.h>
@@ -1360,7 +1361,8 @@ public:
         if (timeout_ns <= 0) {
             if (!m_.try_lock()) return false;
         } else {
-            const int64_t deadline_ns = timeout_ns + systemTime(SYSTEM_TIME_REALTIME);
+            const int64_t deadline_ns =
+                    safe_add_sat(timeout_ns, systemTime(SYSTEM_TIME_REALTIME));
             const struct timespec ts = {
                 .tv_sec = static_cast<time_t>(deadline_ns / 1'000'000'000),
                 .tv_nsec = static_cast<long>(deadline_ns % 1'000'000'000),
