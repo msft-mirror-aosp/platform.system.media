@@ -4287,40 +4287,40 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             set to SINGLE
           </range>
           <details>Flash strength level to use in capture mode i.e. when the applications control
-            flash with either SINGLE or TORCH mode.
+            flash with either `SINGLE` or `TORCH` mode.
 
             Use android.flash.singleStrengthMaxLevel and
             android.flash.torchStrengthMaxLevel to check whether the device supports
             flash strength control or not.
-            If the values of android.flash.info.singleStrengthMaxLevel and
+            If the values of android.flash.singleStrengthMaxLevel and
             android.flash.torchStrengthMaxLevel are greater than 1,
             then the device supports manual flash strength control.
 
-            If the android.flash.mode `==` TORCH the value must be &amp;gt;= 1
+            If the android.flash.mode `==` `TORCH` the value must be &amp;gt;= 1
             and &amp;lt;= android.flash.torchStrengthMaxLevel.
             If the application doesn't set the key and
             android.flash.torchStrengthMaxLevel &amp;gt; 1,
             then the flash will be fired at the default level set by HAL in
             android.flash.torchStrengthDefaultLevel.
-            If the android.flash.mode `==` SINGLE, then the value must be &amp;gt;= 1
+            If the android.flash.mode `==` `SINGLE`, then the value must be &amp;gt;= 1
             and &amp;lt;= android.flash.singleStrengthMaxLevel.
             If the application does not set this key and
             android.flash.singleStrengthMaxLevel &amp;gt; 1,
             then the flash will be fired at the default level set by HAL
             in android.flash.singleStrengthDefaultLevel.
-            If android.control.aeMode is set to any of ON_AUTO_FLASH, ON_ALWAYS_FLASH,
-            ON_AUTO_FLASH_REDEYE, ON_EXTERNAL_FLASH values, then the strengthLevel will be ignored.
+            If android.control.aeMode is set to any of `ON_AUTO_FLASH`, `ON_ALWAYS_FLASH`,
+            `ON_AUTO_FLASH_REDEYE`, `ON_EXTERNAL_FLASH` values, then the strengthLevel will be ignored.
           </details>
         </entry>
       </controls>
       <static>
         <entry name="singleStrengthMaxLevel" type="int32" visibility="public" hwlevel="legacy"
                aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
-          <description>Maximum flash brightness level for manual flash control in SINGLE mode.
+          <description>Maximum flash brightness level for manual flash control in `SINGLE` mode.
           </description>
           <details>
             Maximum flash brightness level in camera capture mode and
-            android.flash.mode set to SINGLE.
+            android.flash.mode set to `SINGLE`.
             Value will be &amp;gt; 1 if the manual flash strength control feature is supported,
             otherwise the value will be equal to 1.
             Note that this level is just a number of supported levels (the granularity of control).
@@ -4329,7 +4329,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="singleStrengthDefaultLevel" type="int32" visibility="public" hwlevel="legacy"
                aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
-          <description>Default flash brightness level for manual flash control in SINGLE mode.
+          <description>Default flash brightness level for manual flash control in `SINGLE` mode.
           </description>
           <details>
             If flash unit is available this will be greater than or equal to 1 and less
@@ -4340,11 +4340,11 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="torchStrengthMaxLevel" type="int32" visibility="public" hwlevel="legacy"
                aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
-          <description>Maximum flash brightness level for manual flash control in TORCH mode
+          <description>Maximum flash brightness level for manual flash control in `TORCH` mode
           </description>
           <details>
             Maximum flash brightness level in camera capture mode and
-            android.flash.mode set to TORCH.
+            android.flash.mode set to `TORCH`.
             Value will be &amp;gt; 1 if the manual flash strength control feature is supported,
             otherwise the value will be equal to 1.
 
@@ -4358,7 +4358,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="torchStrengthDefaultLevel" type="int32" visibility="public" hwlevel="legacy"
                aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
-          <description>Default flash brightness level for manual flash control in TORCH mode
+          <description>Default flash brightness level for manual flash control in `TORCH` mode
           </description>
           <details>
             If flash unit is available this will be greater than or equal to 1 and less
@@ -9965,10 +9965,17 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           <description>Whether the RAW images output from this camera device are subject to
           lens shading correction.</description>
           <details>
-          If TRUE, all images produced by the camera device in the RAW image formats will
-          have lens shading correction already applied to it. If FALSE, the images will
-          not be adjusted for lens shading correction.
-          See android.request.maxNumOutputRaw for a list of RAW image formats.
+          If `true`, all images produced by the camera device in the `RAW` image formats will have
+          at least some lens shading correction already applied to it. If `false`, the images will
+          not be adjusted for lens shading correction.  See android.request.maxNumOutputRaw for a
+          list of RAW image formats.
+
+          When `true`, the `lensShadingCorrectionMap` key may still have values greater than 1.0,
+          and those will need to be applied to any captured RAW frames for them to match the shading
+          correction of processed buffers such as `YUV` or `JPEG` images. This may occur, for
+          example, when some basic fixed lens shading correction is applied by hardware to RAW data,
+          and additional correction is done dynamically in the camera processing pipeline after
+          demosaicing.
 
           This key will be `null` for all devices do not report this information.
           Devices with RAW capability will always report this information in this key.
@@ -11818,6 +11825,10 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           correction map that needs to be applied to get shading
           corrected images that match the camera device's output for
           non-RAW formats.
+
+          Therefore, whatever the value of lensShadingApplied is, the lens
+          shading map should always be applied to RAW images if the goal is to
+          match the shading appearance of processed (non-RAW) images.
 
           For a complete shading correction map, the least shaded
           section of the image will have a gain factor of 1; all
