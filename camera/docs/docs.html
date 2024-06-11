@@ -13071,9 +13071,9 @@ for use cases such as preview,<wbr/> auto-focus assist,<wbr/> still capture,<wbr
             </td>
 
             <td class="entry_range">
-              <p><code>[1-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
+              <p><code>[1-<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a>]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
 set to TORCH;
-<code>[1-android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
+<code>[1-<a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a>]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
 set to SINGLE</p>
             </td>
 
@@ -13091,27 +13091,27 @@ set to SINGLE</p>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
               <p>Flash strength level to use in capture mode i.<wbr/>e.<wbr/> when the applications control
-flash with either SINGLE or TORCH mode.<wbr/></p>
-<p>Use android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level and
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level to check whether the device supports
+flash with either <code>SINGLE</code> or <code>TORCH</code> mode.<wbr/></p>
+<p>Use <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> and
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> to check whether the device supports
 flash strength control or not.<wbr/>
-If the values of android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level and
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level are greater than 1,<wbr/>
+If the values of <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> and
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> are greater than 1,<wbr/>
 then the device supports manual flash strength control.<wbr/></p>
-<p>If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> TORCH the value must be &gt;= 1
-and &lt;= android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level.<wbr/>
+<p>If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> <code>TORCH</code> the value must be &gt;= 1
+and &lt;= <a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a>.<wbr/>
 If the application doesn't set the key and
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level &gt; 1,<wbr/>
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> &gt; 1,<wbr/>
 then the flash will be fired at the default level set by HAL in
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Default<wbr/>Level.<wbr/>
-If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> SINGLE,<wbr/> then the value must be &gt;= 1
-and &lt;= android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level.<wbr/>
+<a href="#static_android.flash.torchStrengthDefaultLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Default<wbr/>Level</a>.<wbr/>
+If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> <code>SINGLE</code>,<wbr/> then the value must be &gt;= 1
+and &lt;= <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a>.<wbr/>
 If the application does not set this key and
-android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level &gt; 1,<wbr/>
+<a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> &gt; 1,<wbr/>
 then the flash will be fired at the default level set by HAL
-in android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Default<wbr/>Level.<wbr/>
-If <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> is set to any of ON_<wbr/>AUTO_<wbr/>FLASH,<wbr/> ON_<wbr/>ALWAYS_<wbr/>FLASH,<wbr/>
-ON_<wbr/>AUTO_<wbr/>FLASH_<wbr/>REDEYE,<wbr/> ON_<wbr/>EXTERNAL_<wbr/>FLASH values,<wbr/> then the strengthLevel will be ignored.<wbr/></p>
+in <a href="#static_android.flash.singleStrengthDefaultLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Default<wbr/>Level</a>.<wbr/>
+If <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> is set to any of <code>ON_<wbr/>AUTO_<wbr/>FLASH</code>,<wbr/> <code>ON_<wbr/>ALWAYS_<wbr/>FLASH</code>,<wbr/>
+<code>ON_<wbr/>AUTO_<wbr/>FLASH_<wbr/>REDEYE</code>,<wbr/> <code>ON_<wbr/>EXTERNAL_<wbr/>FLASH</code> values,<wbr/> then the strengthLevel will be ignored.<wbr/></p>
             </td>
           </tr>
 
@@ -13502,7 +13502,7 @@ power single flash</p>
             </td> <!-- entry_type -->
 
             <td class="entry_description">
-              <p>Maximum flash brightness level for manual flash control in SINGLE mode.<wbr/></p>
+              <p>Maximum flash brightness level for manual flash control in <code>SINGLE</code> mode.<wbr/></p>
             </td>
 
             <td class="entry_units">
@@ -13525,7 +13525,7 @@ power single flash</p>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
               <p>Maximum flash brightness level in camera capture mode and
-<a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> set to SINGLE.<wbr/>
+<a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> set to <code>SINGLE</code>.<wbr/>
 Value will be &gt; 1 if the manual flash strength control feature is supported,<wbr/>
 otherwise the value will be equal to 1.<wbr/>
 Note that this level is just a number of supported levels (the granularity of control).<wbr/>
@@ -13557,7 +13557,7 @@ There is no actual physical power units tied to this level.<wbr/></p>
             </td> <!-- entry_type -->
 
             <td class="entry_description">
-              <p>Default flash brightness level for manual flash control in SINGLE mode.<wbr/></p>
+              <p>Default flash brightness level for manual flash control in <code>SINGLE</code> mode.<wbr/></p>
             </td>
 
             <td class="entry_units">
@@ -13580,7 +13580,7 @@ There is no actual physical power units tied to this level.<wbr/></p>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
               <p>If flash unit is available this will be greater than or equal to 1 and less
-or equal to <code>android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</code>.<wbr/>
+or equal to <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a>.<wbr/>
 Note for devices that do not support the manual flash strength control
 feature,<wbr/> this level will always be equal to 1.<wbr/></p>
             </td>
@@ -13610,7 +13610,7 @@ feature,<wbr/> this level will always be equal to 1.<wbr/></p>
             </td> <!-- entry_type -->
 
             <td class="entry_description">
-              <p>Maximum flash brightness level for manual flash control in TORCH mode</p>
+              <p>Maximum flash brightness level for manual flash control in <code>TORCH</code> mode</p>
             </td>
 
             <td class="entry_units">
@@ -13633,14 +13633,14 @@ feature,<wbr/> this level will always be equal to 1.<wbr/></p>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
               <p>Maximum flash brightness level in camera capture mode and
-<a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> set to TORCH.<wbr/>
+<a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> set to <code>TORCH</code>.<wbr/>
 Value will be &gt; 1 if the manual flash strength control feature is supported,<wbr/>
 otherwise the value will be equal to 1.<wbr/></p>
 <p>Note that this level is just a number of supported levels(the granularity of control).<wbr/>
 There is no actual physical power units tied to this level.<wbr/>
-There is no relation between android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level and
-android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level i.<wbr/>e.<wbr/> the ratio of
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level:android.<wbr/>flash.<wbr/>info.<wbr/>singleStrengthMaxLevel
+There is no relation between <a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> and
+<a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> i.<wbr/>e.<wbr/> the ratio of
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a>:<a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a>
 is not guaranteed to be the ratio of actual brightness.<wbr/></p>
             </td>
           </tr>
@@ -13669,7 +13669,7 @@ is not guaranteed to be the ratio of actual brightness.<wbr/></p>
             </td> <!-- entry_type -->
 
             <td class="entry_description">
-              <p>Default flash brightness level for manual flash control in TORCH mode</p>
+              <p>Default flash brightness level for manual flash control in <code>TORCH</code> mode</p>
             </td>
 
             <td class="entry_units">
@@ -13692,7 +13692,7 @@ is not guaranteed to be the ratio of actual brightness.<wbr/></p>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
               <p>If flash unit is available this will be greater than or equal to 1 and less
-or equal to android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level.<wbr/>
+or equal to <a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a>.<wbr/>
 Note for the devices that do not support the manual flash strength control feature,<wbr/>
 this level will always be equal to 1.<wbr/></p>
             </td>
@@ -14037,9 +14037,9 @@ LEGACY devices (i.<wbr/>e.<wbr/> it will be <code>null</code>).<wbr/></p>
             </td>
 
             <td class="entry_range">
-              <p><code>[1-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
+              <p><code>[1-<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a>]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
 set to TORCH;
-<code>[1-android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
+<code>[1-<a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a>]</code> when the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> is
 set to SINGLE</p>
             </td>
 
@@ -14057,27 +14057,27 @@ set to SINGLE</p>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
               <p>Flash strength level to use in capture mode i.<wbr/>e.<wbr/> when the applications control
-flash with either SINGLE or TORCH mode.<wbr/></p>
-<p>Use android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level and
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level to check whether the device supports
+flash with either <code>SINGLE</code> or <code>TORCH</code> mode.<wbr/></p>
+<p>Use <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> and
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> to check whether the device supports
 flash strength control or not.<wbr/>
-If the values of android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level and
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level are greater than 1,<wbr/>
+If the values of <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> and
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> are greater than 1,<wbr/>
 then the device supports manual flash strength control.<wbr/></p>
-<p>If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> TORCH the value must be &gt;= 1
-and &lt;= android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level.<wbr/>
+<p>If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> <code>TORCH</code> the value must be &gt;= 1
+and &lt;= <a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a>.<wbr/>
 If the application doesn't set the key and
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level &gt; 1,<wbr/>
+<a href="#static_android.flash.torchStrengthMaxLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Max<wbr/>Level</a> &gt; 1,<wbr/>
 then the flash will be fired at the default level set by HAL in
-android.<wbr/>flash.<wbr/>info.<wbr/>torch<wbr/>Strength<wbr/>Default<wbr/>Level.<wbr/>
-If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> SINGLE,<wbr/> then the value must be &gt;= 1
-and &lt;= android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level.<wbr/>
+<a href="#static_android.flash.torchStrengthDefaultLevel">android.<wbr/>flash.<wbr/>torch<wbr/>Strength<wbr/>Default<wbr/>Level</a>.<wbr/>
+If the <a href="#controls_android.flash.mode">android.<wbr/>flash.<wbr/>mode</a> <code>==</code> <code>SINGLE</code>,<wbr/> then the value must be &gt;= 1
+and &lt;= <a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a>.<wbr/>
 If the application does not set this key and
-android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level &gt; 1,<wbr/>
+<a href="#static_android.flash.singleStrengthMaxLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Max<wbr/>Level</a> &gt; 1,<wbr/>
 then the flash will be fired at the default level set by HAL
-in android.<wbr/>flash.<wbr/>info.<wbr/>single<wbr/>Strength<wbr/>Default<wbr/>Level.<wbr/>
-If <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> is set to any of ON_<wbr/>AUTO_<wbr/>FLASH,<wbr/> ON_<wbr/>ALWAYS_<wbr/>FLASH,<wbr/>
-ON_<wbr/>AUTO_<wbr/>FLASH_<wbr/>REDEYE,<wbr/> ON_<wbr/>EXTERNAL_<wbr/>FLASH values,<wbr/> then the strengthLevel will be ignored.<wbr/></p>
+in <a href="#static_android.flash.singleStrengthDefaultLevel">android.<wbr/>flash.<wbr/>single<wbr/>Strength<wbr/>Default<wbr/>Level</a>.<wbr/>
+If <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> is set to any of <code>ON_<wbr/>AUTO_<wbr/>FLASH</code>,<wbr/> <code>ON_<wbr/>ALWAYS_<wbr/>FLASH</code>,<wbr/>
+<code>ON_<wbr/>AUTO_<wbr/>FLASH_<wbr/>REDEYE</code>,<wbr/> <code>ON_<wbr/>EXTERNAL_<wbr/>FLASH</code> values,<wbr/> then the strengthLevel will be ignored.<wbr/></p>
             </td>
           </tr>
 
@@ -28150,10 +28150,16 @@ lens shading correction.<wbr/></p>
           </tr>
           <tr class="entry_cont">
             <td class="entry_details" colspan="6">
-              <p>If TRUE,<wbr/> all images produced by the camera device in the RAW image formats will
-have lens shading correction already applied to it.<wbr/> If FALSE,<wbr/> the images will
-not be adjusted for lens shading correction.<wbr/>
-See <a href="#static_android.request.maxNumOutputRaw">android.<wbr/>request.<wbr/>max<wbr/>Num<wbr/>Output<wbr/>Raw</a> for a list of RAW image formats.<wbr/></p>
+              <p>If <code>true</code>,<wbr/> all images produced by the camera device in the <code>RAW</code> image formats will have
+at least some lens shading correction already applied to it.<wbr/> If <code>false</code>,<wbr/> the images will
+not be adjusted for lens shading correction.<wbr/>  See <a href="#static_android.request.maxNumOutputRaw">android.<wbr/>request.<wbr/>max<wbr/>Num<wbr/>Output<wbr/>Raw</a> for a
+list of RAW image formats.<wbr/></p>
+<p>When <code>true</code>,<wbr/> the <code>lensShadingCorrectionMap</code> key may still have values greater than 1.<wbr/>0,<wbr/>
+and those will need to be applied to any captured RAW frames for them to match the shading
+correction of processed buffers such as <code>YUV</code> or <code>JPEG</code> images.<wbr/> This may occur,<wbr/> for
+example,<wbr/> when some basic fixed lens shading correction is applied by hardware to RAW data,<wbr/>
+and additional correction is done dynamically in the camera processing pipeline after
+demosaicing.<wbr/></p>
 <p>This key will be <code>null</code> for all devices do not report this information.<wbr/>
 Devices with RAW capability will always report this information in this key.<wbr/></p>
             </td>
@@ -33491,6 +33497,9 @@ the RAW output image (<a href="#static_android.sensor.info.lensShadingApplied">a
 correction map that needs to be applied to get shading
 corrected images that match the camera device's output for
 non-RAW formats.<wbr/></p>
+<p>Therefore,<wbr/> whatever the value of lensShadingApplied is,<wbr/> the lens
+shading map should always be applied to RAW images if the goal is to
+match the shading appearance of processed (non-RAW) images.<wbr/></p>
 <p>For a complete shading correction map,<wbr/> the least shaded
 section of the image will have a gain factor of 1; all
 other sections will have gains above 1.<wbr/></p>
