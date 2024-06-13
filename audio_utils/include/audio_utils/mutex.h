@@ -442,22 +442,25 @@ public:
 // optimizations can take place which would otherwise be discouraged for atomics.
 // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0062r1.html
 
-template <typename T>
+// VT may be volatile qualified, if desired, or a normal arithmetic type.
+template <typename VT>
 class unordered_atomic {
+    using T = std::decay_t<VT>;
     static_assert(std::atomic<T>::is_always_lock_free);
 public:
     constexpr unordered_atomic(T desired = {}) : t_(desired) {}
     operator T() const { return t_; }
-    T& operator=(T desired) { return t_ = desired; }
+    T operator=(T desired) { t_ = desired; return desired; }
 
-    T& operator--() { const T temp = t_ - 1; return t_ = temp; }
-    T& operator++() { const T temp = t_ + 1; return t_ = temp; }
-    T& operator+=(const T value) { const T temp = t_ + value; return t_ = temp; }
+    // a volatile ++t_ or t_ += 1 is deprecated in C++20.
+    T operator--() { return operator=(t_ - 1); }
+    T operator++() { return operator=(t_ + 1); }
+    T operator+=(const T value) { return operator=(t_ + value); }
 
     T load(std::memory_order order = std::memory_order_relaxed) const { (void)order; return t_; }
 
 private:
-    T t_;
+    VT t_;
 };
 
 inline constexpr pid_t kInvalidTid = -1;
