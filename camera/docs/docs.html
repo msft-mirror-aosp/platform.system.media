@@ -36726,7 +36726,7 @@ supported device state bitwise combination.<wbr/></p>
                 
           <tr class="entry" id="static_android.info.sessionConfigurationQueryVersion">
             <td class="entry_name
-             " rowspan="3">
+             " rowspan="5">
               android.<wbr/>info.<wbr/>session<wbr/>Configuration<wbr/>Query<wbr/>Version
             </td>
             <td class="entry_type">
@@ -36911,6 +36911,18 @@ the AE_<wbr/>TARGET_<wbr/>FPS_<wbr/>RANGE and VIDEO_<wbr/>STABILIZATION_<wbr/>MO
             </td>
           </tr>
 
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Preview stabilization must be orthogonal to other features.<wbr/> In other words,<wbr/> if preview
+stabilization is supported by the camera device,<wbr/> the return value of
+isStreamCombinationWithSettingsSupported for a particular combination must return
+the same value between stabilization off and preview stabilization on.<wbr/> This reduces the
+search space for feature combination queries.<wbr/></p>
+            </td>
+          </tr>
 
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
