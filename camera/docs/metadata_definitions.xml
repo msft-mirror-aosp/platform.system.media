@@ -13096,6 +13096,13 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           OutputConfiguration contains the stream configurations and DYNAMIC_RANGE_PROFILE, and
           the AE_TARGET_FPS_RANGE and VIDEO_STABILIZATION_MODE are set as session parameters.
           </details>
+          <hal_details>
+          Preview stabilization must be orthogonal to other features. In other words, if preview
+          stabilization is supported by the camera device, the return value of
+          isStreamCombinationWithSettingsSupported for a particular combination must return
+          the same value between stabilization off and preview stabilization on. This reduces the
+          search space for feature combination queries.
+          </hal_details>
         </entry>
         <entry name="deviceId" type="int32" visibility="fwk_only">
           <description>
