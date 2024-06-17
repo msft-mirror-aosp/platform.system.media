@@ -167,6 +167,36 @@ cc_test {
 }
 
 cc_test {
+    name: "audio_tflite_tests",
+
+    srcs: [
+        "audio_tflite_tests.cpp",
+    ],
+
+    header_libs: [
+        "flatbuffer_headers",
+        "tensorflow_headers",
+    ],
+
+    shared_libs: [
+        "libandroid",
+        "libbase",
+        "liblog",
+    ],
+
+    static_libs: [
+        "libgmock",
+        "libtflite_static",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
     name: "balance_tests",
     host_supported: true,
 
