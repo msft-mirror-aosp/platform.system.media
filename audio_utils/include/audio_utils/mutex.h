@@ -17,6 +17,7 @@
 #pragma once
 
 #include <android-base/thread_annotations.h>
+#include <audio_utils/safe_math.h>
 #include <audio_utils/threads.h>
 #include <utils/Log.h>
 #include <utils/Timers.h>
@@ -1360,7 +1361,8 @@ public:
         if (timeout_ns <= 0) {
             if (!m_.try_lock()) return false;
         } else {
-            const int64_t deadline_ns = timeout_ns + systemTime(SYSTEM_TIME_REALTIME);
+            const int64_t deadline_ns =
+                    safe_add_sat(timeout_ns, systemTime(SYSTEM_TIME_REALTIME));
             const struct timespec ts = {
                 .tv_sec = static_cast<time_t>(deadline_ns / 1'000'000'000),
                 .tv_nsec = static_cast<long>(deadline_ns % 1'000'000'000),
@@ -1476,7 +1478,6 @@ public:
             ++m.stat_.unlocks;
             const bool success = m.get_thread_mutex_info()->remove_held(&m);
             LOG_ALWAYS_FATAL_IF(Attributes::abort_on_invalid_unlock_
-                    && mutex_get_enable_flag()
                     && !success,
                     "%s: invalid mutex unlock when not previously held", __func__);
         }
@@ -1495,7 +1496,6 @@ public:
 
             // lock inversion
             LOG_ALWAYS_FATAL_IF(Attributes::abort_on_order_check_
-                    && mutex_get_enable_flag()
                     && p_order > m_order,
                     "%s: invalid mutex order (previous) %zu %s> (new) %zu %s",
                     __func__, p_order, Attributes::order_names_[p_order],
@@ -1503,7 +1503,6 @@ public:
 
             // lock recursion
             LOG_ALWAYS_FATAL_IF(Attributes::abort_on_recursion_check_
-                    && mutex_get_enable_flag()
                     && p_order == m_order,
                     "%s: recursive mutex access detected (order: %zu %s)",
                     __func__, p_order, Attributes::order_names_[p_order]);
@@ -1569,7 +1568,6 @@ public:
             const bool success = mutex_.get_thread_mutex_info()->remove_held_for_cv(
                     &mutex_, mutex_.order_, notifier_tid);
             LOG_ALWAYS_FATAL_IF(Attributes::abort_on_invalid_unlock_
-                    && mutex_get_enable_flag()
                     && !success,
                     "%s: invalid mutex unlock when not previously held", __func__);
         }
