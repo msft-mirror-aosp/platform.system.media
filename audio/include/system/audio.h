@@ -128,6 +128,10 @@ typedef struct {
 /** The separator for tags. */
 static const char AUDIO_ATTRIBUTES_TAGS_SEPARATOR = ';';
 
+// Keep sync with android/media/AudioProductStrategy.java
+static const audio_flags_mask_t AUDIO_FLAGS_AFFECT_STRATEGY_SELECTION =
+        (audio_flags_mask_t)(AUDIO_FLAG_AUDIBILITY_ENFORCED | AUDIO_FLAG_SCO | AUDIO_FLAG_BEACON);
+
 static const audio_attributes_t AUDIO_ATTRIBUTES_INITIALIZER = {
     /* .content_type = */ AUDIO_CONTENT_TYPE_UNKNOWN,
     /* .usage = */ AUDIO_USAGE_UNKNOWN,
