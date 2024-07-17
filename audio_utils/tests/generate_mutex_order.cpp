@@ -34,6 +34,7 @@ constexpr const char* mutexes[] {
   // 5) EffectHandle -> ThreadBase -> EffectChain -> EffectBase(EffectModule)
   // 6) AudioFlinger::mutex() -> DeviceEffectManager -> DeviceEffectProxy -> EffectChain
   //    -> AudioFlinger::hardwareMutex() when adding/removing effect to/from HAL
+  // 7) AudioFlinger -> DeviceEffectManager -> DeviceEffectProxy -> DeviceEffectHandle
 
   "Spatializer_Mutex",         // AP - must come before EffectHandle_Mutex
   "AudioPolicyEffects_Mutex",  // AP - never hold AudioPolicyEffects_Mutex while calling APS,
@@ -50,6 +51,7 @@ constexpr const char* mutexes[] {
   "AudioFlinger_Mutex",            // AF
   "DeviceEffectManager_Mutex",     // AF
   "DeviceEffectProxy_ProxyMutex",  // AF: used for device effects (which have no chain).
+  "DeviceEffectHandle_Mutex",      // AF: used for device effects when controlled internally.
   "PatchCommandThread_Mutex",      // AF
   "ThreadBase_Mutex",              // AF
   "AudioFlinger_ClientMutex",      // AF
