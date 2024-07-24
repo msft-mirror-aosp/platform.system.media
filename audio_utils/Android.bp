@@ -15,8 +15,8 @@ cc_defaults {
     export_include_dirs: ["include"],
 
     cflags: [
-        "-Werror",
         "-Wall",
+        "-Werror",
     ],
 }
 
@@ -35,33 +35,34 @@ cc_library {
     name: "libaudioutils",
     vendor_available: true,
     product_available: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     host_supported: true,
-    defaults: ["audio_utils_defaults"],
-
+    defaults: [
+        "aconfig_lib_cc_static_link.defaults",
+        "audio_utils_defaults",
+    ],
     srcs: [
         "Balance.cpp",
-        "channels.cpp",
         "ErrorLog.cpp",
+        "MelAggregator.cpp",
+        "MelProcessor.cpp",
+        "Metadata.cpp",
+        "PowerLog.cpp",
+        "channels.cpp",
         "fifo.cpp",
         "fifo_index.cpp",
         "fifo_writer_T.cpp",
         "format.c",
+        "hal_smoothness.c",
         "limiter.c",
-        "MelAggregator.cpp",
-        "MelProcessor.cpp",
-        "Metadata.cpp",
         "minifloat.c",
         "mono_blend.cpp",
+        "mutex.cpp",
         "power.cpp",
-        "PowerLog.cpp",
         "primitives.c",
         "roundup.c",
         "sample.c",
-        "hal_smoothness.c",
+        "threads.cpp",
     ],
 
     header_libs: [
@@ -78,9 +79,13 @@ cc_library {
         "libcutils",
         "liblog",
         "libutils",
+        "server_configurable_flags",
     ],
 
     whole_static_libs: [
+        // if libaudioutils is added as a static lib AND flags are used in the utils object,
+        // then add server_configurable_flags as a shared lib.
+        "com.android.media.audioserver-aconfig-cc",
         "libaudioutils_fastmath",
     ],
 
@@ -88,8 +93,8 @@ cc_library {
         android: {
             srcs: [
                 // "mono_blend.cpp",
-                "resampler.c",
                 "echo_reference.c",
+                "resampler.c",
             ],
             whole_static_libs: ["libaudioutils_fixedfft"],
             shared_libs: [
@@ -115,9 +120,6 @@ cc_library_static {
     name: "libaudioutils_fastmath",
     vendor_available: true,
     product_available: true,
-    vndk: {
-        enabled: true,
-    },
     double_loadable: true,
     host_supported: true,
     defaults: ["audio_utils_defaults"],
@@ -139,6 +141,8 @@ cc_library_static {
     cflags: [
         "-Werror",
         "-ffast-math",
+        "-fhonor-infinities",
+        "-fhonor-nans",
     ],
     apex_available: [
         "//apex_available:platform",
@@ -172,9 +176,19 @@ cc_library_static {
     name: "libsndfile",
     defaults: ["audio_utils_defaults"],
     host_supported: true,
-    srcs: ["tinysndfile.c"],
+    vendor_available: true,
+    srcs: [
+        "primitives.c",
+        "tinysndfile.c",
+    ],
     cflags: [
         "-UHAVE_STDERR",
+    ],
+    header_libs: [
+        "libaudio_system_headers",
+    ],
+    export_header_lib_headers: [
+        "libaudio_system_headers",
     ],
 }
 
@@ -200,16 +214,16 @@ cc_library_static {
     },
 }
 
-cc_library_shared {
+cc_library {
     name: "libaudiospdif",
     host_supported: true,
     defaults: ["audio_utils_defaults"],
 
     srcs: [
-        "spdif/BitFieldParser.cpp",
-        "spdif/FrameScanner.cpp",
         "spdif/AC3FrameScanner.cpp",
+        "spdif/BitFieldParser.cpp",
         "spdif/DTSFrameScanner.cpp",
+        "spdif/FrameScanner.cpp",
         "spdif/SPDIFDecoder.cpp",
         "spdif/SPDIFEncoder.cpp",
         "spdif/SPDIFFrameScanner.cpp",

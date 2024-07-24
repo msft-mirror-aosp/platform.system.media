@@ -18,17 +18,9 @@
 
 // To dump the mutex code to stdout:
 //
-// $ clang++ generate_mutex_order.cpp
+// $ clang++ -std=c++2a generate_mutex_order.cpp
 // $ ./a.out
 //
-
-// Some versions of clang do not include std::size().
-// Provide our own copy in case it is not available.
-template <class T, std::size_t N>
-constexpr size_t size(const T (&array)[N]) noexcept
-{
-    return N;
-}
 
 constexpr const char* mutexes[] {
   // These mutexes obey partial ordering rules.
@@ -40,28 +32,49 @@ constexpr const char* mutexes[] {
   //    avoids acquiring AudioFlinger::mutex() from inside thread loop.
   // 4) AudioFlinger -> ThreadBase -> EffectChain -> EffectBase(EffectModule)
   // 5) EffectHandle -> ThreadBase -> EffectChain -> EffectBase(EffectModule)
+  // 6) AudioFlinger::mutex() -> DeviceEffectManager -> DeviceEffectProxy -> EffectChain
+  //    -> AudioFlinger::hardwareMutex() when adding/removing effect to/from HAL
+  // 7) AudioFlinger -> DeviceEffectManager -> DeviceEffectProxy -> DeviceEffectHandle
 
-  "AudioFlinger_Mutex",
-  "EffectHandle_Mutex",
-  "AudioFlinger_HardwareMutex",
-  "DeviceEffectManager_Mutex",
-  "PatchCommandThread_Mutex",
-  "ThreadBase_Mutex",
-  "AudioFlinger_ClientMutex",
-  "MelReporter_Mutex",
-  "EffectChain_Mutex",
-  "EffectBase_Mutex",
+  "Spatializer_Mutex",         // AP - must come before EffectHandle_Mutex
+  "AudioPolicyEffects_Mutex",  // AP - never hold AudioPolicyEffects_Mutex while calling APS,
+                               // not sure if this is still true.
+  "EffectHandle_Mutex",        // AF - must be after AudioPolicyEffects_Mutex
+  "EffectBase_PolicyMutex",    // AF - Held for AudioSystem::registerEffect, must come
+                               // after EffectHandle_Mutex and before AudioPolicyService_Mutex
+
+  "AudioPolicyService_Mutex",  // AP
+  "CommandThread_Mutex",       // AP
+  "AudioCommand_Mutex",        // AP
+  "UidPolicy_Mutex",           // AP
+
+  "AudioFlinger_Mutex",            // AF
+  "DeviceEffectManager_Mutex",     // AF
+  "DeviceEffectProxy_ProxyMutex",  // AF: used for device effects (which have no chain).
+  "DeviceEffectHandle_Mutex",      // AF: used for device effects when controlled internally.
+  "PatchCommandThread_Mutex",      // AF
+  "ThreadBase_Mutex",              // AF
+  "AudioFlinger_ClientMutex",      // AF
+  "EffectChain_Mutex",             // AF
+  "EffectBase_Mutex",              // AF
+  "AudioFlinger_HardwareMutex",    // AF: used for HAL, called from AF or DeviceEffectManager
+  "MelReporter_Mutex",             // AF
 
   // These mutexes are in leaf objects
   // and are presented afterwards in arbitrary order.
 
-  "AudioFlinger_UnregisteredWritersMutex",
-  "AsyncCallbackThread_Mutex",
-  "ConfigEvent_Mutex",
-  "OutputTrack_TrackMetadataMutex",
-  "PassthruPatchRecord_ReadMutex",
-  "PatchCommandThread_ListenerMutex",
-  "PlaybackThread_AudioTrackCbMutex",
+  "AudioFlinger_UnregisteredWritersMutex",       // AF
+  "AsyncCallbackThread_Mutex",                   // AF
+  "ConfigEvent_Mutex",                           // AF
+  "OutputTrack_TrackMetadataMutex",              // AF
+  "PassthruPatchRecord_ReadMutex",               // AF
+  "PatchCommandThread_ListenerMutex",            // AF
+  "PlaybackThread_AudioTrackCbMutex",            // AF
+  "AudioPolicyService_NotificationClientsMutex", // AP
+  "MediaLogNotifier_Mutex",                      // AF
+  "OtherMutex", // DO NOT CHANGE THIS: OtherMutex is used for mutexes without a specified order.
+                // An OtherMutex will always be the lowest order mutex and cannot acquire
+                // another named mutex while being held.
 };
 
 using namespace std;
@@ -70,7 +83,28 @@ using namespace std;
 // ordering and exclusion as listed above.
 
 int main() {
-  cout << "// Capabilities in priority order\n"
+  cout << "// Lock order\n";
+  cout << "enum class MutexOrder : uint32_t {\n";
+
+  for (size_t i = 0; i < std::size(mutexes); ++i) {
+      cout << "    k" << mutexes[i] << " = " << i << ",\n";
+  }
+  cout << "    kSize = " << std::size(mutexes) << ",\n";
+  cout << "};\n";
+
+  cout << "\n// Lock by name\n";
+  cout << "inline constexpr const char* const gMutexNames[] = {\n";
+  for (size_t i = 0; i < std::size(mutexes); ++i) {
+      cout << "    \"" << mutexes[i] << "\",\n";
+  }
+  cout << "};\n";
+
+  cout << "\n// Forward declarations\n";
+  cout << "class AudioMutexAttributes;\n";
+  cout << "template <typename T> class mutex_impl;\n";
+  cout << "using mutex = mutex_impl<AudioMutexAttributes>;\n";
+
+  cout << "\n// Capabilities in priority order\n"
        << "// (declaration only, value is nullptr)\n";
   const char *last = nullptr;
   for (auto mutex : mutexes) {
@@ -87,9 +121,9 @@ int main() {
 
   cout << "// Exclusion by capability\n";
   last = nullptr;
-  for (size_t i = 0; i < size(mutexes); ++i) {
+  for (size_t i = 0; i < std::size(mutexes); ++i) {
     // exclusion is defined in reverse order of priority.
-    auto mutex = mutexes[size(mutexes) - i - 1];
+    auto mutex = mutexes[std::size(mutexes) - i - 1];
     if (last == nullptr) {
       cout << "#define EXCLUDES_BELOW_" << mutex << "\n";
     } else {

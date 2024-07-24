@@ -128,6 +128,10 @@ typedef struct {
 /** The separator for tags. */
 static const char AUDIO_ATTRIBUTES_TAGS_SEPARATOR = ';';
 
+// Keep sync with android/media/AudioProductStrategy.java
+static const audio_flags_mask_t AUDIO_FLAGS_AFFECT_STRATEGY_SELECTION =
+        (audio_flags_mask_t)(AUDIO_FLAG_AUDIBILITY_ENFORCED | AUDIO_FLAG_SCO | AUDIO_FLAG_BEACON);
+
 static const audio_attributes_t AUDIO_ATTRIBUTES_INITIALIZER = {
     /* .content_type = */ AUDIO_CONTENT_TYPE_UNKNOWN,
     /* .usage = */ AUDIO_USAGE_UNKNOWN,
@@ -2317,11 +2321,16 @@ __END_DECLS
  * a suffix specific to the device.
  * e.g: audio.primary.goldfish.so or audio.a2dp.default.so
  *
+ * "bluetooth" is a newer implementation, combining functionality
+ * from the legacy "a2dp" and "hearing_aid" modules,
+ * and adding support for BT LE devices.
+ *
  * The same module names are used in audio policy configuration files.
  */
 
 #define AUDIO_HARDWARE_MODULE_ID_PRIMARY "primary"
 #define AUDIO_HARDWARE_MODULE_ID_A2DP "a2dp"
+#define AUDIO_HARDWARE_MODULE_ID_BLUETOOTH "bluetooth"
 #define AUDIO_HARDWARE_MODULE_ID_USB "usb"
 #define AUDIO_HARDWARE_MODULE_ID_REMOTE_SUBMIX "r_submix"
 #define AUDIO_HARDWARE_MODULE_ID_CODEC_OFFLOAD "codec_offload"
@@ -2441,6 +2450,11 @@ __END_DECLS
 /* Query if HwModule supports variable Bluetooth latency control */
 #define AUDIO_PARAMETER_BT_VARIABLE_LATENCY_SUPPORTED "isBtVariableLatencySupported"
 
+/* Reconfigure offloaded LE codec */
+#define AUDIO_PARAMETER_RECONFIG_LE "reconfigLe"
+/* Query if HwModule supports reconfiguration of offloaded LE codec */
+#define AUDIO_PARAMETER_LE_RECONFIG_SUPPORTED "isReconfigLeSupported"
+
 /**
  * For querying device supported encapsulation capabilities. All returned values are integer,
  * which are bit fields composed from using encapsulation capability values as position bits.
@@ -2476,5 +2490,41 @@ __END_DECLS
 #define AUDIO_OFFLOAD_CODEC_DELAY_SAMPLES  "delay_samples"
 #define AUDIO_OFFLOAD_CODEC_PADDING_SAMPLES  "padding_samples"
 
+/**
+ * The maximum supported audio sample rate.
+ *
+ * note: The audio policy will use it as the max mixer sample rate for mixed
+ * output and inputs.
+ */
+#define SAMPLE_RATE_HZ_MAX 192000
+
+/**
+ * The minimum supported audio sample rate.
+ */
+#define SAMPLE_RATE_HZ_MIN 4000
+
+/**
+ * The maximum possible audio sample rate as defined in IEC61937.
+ * This definition is for a pre-check before asking the lower level service to
+ * open an AAudio stream.
+ *
+ * note: HDMI supports up to 32 channels at 1536000 Hz.
+ * note: This definition serve the purpose of parameter pre-check, real
+ * validation happens in the audio policy.
+ */
+#define SAMPLE_RATE_HZ_MAX_IEC610937 1600000
+
+/**
+ * The minimum audio sample rate supported by AAudio stream.
+ * This definition is for a pre-check before asking the lower level service to
+ * open an AAudio stream.
+ */
+#define SAMPLE_RATE_HZ_MIN_AAUDIO 8000
+
+/**
+ * Minimum/maximum channel count supported by AAudio stream.
+ */
+#define CHANNEL_COUNT_MIN_AAUDIO 1
+#define CHANNEL_COUNT_MAX_AAUDIO FCC_LIMIT
 
 #endif  // ANDROID_AUDIO_CORE_H
