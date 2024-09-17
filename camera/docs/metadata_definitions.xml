@@ -13036,8 +13036,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="sessionConfigurationQueryVersion" type="int32"
           visibility="fwk_java_public" enum="true" typedef="versionCode"
-          hwlevel="legacy" aconfig_flag="feature_combination_query"
-          hal_version="3.10">
+          hwlevel="legacy" hal_version="3.10">
           <enum>
             <value id="34">UPSIDE_DOWN_CAKE</value>
             <value id="35">VANILLA_ICE_CREAM</value>
