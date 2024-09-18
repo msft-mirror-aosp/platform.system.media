@@ -4275,7 +4275,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
       </dynamic>
       <controls>
         <entry name="strengthLevel" type="int32" visibility="public" hwlevel="legacy"
-          aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
+          hal_version="3.10">
           <description>Flash strength level to be used when manual flash control is active.
           </description>
           <range>`[1-android.flash.torchStrengthMaxLevel]` when the android.flash.mode is
@@ -4319,8 +4319,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
       </controls>
       <static>
-        <entry name="singleStrengthMaxLevel" type="int32" visibility="public" hwlevel="legacy"
-               aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
+        <entry name="singleStrengthMaxLevel" type="int32" visibility="public"
+          hwlevel="legacy" hal_version="3.10">
           <description>Maximum flash brightness level for manual flash control in `SINGLE` mode.
           </description>
           <details>
@@ -4332,8 +4332,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             There is no actual physical power units tied to this level.
           </details>
         </entry>
-        <entry name="singleStrengthDefaultLevel" type="int32" visibility="public" hwlevel="legacy"
-               aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
+        <entry name="singleStrengthDefaultLevel" type="int32"
+          visibility="public"hwlevel="legacy" hal_version="3.10">
           <description>Default flash brightness level for manual flash control in `SINGLE` mode.
           </description>
           <details>
@@ -4343,8 +4343,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             feature, this level will always be equal to 1.
           </details>
         </entry>
-        <entry name="torchStrengthMaxLevel" type="int32" visibility="public" hwlevel="legacy"
-               aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
+        <entry name="torchStrengthMaxLevel" type="int32" visibility="public"
+          hwlevel="legacy" hal_version="3.10">
           <description>Maximum flash brightness level for manual flash control in `TORCH` mode
           </description>
           <details>
@@ -4361,8 +4361,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             is not guaranteed to be the ratio of actual brightness.
           </details>
         </entry>
-        <entry name="torchStrengthDefaultLevel" type="int32" visibility="public" hwlevel="legacy"
-               aconfig_flag="camera_manual_flash_strength_control" hal_version="3.10">
+        <entry name="torchStrengthDefaultLevel" type="int32" visibility="public"
+          hwlevel="legacy" hal_version="3.10">
           <description>Default flash brightness level for manual flash control in `TORCH` mode
           </description>
           <details>
@@ -13036,8 +13036,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="sessionConfigurationQueryVersion" type="int32"
           visibility="fwk_java_public" enum="true" typedef="versionCode"
-          hwlevel="legacy" aconfig_flag="feature_combination_query"
-          hal_version="3.10">
+          hwlevel="legacy" hal_version="3.10">
           <enum>
             <value id="34">UPSIDE_DOWN_CAKE</value>
             <value id="35">VANILLA_ICE_CREAM</value>
