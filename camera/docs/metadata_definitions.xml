@@ -4333,7 +4333,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="singleStrengthDefaultLevel" type="int32"
-          visibility="public"hwlevel="legacy" hal_version="3.10">
+          visibility="public" hwlevel="legacy" hal_version="3.10">
           <description>Default flash brightness level for manual flash control in `SINGLE` mode.
           </description>
           <details>
@@ -12282,7 +12282,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="lensIntrinsicsSamples" type="float" visibility="java_public" synthetic="true"
-               container="array" typedef="lensIntrinsicsSample" aconfig_flag="concert_mode"
+               container="array" typedef="lensIntrinsicsSample"
                hal_version="3.10">
           <array>
             <size>n</size>
@@ -12304,7 +12304,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="lensIntrinsicTimestamps" type="int64" visibility="ndk_public" container="array"
-               aconfig_flag="concert_mode" hal_version="3.10">
+               hal_version="3.10">
           <array>
             <size>n</size>
           </array>
@@ -12318,7 +12318,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
         <entry name="lensIntrinsicSamples" type="float" visibility="ndk_public"
-               container="array" aconfig_flag="concert_mode" hal_version="3.10">
+               container="array" hal_version="3.10">
           <array>
             <size>5</size>
             <size>n</size>
@@ -13036,8 +13036,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <entry name="sessionConfigurationQueryVersion" type="int32"
           visibility="fwk_java_public" enum="true" typedef="versionCode"
-          hwlevel="legacy" aconfig_flag="feature_combination_query"
-          hal_version="3.10">
+          hwlevel="legacy" hal_version="3.10">
           <enum>
             <value id="34">UPSIDE_DOWN_CAKE</value>
             <value id="35">VANILLA_ICE_CREAM</value>
@@ -13969,7 +13968,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         <tag id="LOGICALCAMERA" />
       </entry>
       <entry name="activePhysicalSensorCropRegion" type="int32" visibility="public"
-             container="array" typedef="rectangle" aconfig_flag="concert_mode" hal_version="3.10">
+             container="array" typedef="rectangle" hal_version="3.10">
         <array>
           <size>4</size>
         </array>
