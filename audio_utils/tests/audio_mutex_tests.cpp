@@ -440,7 +440,7 @@ NO_THREAD_SAFETY_ANALYSIS {
 TEST_P(MutexTestSuite, TimedLock) {
     using ConditionVariable = android::audio_utils::condition_variable;
     using Mutex = android::audio_utils::mutex;
-    using UniqueLock = android::audio_utils::unique_lock;
+    using UniqueLock = android::audio_utils::unique_lock<Mutex>;
     const bool priority_inheritance = GetParam();
 
     Mutex m{priority_inheritance}, m1{priority_inheritance};
@@ -506,7 +506,7 @@ TEST_P(MutexTestSuite, TimedLock) {
 
 TEST_P(MutexTestSuite, DeadlockDetection) {
     using Mutex = android::audio_utils::mutex;
-    using UniqueLock = android::audio_utils::unique_lock;
+    using UniqueLock = android::audio_utils::unique_lock<Mutex>;
     using ConditionVariable = android::audio_utils::condition_variable;
     const bool priority_inheritance = GetParam();
 
@@ -611,7 +611,7 @@ TEST_P(MutexTestSuite, DeadlockDetection) {
 
 TEST_P(MutexTestSuite, DeadlockConditionVariableDetection) {
     using Mutex = android::audio_utils::mutex;
-    using UniqueLock = android::audio_utils::unique_lock;
+    using UniqueLock = android::audio_utils::unique_lock<Mutex>;
     using ConditionVariable = android::audio_utils::condition_variable;
     const bool priority_inheritance = GetParam();
 
@@ -739,7 +739,7 @@ TEST_P(MutexTestSuite, DeadlockConditionVariableDetection) {
 
 TEST_P(MutexTestSuite, DeadlockJoinDetection) {
     using Mutex = android::audio_utils::mutex;
-    using UniqueLock = android::audio_utils::unique_lock;
+    using UniqueLock = android::audio_utils::unique_lock<Mutex>;
     using ConditionVariable = android::audio_utils::condition_variable;
     const bool priority_inheritance = GetParam();
 
