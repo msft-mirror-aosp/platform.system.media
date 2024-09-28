@@ -1293,6 +1293,27 @@ private:
 
 extern bool mutex_get_enable_flag();
 
+// Returns true if the mutex was locked within the timeout_ns.
+//
+// std::timed_mutex is implemented using a condition variable and doesn't
+// have complete thread safety annotations.
+//
+// Here, we add the flexibility of a timed lock on an existing std::mutex.
+//
+inline bool std_mutex_timed_lock(std::mutex& m, int64_t timeout_ns) TRY_ACQUIRE(true, m) {
+    const int64_t deadline_ns =
+            safe_add_sat(timeout_ns, systemTime(SYSTEM_TIME_REALTIME));
+    const struct timespec ts = {
+            .tv_sec = static_cast<time_t>(deadline_ns / 1'000'000'000),
+            .tv_nsec = static_cast<long>(deadline_ns % 1'000'000'000),
+    };
+    if (pthread_mutex_timedlock(m.native_handle(), &ts) != 0) {
+        metadata_memory_barrier_if_needed();
+        return false;
+    }
+    return true;
+}
+
 template <typename Attributes>
 class CAPABILITY("mutex") [[nodiscard]] mutex_impl {
 public:
