@@ -188,6 +188,8 @@ static_assert(static_cast<int>(ANDROID_EXTENSION)
         == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSection::ANDROID_EXTENSION));
 static_assert(static_cast<int>(ANDROID_JPEGR)
         == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSection::ANDROID_JPEGR));
+static_assert(static_cast<int>(ANDROID_SHARED_SESSION)
+        == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSection::ANDROID_SHARED_SESSION));
 static_assert(static_cast<int>(VENDOR_SECTION)
         == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSection::VENDOR_SECTION));
 
@@ -259,6 +261,8 @@ static_assert(static_cast<int>(ANDROID_EXTENSION_START)
         == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSectionStart::ANDROID_EXTENSION_START));
 static_assert(static_cast<int>(ANDROID_JPEGR_START)
         == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSectionStart::ANDROID_JPEGR_START));
+static_assert(static_cast<int>(ANDROID_SHARED_SESSION_START)
+        == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSectionStart::ANDROID_SHARED_SESSION_START));
 static_assert(static_cast<int>(VENDOR_SECTION_START)
         == static_cast<int>(::aidl::android::hardware::camera::metadata::CameraMetadataSectionStart::VENDOR_SECTION_START));
 
