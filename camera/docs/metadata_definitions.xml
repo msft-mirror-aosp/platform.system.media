@@ -13217,6 +13217,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           <enum>
             <value id="34">UPSIDE_DOWN_CAKE</value>
             <value id="35">VANILLA_ICE_CREAM</value>
+            <value id="36" hal_version="3.11">BAKLAVA</value>
           </enum>
           <description>The version of the session configuration query
           {@link android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported}
@@ -13281,6 +13282,15 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           All of the above configurations can be set up with a SessionConfiguration. The list of
           OutputConfiguration contains the stream configurations and DYNAMIC_RANGE_PROFILE, and
           the AE_TARGET_FPS_RANGE and VIDEO_STABILIZATION_MODE are set as session parameters.
+
+          When set to BAKLAVA, the additional stream combinations below are verified
+          by the compliance tests:
+
+          Target 1    |     Size      | Target 2        |     Size     |
+          :----------:|:-------------:|:---------------:|:------------:|
+          PRIV        | S1080P        | PRIV            | S1080P       |
+          PRIV        | S1080P        | PRIV            | S1440P       |
+
           </details>
           <hal_details>
           Preview stabilization must be orthogonal to other features. In other words, if preview

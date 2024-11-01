@@ -3674,6 +3674,10 @@ int camera_metadata_enum_snprint(uint32_t tag,
                     msg = "VANILLA_ICE_CREAM";
                     ret = 0;
                     break;
+                case ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_BAKLAVA:
+                    msg = "BAKLAVA";
+                    ret = 0;
+                    break;
                 default:
                     msg = "error: enum value out of range";
             }
@@ -7163,6 +7167,12 @@ int camera_metadata_enum_value(uint32_t tag,
                 enumName = "VANILLA_ICE_CREAM";
                 if (strncmp(name, enumName, size) == 0) {
                     *value = ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_VANILLA_ICE_CREAM;
+                    ret = 0;
+                    break;
+                }
+                enumName = "BAKLAVA";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_BAKLAVA;
                     ret = 0;
                     break;
                 }

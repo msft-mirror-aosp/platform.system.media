@@ -1351,6 +1351,7 @@ typedef enum camera_metadata_enum_android_info_session_configuration_query_versi
                                                                       = 34,
     ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_VANILLA_ICE_CREAM
                                                                       = 35,
+    ANDROID_INFO_SESSION_CONFIGURATION_QUERY_VERSION_BAKLAVA         = 36,
 } camera_metadata_enum_android_info_session_configuration_query_version_t;
 
 
