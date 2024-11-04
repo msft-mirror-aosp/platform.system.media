@@ -21,41 +21,43 @@
 #include <string>
 
 using android::audio_utils::elementwise_clamp;
+using android::audio_utils::elementwise_max;
+using android::audio_utils::elementwise_min;
 using android::audio_utils::kMaxStructMember;
 using android::audio_utils::op_tuple_elements;
 
-enum class ClampTestEnum { E1, E2, E3 };
+enum class OpTestEnum { E1, E2, E3 };
 
-struct ClampTestSSS {
+struct OpTestSSS {
   double a;
   bool b;
 };
 
-struct ClampTestSS {
-  ClampTestSSS sss;
+struct OpTestSS {
+  OpTestSSS sss;
   int c;
   std::vector<float> d;
-  ClampTestEnum e;
+  OpTestEnum e;
 };
 
-struct ClampTestS {
-  ClampTestSS ss;
+struct OpTestS {
+  OpTestSS ss;
   int f;
   bool g;
   std::string h;
 };
 
-std::ostream& operator<<(std::ostream& os, const ClampTestEnum& e) {
+std::ostream& operator<<(std::ostream& os, const OpTestEnum& e) {
   switch (e) {
-    case ClampTestEnum::E1: {
+    case OpTestEnum::E1: {
       os << "E1";
       break;
     }
-    case ClampTestEnum::E2: {
+    case OpTestEnum::E2: {
       os << "E2";
       break;
     }
-    case ClampTestEnum::E3: {
+    case OpTestEnum::E3: {
       os << "E3";
       break;
     }
@@ -63,12 +65,12 @@ std::ostream& operator<<(std::ostream& os, const ClampTestEnum& e) {
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const ClampTestSSS& sss) {
+std::ostream& operator<<(std::ostream& os, const OpTestSSS& sss) {
   os << "a: " << sss.a << ", b: " << sss.b;
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const ClampTestSS& ss) {
+std::ostream& operator<<(std::ostream& os, const OpTestSS& ss) {
   os << ss.sss << ", c: " << ss.c << ", d: [";
   for (const auto& itor : ss.d) {
     os << itor << " ";
@@ -77,62 +79,55 @@ std::ostream& operator<<(std::ostream& os, const ClampTestSS& ss) {
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const ClampTestS& s) {
+std::ostream& operator<<(std::ostream& os, const OpTestS& s) {
   os << s.ss << ", f: " << s.f << ", g: " << s.g << ", h" << s.h;
   return os;
 }
 
-constexpr bool operator==(const ClampTestSSS& lhs, const ClampTestSSS& rhs) {
+constexpr bool operator==(const OpTestSSS& lhs, const OpTestSSS& rhs) {
   return lhs.a == rhs.a && lhs.b == rhs.b;
 }
 
-constexpr bool operator==(const ClampTestSS& lhs, const ClampTestSS& rhs) {
+constexpr bool operator==(const OpTestSS& lhs, const OpTestSS& rhs) {
   return lhs.sss == rhs.sss && lhs.c == rhs.c && lhs.d == rhs.d &&
          lhs.e == rhs.e;
 }
 
-constexpr bool operator==(const ClampTestS& lhs, const ClampTestS& rhs) {
+constexpr bool operator==(const OpTestS& lhs, const OpTestS& rhs) {
   return lhs.ss == rhs.ss && lhs.f == rhs.f && lhs.g == rhs.g && lhs.h == rhs.h;
 }
 
-const ClampTestSSS sss1{.a = 1, .b = false};
-const ClampTestSSS sss2{.a = sss1.a + 1, .b = true};
-const ClampTestSSS sss3{.a = sss2.a + 1, .b = true};
-const ClampTestSSS sss_mixed{.a = sss1.a - 1, .b = true};
-const ClampTestSSS sss_clamped_1_3{.a = sss1.a, .b = true};
-const ClampTestSSS sss_clamped_2_3{.a = sss2.a, .b = true};
+const OpTestSSS sss1{.a = 1, .b = false};
+const OpTestSSS sss2{.a = sss1.a + 1, .b = true};
+const OpTestSSS sss3{.a = sss2.a + 1, .b = true};
+const OpTestSSS sss_mixed{.a = sss1.a - 1, .b = true};
+const OpTestSSS sss_clamped_1_3{.a = sss1.a, .b = true};
+const OpTestSSS sss_clamped_2_3{.a = sss2.a, .b = true};
 
-const ClampTestSS ss1{.sss = sss1, .c = 1, .d = {1.f}, .e = ClampTestEnum::E1};
-const ClampTestSS ss2{
-    .sss = sss2, .c = ss1.c + 1, .d = {ss1.d[0] + 1}, .e = ClampTestEnum::E2};
-const ClampTestSS ss3{
-    .sss = sss3, .c = ss2.c + 1, .d = {ss2.d[0] + 1}, .e = ClampTestEnum::E3};
-const ClampTestSS ss_mixed{.sss = sss_mixed,
-                           .c = ss1.c - 1,
-                           .d = {ss3.d[0] + 1},
-                           .e = ClampTestEnum::E3};
-const ClampTestSS ss_clamped_1_3{.sss = sss_clamped_1_3,
-                                 .c = ss1.c,
-                                 .d = {ss3.d[0]},
-                                 .e = ClampTestEnum::E3};
-const ClampTestSS ss_clamped_2_3{.sss = sss_clamped_2_3,
-                                 .c = ss2.c,
-                                 .d = {ss3.d[0]},
-                                 .e = ClampTestEnum::E3};
+const OpTestSS ss1{.sss = sss1, .c = 1, .d = {1.f}, .e = OpTestEnum::E1};
+const OpTestSS ss2{
+    .sss = sss2, .c = ss1.c + 1, .d = {ss1.d[0] + 1}, .e = OpTestEnum::E2};
+const OpTestSS ss3{
+    .sss = sss3, .c = ss2.c + 1, .d = {ss2.d[0] + 1}, .e = OpTestEnum::E3};
+const OpTestSS ss_mixed{
+    .sss = sss_mixed, .c = ss1.c - 1, .d = {ss3.d[0] + 1}, .e = OpTestEnum::E3};
+const OpTestSS ss_clamped_1_3{
+    .sss = sss_clamped_1_3, .c = ss1.c, .d = {ss3.d[0]}, .e = OpTestEnum::E3};
+const OpTestSS ss_clamped_2_3{
+    .sss = sss_clamped_2_3, .c = ss2.c, .d = {ss3.d[0]}, .e = OpTestEnum::E3};
 
-const ClampTestS s1{.ss = ss1, .f = 1, .g = false, .h = "s1"};
-const ClampTestS s2{.ss = ss2, .f = s1.f + 1, .g = false, .h = "s2"};
-const ClampTestS s3{.ss = ss3, .f = s2.f + 1, .g = true, .h = "s3"};
-const ClampTestS s_mixed{
-    .ss = ss_mixed, .f = s1.f - 1, .g = true, .h = "mixed"};
-const ClampTestS s_clamped_1_3{
+const OpTestS s1{.ss = ss1, .f = 1, .g = false, .h = "s1"};
+const OpTestS s2{.ss = ss2, .f = s1.f + 1, .g = false, .h = "s2"};
+const OpTestS s3{.ss = ss3, .f = s2.f + 1, .g = true, .h = "s3"};
+const OpTestS s_mixed{.ss = ss_mixed, .f = s1.f - 1, .g = true, .h = "mixed"};
+const OpTestS s_clamped_1_3{
     .ss = ss_clamped_1_3, .f = s1.f, .g = true, .h = "s1"};
-const ClampTestS s_clamped_2_3{
+const OpTestS s_clamped_2_3{
     .ss = ss_clamped_2_3, .f = s2.f, .g = true, .h = "s2"};
 
 // clamp a structure with range of min == max
 TEST(ClampOpTest, elementwise_clamp) {
-  std::optional<ClampTestS> clamped;
+  std::optional<OpTestS> clamped;
 
   clamped = elementwise_clamp(s2, s1, s3);
   ASSERT_NE(clamped, std::nullopt);
@@ -149,7 +144,7 @@ TEST(ClampOpTest, elementwise_clamp) {
 
 // clamp a structure with range of min == max
 TEST(ClampOpTest, clamp_same_min_max) {
-  std::optional<ClampTestS> clamped;
+  std::optional<OpTestS> clamped;
 
   clamped = elementwise_clamp(s1, s1, s1);
   ASSERT_NE(clamped, std::nullopt);
@@ -197,8 +192,8 @@ TEST(ClampOpTest, clamp_invalid_range) {
 
 // all members in p3 clamped to s2 but p3.ss.sss.a
 TEST(ClampOpTest, clamp_to_max_a) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.ss.sss.a = s1.ss.sss.a;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -212,8 +207,8 @@ TEST(ClampOpTest, clamp_to_max_a) {
 
 // all members in p3 clamped to s2 but p3.ss.sss.b
 TEST(ClampOpTest, clamp_to_max_b) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.ss.sss.b = s1.ss.sss.b;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -227,8 +222,8 @@ TEST(ClampOpTest, clamp_to_max_b) {
 
 // all members in p3 clamped to s2 but p3.ss.c
 TEST(ClampOpTest, clamp_to_max_c) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.ss.c = s1.ss.c;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -243,8 +238,8 @@ TEST(ClampOpTest, clamp_to_max_c) {
 
 // all members in p3 clamped to s2 but p3.ss.d
 TEST(ClampOpTest, clamp_to_max_d) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.ss.d = s1.ss.d;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -258,8 +253,8 @@ TEST(ClampOpTest, clamp_to_max_d) {
 
 // all members in p3 clamped to s2 but p3.ss.e
 TEST(ClampOpTest, clamp_to_max_e) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.ss.e = s1.ss.e;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -273,8 +268,8 @@ TEST(ClampOpTest, clamp_to_max_e) {
 
 // all members in p3 clamped to s2 but p3.f
 TEST(ClampOpTest, clamp_to_max_f) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.f = s1.f;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -288,8 +283,8 @@ TEST(ClampOpTest, clamp_to_max_f) {
 
 // all members in p3 clamped to s2 but p3.g
 TEST(ClampOpTest, clamp_to_max_g) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.g = s1.g;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -303,8 +298,8 @@ TEST(ClampOpTest, clamp_to_max_g) {
 
 // all members in p3 clamped to s2 but p3.h
 TEST(ClampOpTest, clamp_to_max_h) {
-  ClampTestS p3 = s3;
-  std::optional<ClampTestS> clamped;
+  OpTestS p3 = s3;
+  std::optional<OpTestS> clamped;
 
   p3.h = s1.h;
   clamped = elementwise_clamp(p3, s1, s2);
@@ -318,9 +313,9 @@ TEST(ClampOpTest, clamp_to_max_h) {
 
 // all members in p1 clamped to s2 except p1.ss.sss.a
 TEST(ClampOpTest, clamp_to_min_a) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.ss.sss.a = s3.ss.sss.a;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.ss.sss.a is not clamped
   EXPECT_EQ(clamped->ss.sss.a, s3.ss.sss.a);
@@ -331,9 +326,9 @@ TEST(ClampOpTest, clamp_to_min_a) {
 
 // all members in p1 clamped to s2 but p1.ss.sss.b
 TEST(ClampOpTest, clamp_to_min_b) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.ss.sss.b = s3.ss.sss.b;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.ss.sss.b is not clamped
   EXPECT_EQ(clamped->ss.sss.b, s3.ss.sss.b);
@@ -343,9 +338,9 @@ TEST(ClampOpTest, clamp_to_min_b) {
 }
 
 TEST(ClampOpTest, clamp_to_min_c) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.ss.c = s3.ss.c;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   EXPECT_EQ(p1.ss.c, s3.ss.c);
   // ensure p1.ss.c is not clamped
@@ -356,9 +351,9 @@ TEST(ClampOpTest, clamp_to_min_c) {
 }
 
 TEST(ClampOpTest, clamp_to_min_d) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.ss.d = s3.ss.d;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.ss.d is not clamped
   EXPECT_EQ(clamped->ss.d, s3.ss.d);
@@ -368,9 +363,9 @@ TEST(ClampOpTest, clamp_to_min_d) {
 }
 
 TEST(ClampOpTest, clamp_to_min_e) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.ss.e = s3.ss.e;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.ss.e is not clamped
   EXPECT_EQ(clamped->ss.e, s3.ss.e);
@@ -380,9 +375,9 @@ TEST(ClampOpTest, clamp_to_min_e) {
 }
 
 TEST(ClampOpTest, clamp_to_min_f) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.f = s3.f;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.f is not clamped
   EXPECT_EQ(clamped->f, s3.f);
@@ -392,9 +387,9 @@ TEST(ClampOpTest, clamp_to_min_f) {
 }
 
 TEST(ClampOpTest, clamp_to_min_g) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.g = s3.g;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.g is not clamped
   EXPECT_EQ(clamped->g, s3.g);
@@ -404,9 +399,9 @@ TEST(ClampOpTest, clamp_to_min_g) {
 }
 
 TEST(ClampOpTest, clamp_to_min_h) {
-  ClampTestS p1 = s1;
+  OpTestS p1 = s1;
   p1.h = s3.h;
-  std::optional<ClampTestS> clamped = elementwise_clamp(p1, s2, s3);
+  std::optional<OpTestS> clamped = elementwise_clamp(p1, s2, s3);
   ASSERT_NE(clamped, std::nullopt);
   // ensure p1.g is not clamped
   EXPECT_EQ(clamped->h, s3.h);
@@ -417,8 +412,8 @@ TEST(ClampOpTest, clamp_to_min_h) {
 
 // test vector clamp with same size target and min/max
 TEST(ClampOpTest, clamp_vector_same_size) {
-  std::optional<ClampTestS> clamped;
-  ClampTestS target = s2, min = s1, max = s3;
+  std::optional<OpTestS> clamped;
+  OpTestS target = s2, min = s1, max = s3;
 
   min.ss.d = {1, 11, 21};
   max.ss.d = {10, 20, 30};
@@ -447,8 +442,8 @@ TEST(ClampOpTest, clamp_vector_same_size) {
 
 // test vector clamp with one element min and max
 TEST(ClampOpTest, clamp_vector_one_member_min_max) {
-  std::optional<ClampTestS> clamped;
-  ClampTestS target = s2, min = s1, max = s3;
+  std::optional<OpTestS> clamped;
+  OpTestS target = s2, min = s1, max = s3;
 
   min.ss.d = {10};
   max.ss.d = {20};
@@ -461,8 +456,8 @@ TEST(ClampOpTest, clamp_vector_one_member_min_max) {
 }
 
 TEST(ClampOpTest, clamp_vector_one_min) {
-  std::optional<ClampTestS> clamped;
-  ClampTestS target = s2, min = s1, max = s3;
+  std::optional<OpTestS> clamped;
+  OpTestS target = s2, min = s1, max = s3;
 
   min.ss.d = {0};
   max.ss.d = {20, 10, 30};
@@ -475,8 +470,8 @@ TEST(ClampOpTest, clamp_vector_one_min) {
 }
 
 TEST(ClampOpTest, clamp_vector_one_max) {
-  std::optional<ClampTestS> clamped;
-  ClampTestS target = s2, min = s1, max = s3;
+  std::optional<OpTestS> clamped;
+  OpTestS target = s2, min = s1, max = s3;
 
   min.ss.d = {0, 10, 20};
   max.ss.d = {20};
@@ -489,8 +484,8 @@ TEST(ClampOpTest, clamp_vector_one_max) {
 }
 
 TEST(ClampOpTest, clamp_vector_invalid_range) {
-  std::optional<ClampTestS> clamped;
-  ClampTestS target = s2, min = s1, max = s3;
+  std::optional<OpTestS> clamped;
+  OpTestS target = s2, min = s1, max = s3;
 
   target.ss.d = {-1, 30, 20};
   std::vector<float> expect = {0, 20, 20};
@@ -528,8 +523,8 @@ TEST(ClampOpTest, clamp_vector_invalid_range) {
 }
 
 TEST(ClampOpTest, clamp_string) {
-  std::optional<ClampTestS> clamped;
-  ClampTestS target = s2, min = s1, max = s3;
+  std::optional<OpTestS> clamped;
+  OpTestS target = s2, min = s1, max = s3;
 
   min.h = "";
   max.h = "";
@@ -562,7 +557,7 @@ TEST(ClampOpTest, clamp_string) {
 
 // clamp a mixed structure in range
 TEST(ClampOpTest, clamp_mixed) {
-  std::optional<ClampTestS> clamped;
+  std::optional<OpTestS> clamped;
 
   clamped = elementwise_clamp(s_mixed, s1, s3);
   ASSERT_NE(clamped, std::nullopt);
@@ -575,7 +570,7 @@ TEST(ClampOpTest, clamp_mixed) {
 
 // clamp a mixed structure in range
 TEST(ClampOpTest, clamp_primitive_type) {
-  std::optional<ClampTestS> clamped;
+  std::optional<OpTestS> clamped;
 
   clamped = elementwise_clamp(s_mixed, s1, s3);
   ASSERT_NE(clamped, std::nullopt);
@@ -633,5 +628,155 @@ TEST(ClampOpTest, clamp_different_struct_members) {
   auto arrays = makeTupleOfArrays<kMaxStructMember>();
   for (size_t i = 0; i < kMaxStructMember; i++) {
     op_tuple_elements(arrays, i, clampVerifyOp);
+  }
+}
+
+template <typename T>
+void MinMaxOpTestHelper(const T& a, const T& b, const T& expectedLower,
+                        const T& expectedUpper,
+                        const std::optional<T>& unexpected = std::nullopt) {
+  // lower
+  auto result = elementwise_min(a, b);
+  ASSERT_NE(unexpected, *result);
+  EXPECT_EQ(expectedLower, *result);
+
+  result = elementwise_min(b, a);
+  ASSERT_NE(unexpected, *result);
+  EXPECT_EQ(expectedLower, *result);
+
+  result = elementwise_min(a, a);
+  EXPECT_EQ(a, elementwise_min(a, a));
+  EXPECT_EQ(b, elementwise_min(b, b));
+
+  // upper
+  result = elementwise_max(a, b);
+  ASSERT_NE(unexpected, result);
+  EXPECT_EQ(expectedUpper, *result);
+
+  result = elementwise_max(b, a);
+  ASSERT_NE(unexpected, result);
+  EXPECT_EQ(expectedUpper, *result);
+
+  EXPECT_EQ(a, elementwise_max(a, a));
+  EXPECT_EQ(b, elementwise_max(b, b));
+}
+
+TEST(MinMaxOpTest, primitive_type_int) {
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(1, 2, 1, 2));
+}
+
+TEST(MinMaxOpTest, primitive_type_float) {
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(.1f, .2f, .1f, .2f));
+}
+
+TEST(MinMaxOpTest, primitive_type_string) {
+  std::string a = "ab", b = "ba";
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(a, b, std::min(a, b), std::max(a, b)));
+  a = "", b = "0";
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(a, b, std::min(a, b), std::max(a, b)));
+  a = "abc", b = "1234";
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(a, b, std::min(a, b), std::max(a, b)));
+}
+
+TEST(MinMaxOpTest, primitive_type_enum) {
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(OpTestEnum::E1, OpTestEnum::E2,
+                                             OpTestEnum::E1, OpTestEnum::E2));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(OpTestEnum::E3, OpTestEnum::E2,
+                                             OpTestEnum::E2, OpTestEnum::E3));
+}
+
+TEST(MinMaxOpTest, vector_same_size) {
+  std::vector<int> v1, v2, expected_lower, expected_upper;
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(v1, v2, expected_lower, expected_upper));
+
+  v1 = {1}, v2 = {2}, expected_lower = {1}, expected_upper = {2};
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(v1, v2, expected_lower, expected_upper));
+
+  v1 = {3, 2, 3}, v2 = {2, 2, 2}, expected_lower = v2, expected_upper = v1;
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(v1, v2, expected_lower, expected_upper));
+
+  v1 = {3, 2, 3}, v2 = {1, 4, 1}, expected_lower = {1, 2, 1},
+  expected_upper = {3, 4, 3};
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(v1, v2, expected_lower, expected_upper));
+}
+
+TEST(MinMaxOpTest, vector_different_size_valid) {
+  std::vector<int> v1, v2({1}), expected_lower, expected_upper({1});
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(v1, v2, expected_lower, expected_upper));
+
+  v1 = {1, 2, 3, 1, 0, 5}, v2 = {2}, expected_lower = {1, 2, 2, 1, 0, 2},
+  expected_upper = {2, 2, 3, 2, 2, 5};
+  EXPECT_NO_FATAL_FAILURE(
+      MinMaxOpTestHelper(v1, v2, expected_lower, expected_upper));
+}
+
+// invalid vector size combination, expect std::nullopt
+TEST(MinMaxOpTest, invalid_vector_size) {
+  std::vector<int> v1 = {3, 2}, v2 = {2, 2, 2};
+  EXPECT_EQ(std::nullopt, elementwise_min(v1, v2));
+  EXPECT_EQ(std::nullopt, elementwise_min(v2, v1));
+  EXPECT_EQ(std::nullopt, elementwise_max(v1, v2));
+  EXPECT_EQ(std::nullopt, elementwise_max(v2, v1));
+}
+
+TEST(MinMaxOpTest, aggregate_type) {
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(sss1, sss2, sss1, sss2));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(sss2, sss3, sss2, sss3));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(sss1, sss3, sss1, sss3));
+
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(ss1, ss2, ss1, ss2));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(ss2, ss3, ss2, ss3));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(ss1, ss3, ss1, ss3));
+
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(s1, s2, s1, s2));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(s2, s3, s2, s3));
+  EXPECT_NO_FATAL_FAILURE(MinMaxOpTestHelper(s1, s3, s1, s3));
+}
+
+// invalid vector size combination in nested structure
+TEST(MinMaxOpTest, invalid_vector_in_structure) {
+  auto tt1 = ss1, tt2 = ss2;
+  tt1.d = {.1f, .2f, .3f};
+  tt2.d = {.1f, .2f, .3f, .4f, .5f};
+
+  EXPECT_EQ(std::nullopt, elementwise_min(tt1, tt2));
+  EXPECT_EQ(std::nullopt, elementwise_min(tt2, tt1));
+  EXPECT_EQ(std::nullopt, elementwise_max(tt1, tt2));
+  EXPECT_EQ(std::nullopt, elementwise_max(tt2, tt1));
+
+  auto t1 = s1, t2 = s2;
+  t1.ss = tt1, t2.ss = tt2;
+  EXPECT_EQ(std::nullopt, elementwise_min(t1, t2));
+  EXPECT_EQ(std::nullopt, elementwise_min(t2, t1));
+  EXPECT_EQ(std::nullopt, elementwise_max(t1, t2));
+  EXPECT_EQ(std::nullopt, elementwise_max(t2, t1));
+}
+
+TEST(MinMaxOpTest, aggregate_different_members) {
+  auto boundaryVerifyOp = [](auto&& arr) {
+    auto m1(arr), m2(arr);
+    m1.fill(1);
+    m2.fill(2);
+
+    auto lower = elementwise_min(m1, m2);
+    ASSERT_NE(lower, std::nullopt);
+    EXPECT_EQ(*lower, m1);
+
+    auto upper = elementwise_max(m1, m2);
+    ASSERT_NE(upper, std::nullopt);
+    EXPECT_EQ(*upper, m2);
+  };
+
+  auto arrays = makeTupleOfArrays<kMaxStructMember>();
+  for (size_t i = 0; i < kMaxStructMember; i++) {
+    op_tuple_elements(arrays, i, boundaryVerifyOp);
   }
 }

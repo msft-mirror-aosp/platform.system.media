@@ -178,6 +178,210 @@ std::optional<T> elementwise_clamp(const T& target, const T& min,
   return op_aggregate(clampOp, target, min, max);
 }
 
+/**
+ * Utility functions to determine the element-wise min/max of two values with
+ * same type. The `elementwise_min` function accepts two inputs and return
+ * the element-wise min of them, while the `elementwise_max` function
+ * calculates the element-wise max.
+ *
+ * - For **primitive types**, `std::min` and `std::max` are used directly to
+ * determine the min and max.
+ * - For **vectors**, the two input vectors may have either `0`, `1`, or `n`
+ * elements. If both input vectors have more than one element, their sizes must
+ * match. If either input vector has only one element, it is compared with each
+ * element of the other input vector.
+ * - For **structures (aggregate types)**, each element field is compared
+ * individually, and the final result is reassembled from the element field
+ * comparison result.
+ *
+ * The maximum number of element fields supported in a structure is defined by
+ * `android::audio_utils::kMaxStructMember` as defined in the `template_utils.h`
+ * header.
+ */
+
+template <typename T>
+  requires std::is_class_v<T> && std::is_aggregate_v<T>
+std::optional<T> elementwise_min(const T& a, const T& b);
+
+template <typename T>
+  requires std::is_class_v<T> && std::is_aggregate_v<T>
+std::optional<T> elementwise_max(const T& a, const T& b);
+
+/**
+ * @brief Determines the min/max for primitive type values,
+ * including arithmetic types, enums, and `std::string`.
+ *
+ * @tparam T The primitive type.
+ * @param a The first value.
+ * @param b The second value.
+ * @return The min/max of the two primitive type inputs.
+ *
+ * Example:
+ * int a = 3;
+ * int b = 5;
+ * auto result = elementwise_min(a, b);  // result will be 3
+ * auto result = elementwise_max(a, b);  // result will be 5
+ */
+template <typename T>
+  requires PrimitiveType<T>
+std::optional<T> elementwise_min(const T& a, const T& b) {
+  return std::min(a, b);
+}
+
+template <typename T>
+  requires PrimitiveType<T>
+std::optional<T> elementwise_max(const T& a, const T& b) {
+  return std::max(a, b);
+}
+
+/**
+ * @brief Determines the element-wise min/max of two vectors by comparing
+ * each corresponding element.
+ *
+ * This function calculates the element-wise min/max of two input vectors. The
+ * valid sizes for input vectors `a` and `b` can be 0, 1, or `n` (where `n >
+ * 1`). If both `a` and `b` contain more than one element, their sizes must be
+ * equal. If either vector has only one element, that value will be compared
+ * with each element of the other vector.
+ *
+ * Some examples:
+ * std::vector<int> a({1, 2, 3, 4});
+ * std::vector<int> b({3, 4, 5, 0});
+ * elementwise_min(a, b) result will be std::vector({1, 2, 3, 0})
+ * elementwise_max(a, b) result will be std::vector({3, 4, 5, 4})
+ *
+ * std::vector<int> a({1});
+ * std::vector<int> b({3, 4, 5, 0});
+ * elementwise_min(a, b) result will be std::vector({1, 1, 1, 0})
+ * elementwise_max(a, b) result will be std::vector({3, 4, 5, 1})
+ *
+ * std::vector<int> a({1, 2, 3});
+ * std::vector<int> b({});
+ * elementwise_min(a, b) result will be std::vector({})
+ * elementwise_max(a, b) result will be std::vector({1, 2, 3})
+ *
+ * std::vector<int> a({1, 2, 3, 4});
+ * std::vector<int> b({3, 4, 0});
+ * elementwise_min(a, b) and elementwise_max(a, b) result will be std::nullopt
+ *
+ * @tparam T The vector type.
+ * @param a The first vector.
+ * @param b The second vector.
+ * @return A vector representing the element-wise min/max, or `std::nullopt` if
+ * sizes are incompatible.
+ */
+template <typename T>
+  requires is_specialization_v<T, std::vector>
+std::optional<T> elementwise_min(const T& a, const T& b) {
+  T result;
+  const size_t a_size = a.size(), b_size = b.size();
+  if (a_size == 0 || b_size == 0) {
+    return result;
+  }
+
+  if (a_size == b_size) {
+    for (size_t i = 0; i < a_size; ++i) {
+      auto lower_elem = elementwise_min(a[i], b[i]);
+      if (lower_elem) {
+        result.emplace_back(*lower_elem);
+      }
+    }
+  } else if (a_size == 1) {
+    for (size_t i = 0; i < b_size; ++i) {
+      auto lower_elem = elementwise_min(a[0], b[i]);
+      if (lower_elem) {
+        result.emplace_back(*lower_elem);
+      }
+    }
+  } else if (b_size == 1) {
+    for (size_t i = 0; i < a_size; ++i) {
+      auto lower_elem = elementwise_min(a[i], b[0]);
+      if (lower_elem) {
+        result.emplace_back(*lower_elem);
+      }
+    }
+  } else {
+    // incompatible size
+    return std::nullopt;
+  }
+
+  return result;
+}
+
+template <typename T>
+  requires is_specialization_v<T, std::vector>
+std::optional<T> elementwise_max(const T& a, const T& b) {
+  T result;
+  const size_t a_size = a.size(), b_size = b.size();
+  if (a_size == 0) {
+    result = b;
+  } else if (b_size == 0) {
+    result = a;
+  } else if (a_size == b_size) {
+    for (size_t i = 0; i < a_size; ++i) {
+      auto upper_elem = elementwise_max(a[i], b[i]);
+      if (upper_elem) result.emplace_back(*upper_elem);
+    }
+  } else if (a_size == 1) {
+    for (size_t i = 0; i < b_size; ++i) {
+      auto upper_elem = elementwise_max(a[0], b[i]);
+      if (upper_elem) result.emplace_back(*upper_elem);
+    }
+  } else if (b_size == 1) {
+    for (size_t i = 0; i < a_size; ++i) {
+      auto upper_elem = elementwise_max(a[i], b[0]);
+      if (upper_elem) result.emplace_back(*upper_elem);
+    }
+  } else {
+    // incompatible size
+    return std::nullopt;
+  }
+
+  return result;
+}
+
+/**
+ * @brief Determines the element-wise min/max of two aggregate type values
+ * by comparing each corresponding element.
+ *
+ * @tparam T The type of the aggregate values.
+ * @param a The first aggregate.
+ * @param b The second aggregate.
+ * @return A new aggregate representing the element-wise min/max of the two
+ * inputs, or `std::nullopt` if the element-wise comparison fails.
+ *
+ * Example:
+ * struct Point {
+ *   int x;
+ *   int y;
+ * };
+ * Point p1{3, 5};
+ * Point p2{4, 2};
+ * auto result = elementwise_min(p1, p2);  // result will be Point{3, 2}
+ * auto result = elementwise_max(p1, p2);  // result will be Point{4, 5}
+ */
+template <typename T>
+  requires std::is_class_v<T> && std::is_aggregate_v<T>
+std::optional<T> elementwise_min(const T& a, const T& b) {
+  const auto elementwise_minOp = [](const auto& a_member,
+                                    const auto& b_member) {
+    return elementwise_min(a_member, b_member);
+  };
+
+  return op_aggregate(elementwise_minOp, a, b);
+}
+
+template <typename T>
+  requires std::is_class_v<T> && std::is_aggregate_v<T>
+std::optional<T> elementwise_max(const T& a, const T& b) {
+  const auto elementwise_maxOp = [](const auto& a_member,
+                                    const auto& b_member) {
+    return elementwise_max(a_member, b_member);
+  };
+
+  return op_aggregate(elementwise_maxOp, a, b);
+}
+
 }  // namespace android::audio_utils
 
 #endif  // __cplusplus
