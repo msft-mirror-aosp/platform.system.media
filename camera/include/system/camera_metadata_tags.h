@@ -69,7 +69,6 @@ typedef enum camera_metadata_section {
     ANDROID_AUTOMOTIVE_LENS,
     ANDROID_EXTENSION,
     ANDROID_JPEGR,
-    ANDROID_EFV,
     ANDROID_SECTION_COUNT,
 
     VENDOR_SECTION = 0x8000
@@ -118,7 +117,6 @@ typedef enum camera_metadata_section_start {
     ANDROID_AUTOMOTIVE_LENS_START  = ANDROID_AUTOMOTIVE_LENS   << 16,
     ANDROID_EXTENSION_START        = ANDROID_EXTENSION         << 16,
     ANDROID_JPEGR_START            = ANDROID_JPEGR             << 16,
-    ANDROID_EFV_START              = ANDROID_EFV               << 16,
     VENDOR_SECTION_START           = VENDOR_SECTION            << 16
 } camera_metadata_section_start_t;
 
@@ -136,6 +134,10 @@ typedef enum camera_metadata_tag {
     ANDROID_COLOR_CORRECTION_ABERRATION_MODE,         // enum         | public       | HIDL v3.2
     ANDROID_COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES,
                                                       // byte[]       | public       | HIDL v3.2
+    ANDROID_COLOR_CORRECTION_COLOR_TEMPERATURE,       // int32        | public       | HIDL v3.11
+    ANDROID_COLOR_CORRECTION_COLOR_TINT,              // int32        | public       | HIDL v3.11
+    ANDROID_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE, // int32[]      | public       | HIDL v3.11
+    ANDROID_COLOR_CORRECTION_AVAILABLE_MODES,         // byte[]       | public       | HIDL v3.11
     ANDROID_COLOR_CORRECTION_END,
 
     ANDROID_CONTROL_AE_ANTIBANDING_MODE =             // enum         | public       | HIDL v3.2
@@ -603,19 +605,6 @@ typedef enum camera_metadata_tag {
                                                       // int64[]      | ndk_public   | HIDL v3.9
     ANDROID_JPEGR_END,
 
-    ANDROID_EFV_PADDING_ZOOM_FACTOR_RANGE =           // float[]      | extension    | HIDL v3.10
-            ANDROID_EFV_START,
-    ANDROID_EFV_PADDING_ZOOM_FACTOR,                  // float        | extension    | HIDL v3.10
-    ANDROID_EFV_AUTO_ZOOM,                            // enum         | extension    | HIDL v3.10
-    ANDROID_EFV_MAX_PADDING_ZOOM_FACTOR,              // float        | extension    | HIDL v3.10
-    ANDROID_EFV_STABILIZATION_MODE,                   // enum         | extension    | HIDL v3.10
-    ANDROID_EFV_TRANSLATE_VIEWPORT,                   // int32        | extension    | HIDL v3.10
-    ANDROID_EFV_ROTATE_VIEWPORT,                      // float        | extension    | HIDL v3.10
-    ANDROID_EFV_PADDING_REGION,                       // int32[]      | extension    | HIDL v3.10
-    ANDROID_EFV_AUTO_ZOOM_PADDING_REGION,             // int32[]      | extension    | HIDL v3.10
-    ANDROID_EFV_TARGET_COORDINATES,                   // float[]      | extension    | HIDL v3.10
-    ANDROID_EFV_END,
-
 } camera_metadata_tag_t;
 
 /**
@@ -627,6 +616,7 @@ typedef enum camera_metadata_enum_android_color_correction_mode {
     ANDROID_COLOR_CORRECTION_MODE_TRANSFORM_MATRIX                  , // HIDL v3.2
     ANDROID_COLOR_CORRECTION_MODE_FAST                              , // HIDL v3.2
     ANDROID_COLOR_CORRECTION_MODE_HIGH_QUALITY                      , // HIDL v3.2
+    ANDROID_COLOR_CORRECTION_MODE_CCT                               , // HIDL v3.11
 } camera_metadata_enum_android_color_correction_mode_t;
 
 // ANDROID_COLOR_CORRECTION_ABERRATION_MODE
@@ -1489,19 +1479,5 @@ typedef enum camera_metadata_enum_android_jpegr_available_jpeg_r_stream_configur
     ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_INPUT
                                                                      , // HIDL v3.9
 } camera_metadata_enum_android_jpegr_available_jpeg_r_stream_configurations_maximum_resolution_t;
-
-
-// ANDROID_EFV_AUTO_ZOOM
-typedef enum camera_metadata_enum_android_efv_auto_zoom {
-    ANDROID_EFV_AUTO_ZOOM_TRUE                                      , // HIDL v3.10
-    ANDROID_EFV_AUTO_ZOOM_FALSE                                     , // HIDL v3.10
-} camera_metadata_enum_android_efv_auto_zoom_t;
-
-// ANDROID_EFV_STABILIZATION_MODE
-typedef enum camera_metadata_enum_android_efv_stabilization_mode {
-    ANDROID_EFV_STABILIZATION_MODE_OFF                              , // HIDL v3.10
-    ANDROID_EFV_STABILIZATION_MODE_GIMBAL                           , // HIDL v3.10
-    ANDROID_EFV_STABILIZATION_MODE_LOCKED                           , // HIDL v3.10
-} camera_metadata_enum_android_efv_stabilization_mode_t;
 
 
