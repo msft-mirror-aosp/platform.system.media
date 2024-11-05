@@ -42,7 +42,7 @@ namespace android::audio_utils {
  *   If `min`/`max` match the target's size, each target element is clamped
  *   within the corresponding `min`/`max` elements.
  *
- * The maximum number of members supported in a structure is `kMaxStructMember
+ * The maximum number of members supported in a structure is `kMaxStructMember`
  * as defined in the template_utils.h header.
  */
 
@@ -51,7 +51,7 @@ namespace android::audio_utils {
  */
 template <typename T>
   requires std::is_class_v<T> && std::is_aggregate_v<T>
-std::optional<T> clampInRange(const T& target, const T& min, const T& max);
+std::optional<T> elementwise_clamp(const T& target, const T& min, const T& max);
 
 /**
  * @brief Clamp function for primitive types, including integers, floating-point
@@ -59,7 +59,8 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max);
  */
 template <typename T>
   requires PrimitiveType<T>
-std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
+std::optional<T> elementwise_clamp(const T& target, const T& min,
+                                   const T& max) {
   if (min > max) {
     return std::nullopt;
   }
@@ -85,21 +86,22 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
  * std::vector<int> target({3, 0, 5, 2});
  * std::vector<int> min({1});
  * std::vector<int> max({3});
- * clampInRange(target, min, max) result will be std::vector({3, 1, 3, 2})
+ * elementwise_clamp(target, min, max) result will be std::vector({3, 1, 3, 2})
  *
  * std::vector<int> target({3, 0, 5, 2});
  * std::vector<int> min({1, 2, 3, 4});
  * std::vector<int> max({3, 4, 5, 6});
- * clampInRange(target, min, max) result will be std::vector({3, 2, 5, 4})
+ * elementwise_clamp(target, min, max) result will be std::vector({3, 2, 5, 4})
  *
  * std::vector<int> target({3, 0, 5, 2});
  * std::vector<int> min({});
  * std::vector<int> max({3, 4});
- * clampInRange(target, min, max) result will be std::nullopt
+ * elementwise_clamp(target, min, max) result will be std::nullopt
  */
 template <typename T>
   requires is_specialization_v<T, std::vector>
-std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
+std::optional<T> elementwise_clamp(const T& target, const T& min,
+                                   const T& max) {
   using ElemType = typename T::value_type;
 
   const size_t min_size = min.size(), max_size = max.size(),
@@ -114,7 +116,7 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
   if (min_size == 1 && max_size == 1) {
     const ElemType clamp_min = min[0], clamp_max = max[0];
     for (size_t i = 0; i < target_size; ++i) {
-      auto clamped_elem = clampInRange(target[i], clamp_min, clamp_max);
+      auto clamped_elem = elementwise_clamp(target[i], clamp_min, clamp_max);
       if (clamped_elem) {
         result.emplace_back(*clamped_elem);
       } else {
@@ -123,7 +125,7 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
     }
   } else if (min_size == target_size && max_size == target_size) {
     for (size_t i = 0; i < target_size; ++i) {
-      auto clamped_elem = clampInRange(target[i], min[i], max[i]);
+      auto clamped_elem = elementwise_clamp(target[i], min[i], max[i]);
       if (clamped_elem) {
         result.emplace_back(*clamped_elem);
       } else {
@@ -133,7 +135,7 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
   } else if (min_size == 1 && max_size == target_size) {
     const ElemType clamp_min = min[0];
     for (size_t i = 0; i < target_size; ++i) {
-      auto clamped_elem = clampInRange(target[i], clamp_min, max[i]);
+      auto clamped_elem = elementwise_clamp(target[i], clamp_min, max[i]);
       if (clamped_elem) {
         result.emplace_back(*clamped_elem);
       } else {
@@ -143,7 +145,7 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
   } else if (min_size == target_size && max_size == 1) {
     const ElemType clamp_max = max[0];
     for (size_t i = 0; i < target_size; ++i) {
-      auto clamped_elem = clampInRange(target[i], min[i], clamp_max);
+      auto clamped_elem = elementwise_clamp(target[i], min[i], clamp_max);
       if (clamped_elem) {
         result.emplace_back(*clamped_elem);
       } else {
@@ -167,12 +169,13 @@ std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
  */
 template <typename T>
   requires std::is_class_v<T> && std::is_aggregate_v<T>
-std::optional<T> clampInRange(const T& target, const T& min, const T& max) {
+std::optional<T> elementwise_clamp(const T& target, const T& min,
+                                   const T& max) {
   const auto clampOp = [](const auto& a, const auto& b, const auto& c) {
-    return clampInRange(a, b, c);
+    return elementwise_clamp(a, b, c);
   };
 
-  return opAggregate(clampOp, target, min, max);
+  return op_aggregate(clampOp, target, min, max);
 }
 
 }  // namespace android::audio_utils
