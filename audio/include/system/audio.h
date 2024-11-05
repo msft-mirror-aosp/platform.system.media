@@ -631,6 +631,7 @@ struct audio_port_config_device_ext {
     audio_module_handle_t hw_module;                /* module the device is attached to */
     audio_devices_t       type;                     /* device type (e.g AUDIO_DEVICE_OUT_SPEAKER) */
     char                  address[AUDIO_DEVICE_MAX_ADDRESS_LEN]; /* device address. "" if N/A */
+    audio_channel_mask_t  speaker_layout_channel_mask; /* represents physical speaker layout. */
 };
 
 /* extension for audio port configuration structure when the audio port is a
@@ -956,6 +957,8 @@ static inline bool audio_port_configs_are_equal(
     case AUDIO_PORT_TYPE_DEVICE:
         if (lhs->ext.device.hw_module != rhs->ext.device.hw_module ||
                 lhs->ext.device.type != rhs->ext.device.type ||
+                lhs->ext.device.speaker_layout_channel_mask !=
+                        rhs->ext.device.speaker_layout_channel_mask ||
                 strncmp(lhs->ext.device.address, rhs->ext.device.address,
                         AUDIO_DEVICE_MAX_ADDRESS_LEN) != 0) {
             return false;
@@ -1900,7 +1903,16 @@ static inline bool audio_is_valid_format(audio_format_t format)
     case AUDIO_FORMAT_SBC:
     case AUDIO_FORMAT_APTX:
     case AUDIO_FORMAT_APTX_HD:
+        return true;
     case AUDIO_FORMAT_AC4:
+        switch (format) {
+        case AUDIO_FORMAT_AC4:
+        case AUDIO_FORMAT_AC4_L4:
+            return true;
+        default:
+            return false;
+        }
+        /* not reached */
     case AUDIO_FORMAT_LDAC:
         return true;
     case AUDIO_FORMAT_MAT:
@@ -1960,6 +1972,7 @@ static inline bool audio_is_iec61937_compatible(audio_format_t format)
     switch (format) {
     case AUDIO_FORMAT_AC3:         // IEC 61937-3:2017
     case AUDIO_FORMAT_AC4:         // IEC 61937-14:2017
+    case AUDIO_FORMAT_AC4_L4:      // IEC 61937-14:2017
     case AUDIO_FORMAT_E_AC3:       // IEC 61937-3:2017
     case AUDIO_FORMAT_E_AC3_JOC:   // IEC 61937-3:2017
     case AUDIO_FORMAT_MAT:         // IEC 61937-9:2017
