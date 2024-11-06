@@ -571,6 +571,18 @@ typedef enum camera_metadata_tag {
                                                       // int64[]      | ndk_public   | HIDL v3.6
     ANDROID_HEIC_AVAILABLE_HEIC_STALL_DURATIONS_MAXIMUM_RESOLUTION,
                                                       // int64[]      | ndk_public   | HIDL v3.6
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS,
+                                                      // enum[]       | ndk_public   | HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_MIN_FRAME_DURATIONS,
+                                                      // int64[]      | ndk_public   | HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STALL_DURATIONS,
+                                                      // int64[]      | ndk_public   | HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION,
+                                                      // enum[]       | ndk_public   | HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_MIN_FRAME_DURATIONS_MAXIMUM_RESOLUTION,
+                                                      // int64[]      | ndk_public   | HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STALL_DURATIONS_MAXIMUM_RESOLUTION,
+                                                      // int64[]      | ndk_public   | HIDL v3.11
     ANDROID_HEIC_END,
 
     ANDROID_HEIC_INFO_SUPPORTED =                     // enum         | system       | HIDL v3.4
@@ -1420,6 +1432,22 @@ typedef enum camera_metadata_enum_android_heic_available_heic_stream_configurati
     ANDROID_HEIC_AVAILABLE_HEIC_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_INPUT
                                                                      , // HIDL v3.6
 } camera_metadata_enum_android_heic_available_heic_stream_configurations_maximum_resolution_t;
+
+// ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS
+typedef enum camera_metadata_enum_android_heic_available_heic_ultra_hdr_stream_configurations {
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS_OUTPUT
+                                                                     , // HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS_INPUT
+                                                                     , // HIDL v3.11
+} camera_metadata_enum_android_heic_available_heic_ultra_hdr_stream_configurations_t;
+
+// ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION
+typedef enum camera_metadata_enum_android_heic_available_heic_ultra_hdr_stream_configurations_maximum_resolution {
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_OUTPUT
+                                                                     , // HIDL v3.11
+    ANDROID_HEIC_AVAILABLE_HEIC_ULTRA_HDR_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_INPUT
+                                                                     , // HIDL v3.11
+} camera_metadata_enum_android_heic_available_heic_ultra_hdr_stream_configurations_maximum_resolution_t;
 
 
 // ANDROID_HEIC_INFO_SUPPORTED
