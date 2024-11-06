@@ -288,7 +288,7 @@ cc_test {
 }
 
 cc_test {
-    name: "clamp_tests",
+    name: "elementwise_op_tests",
     host_supported: true,
 
     shared_libs: [
@@ -296,7 +296,7 @@ cc_test {
         "libcutils",
         "liblog",
     ],
-    srcs: ["clamp_tests.cpp"],
+    srcs: ["elementwise_op_tests.cpp"],
     cflags: [
         "-Wall",
         "-Werror",
