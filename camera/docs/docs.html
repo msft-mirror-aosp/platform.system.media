@@ -1481,6 +1481,8 @@
             ><a href="#dynamic_android.extension.currentType">android.extension.currentType</a></li>
             <li
             ><a href="#dynamic_android.extension.strength">android.extension.strength</a></li>
+            <li
+            ><a href="#dynamic_android.extension.nightModeIndicator">android.extension.nightModeIndicator</a></li>
           </ul>
         </li>
       </ul> <!-- toc_section -->
@@ -41773,6 +41775,88 @@ The control is only defined and available to clients sending capture requests vi
 If the client doesn't specify the extension strength value,<wbr/> then a default value will
 be set by the extension.<wbr/> Clients can retrieve the default value by checking the
 corresponding capture result.<wbr/></p>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="dynamic_android.extension.nightModeIndicator">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>extension.<wbr/>night<wbr/>Mode<wbr/>Indicator
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name entry_type_name_enum">int32</span>
+
+              <span class="entry_type_visibility"> [public]</span>
+
+
+
+
+
+                <ul class="entry_type_enum">
+                  <li>
+                    <span class="entry_type_enum_name">UNKNOWN (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera can't accurately assess the scene's lighting to determine if a Night Mode
+Camera Extension capture would improve the photo.<wbr/> This can happen when the current
+camera configuration doesn't support night mode indicator detection,<wbr/> such as when
+the auto exposure mode is ON_<wbr/>AUTO_<wbr/>FLASH,<wbr/> ON_<wbr/>ALWAYS_<wbr/>FLASH,<wbr/> ON_<wbr/>AUTO_<wbr/>FLASH_<wbr/>REDEYE,<wbr/> or
+ON_<wbr/>EXTERNAL_<wbr/>FLASH.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">OFF (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera has detected lighting conditions that are sufficiently bright.<wbr/> Night
+Mode Camera Extensions is available but may not be able to optimize the camera
+settings to take a higher quality photo.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">ON (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera has detected low-light conditions.<wbr/> It is recommended to use Night Mode
+Camera Extension to optimize the camera settings to take a high-quality photo in
+the dark.<wbr/></p></span>
+                  </li>
+                </ul>
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Indicates when to activate Night Mode Camera Extension for high-quality
+still captures in low-light conditions.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Provides awareness to the application when the current scene can benefit from using a
+Night Mode Camera Extension to take a high-quality photo.<wbr/></p>
+<p>Support for this capture result can be queried via
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#getAvailableCaptureResultKeys">CameraCharacteristics#getAvailableCaptureResultKeys</a>.<wbr/></p>
+<p>If the device supports this capability then it will also support
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionCharacteristics.html#EXTENSION_NIGHT">NIGHT</a>
+and will be available in both
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraCaptureSession.html">sessions</a> and
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionSession.html">sessions</a>.<wbr/></p>
+<p>The value will be {@code UNKNOWN} in the following auto exposure modes: ON_<wbr/>AUTO_<wbr/>FLASH,<wbr/>
+ON_<wbr/>ALWAYS_<wbr/>FLASH,<wbr/> ON_<wbr/>AUTO_<wbr/>FLASH_<wbr/>REDEYE,<wbr/> or ON_<wbr/>EXTERNAL_<wbr/>FLASH.<wbr/></p>
             </td>
           </tr>
 
