@@ -987,6 +987,8 @@ static tag_info_t android_extension[ANDROID_EXTENSION_END -
     { "strength",                      TYPE_INT32  },
     [ ANDROID_EXTENSION_CURRENT_TYPE - ANDROID_EXTENSION_START ] =
     { "currentType",                   TYPE_INT32  },
+    [ ANDROID_EXTENSION_NIGHT_MODE_INDICATOR - ANDROID_EXTENSION_START ] =
+    { "nightModeIndicator",            TYPE_INT32  },
 };
 
 static tag_info_t android_jpegr[ANDROID_JPEGR_END -
@@ -4100,6 +4102,25 @@ int camera_metadata_enum_snprint(uint32_t tag,
             break;
         }
         case ANDROID_EXTENSION_CURRENT_TYPE: {
+            break;
+        }
+        case ANDROID_EXTENSION_NIGHT_MODE_INDICATOR: {
+            switch (value) {
+                case ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN:
+                    msg = "UNKNOWN";
+                    ret = 0;
+                    break;
+                case ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_OFF:
+                    msg = "OFF";
+                    ret = 0;
+                    break;
+                case ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_ON:
+                    msg = "ON";
+                    ret = 0;
+                    break;
+                default:
+                    msg = "error: enum value out of range";
+            }
             break;
         }
 
@@ -7601,6 +7622,27 @@ int camera_metadata_enum_value(uint32_t tag,
             break;
         }
         case ANDROID_EXTENSION_CURRENT_TYPE: {
+            break;
+        }
+        case ANDROID_EXTENSION_NIGHT_MODE_INDICATOR: {
+                enumName = "UNKNOWN";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN;
+                    ret = 0;
+                    break;
+                }
+                enumName = "OFF";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_OFF;
+                    ret = 0;
+                    break;
+                }
+                enumName = "ON";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_ON;
+                    ret = 0;
+                    break;
+                }
             break;
         }
 
