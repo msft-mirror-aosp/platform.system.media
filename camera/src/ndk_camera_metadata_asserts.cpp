@@ -918,6 +918,9 @@ static_assert(static_cast<int>(ANDROID_AUTOMOTIVE_LOCATION)
 static_assert(static_cast<int>(ANDROID_AUTOMOTIVE_LENS_FACING)
         == static_cast<int>(ACAMERA_AUTOMOTIVE_LENS_FACING));
 
+static_assert(static_cast<int>(ANDROID_EXTENSION_NIGHT_MODE_INDICATOR)
+        == static_cast<int>(ACAMERA_EXTENSION_NIGHT_MODE_INDICATOR));
+
 static_assert(static_cast<int>(ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS)
         == static_cast<int>(ACAMERA_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS));
 
@@ -1658,6 +1661,12 @@ static_assert(static_cast<int32_t>(ANDROID_AUTOMOTIVE_LENS_FACING_INTERIOR_SEAT_
 static_assert(static_cast<int32_t>(ANDROID_AUTOMOTIVE_LENS_FACING_INTERIOR_SEAT_ROW_3_RIGHT)
         == static_cast<int32_t>(ACAMERA_AUTOMOTIVE_LENS_FACING_INTERIOR_SEAT_ROW_3_RIGHT));
 
+static_assert(static_cast<int32_t>(ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN)
+        == static_cast<int32_t>(ACAMERA_EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN));
+static_assert(static_cast<int32_t>(ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_OFF)
+        == static_cast<int32_t>(ACAMERA_EXTENSION_NIGHT_MODE_INDICATOR_OFF));
+static_assert(static_cast<int32_t>(ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_ON)
+        == static_cast<int32_t>(ACAMERA_EXTENSION_NIGHT_MODE_INDICATOR_ON));
 
 static_assert(static_cast<int32_t>(ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_OUTPUT)
         == static_cast<int32_t>(ACAMERA_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_OUTPUT));

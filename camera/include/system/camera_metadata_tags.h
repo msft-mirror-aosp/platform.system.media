@@ -601,6 +601,7 @@ typedef enum camera_metadata_tag {
     ANDROID_EXTENSION_STRENGTH =                      // int32        | fwk_java_public
             ANDROID_EXTENSION_START,
     ANDROID_EXTENSION_CURRENT_TYPE,                   // int32        | fwk_java_public
+    ANDROID_EXTENSION_NIGHT_MODE_INDICATOR,           // enum         | public       | HIDL v3.11
     ANDROID_EXTENSION_END,
 
     ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS = 
@@ -1492,6 +1493,13 @@ typedef enum camera_metadata_enum_android_automotive_lens_facing {
     ANDROID_AUTOMOTIVE_LENS_FACING_INTERIOR_SEAT_ROW_3_RIGHT        , // HIDL v3.8
 } camera_metadata_enum_android_automotive_lens_facing_t;
 
+
+// ANDROID_EXTENSION_NIGHT_MODE_INDICATOR
+typedef enum camera_metadata_enum_android_extension_night_mode_indicator {
+    ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN                  , // HIDL v3.11
+    ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_OFF                      , // HIDL v3.11
+    ANDROID_EXTENSION_NIGHT_MODE_INDICATOR_ON                       , // HIDL v3.11
+} camera_metadata_enum_android_extension_night_mode_indicator_t;
 
 
 // ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS

@@ -14923,6 +14923,52 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         </entry>
         <clone entry="android.extension.strength" kind="controls">
         </clone>
+        <entry name="nightModeIndicator" type="int32" visibility="public" optional="true"
+               enum="true" aconfig_flag="night_mode_indicator" hal_version="3.11">
+          <enum>
+            <value>UNKNOWN
+              <notes>
+                The camera can't accurately assess the scene's lighting to determine if a Night Mode
+                Camera Extension capture would improve the photo. This can happen when the current
+                camera configuration doesn't support night mode indicator detection, such as when
+                the auto exposure mode is ON_AUTO_FLASH, ON_ALWAYS_FLASH, ON_AUTO_FLASH_REDEYE, or
+                ON_EXTERNAL_FLASH.
+              </notes>
+            </value>
+            <value>OFF
+              <notes>
+                The camera has detected lighting conditions that are sufficiently bright. Night
+                Mode Camera Extensions is available but may not be able to optimize the camera
+                settings to take a higher quality photo.
+              </notes>
+            </value>
+            <value>ON
+              <notes>
+                The camera has detected low-light conditions. It is recommended to use Night Mode
+                Camera Extension to optimize the camera settings to take a high-quality photo in
+                the dark.
+              </notes>
+            </value>
+          </enum>
+          <description>Indicates when to activate Night Mode Camera Extension for high-quality
+          still captures in low-light conditions.</description>
+          <details>
+            Provides awareness to the application when the current scene can benefit from using a
+            Night Mode Camera Extension to take a high-quality photo.
+
+            Support for this capture result can be queried via
+            {@link android.hardware.camera2.CameraCharacteristics#getAvailableCaptureResultKeys}.
+
+            If the device supports this capability then it will also support
+            {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_NIGHT NIGHT}
+            and will be available in both
+            {@link android.hardware.camera2.CameraCaptureSession sessions} and
+            {@link android.hardware.camera2.CameraExtensionSession sessions}.
+
+            The value will be {@code UNKNOWN} in the following auto exposure modes: ON_AUTO_FLASH,
+            ON_ALWAYS_FLASH, ON_AUTO_FLASH_REDEYE, or ON_EXTERNAL_FLASH.
+          </details>
+        </entry>
       </dynamic>
     </section>
     <section name="jpegr">
