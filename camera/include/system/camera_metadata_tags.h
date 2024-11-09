@@ -207,6 +207,7 @@ typedef enum camera_metadata_tag {
     ANDROID_CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE,
                                                       // float[]      | public       | HIDL v3.10
     ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE,            // enum         | public       | HIDL v3.10
+    ANDROID_CONTROL_ZOOM_METHOD,                      // enum         | fwk_public
     ANDROID_CONTROL_END,
 
     ANDROID_DEMOSAIC_MODE =                           // enum         | system       | HIDL v3.2
@@ -886,6 +887,12 @@ typedef enum camera_metadata_enum_android_control_low_light_boost_state {
     ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE_INACTIVE                  , // HIDL v3.10
     ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE                    , // HIDL v3.10
 } camera_metadata_enum_android_control_low_light_boost_state_t;
+
+// ANDROID_CONTROL_ZOOM_METHOD
+typedef enum camera_metadata_enum_android_control_zoom_method {
+    ANDROID_CONTROL_ZOOM_METHOD_AUTO                                 = 0,
+    ANDROID_CONTROL_ZOOM_METHOD_ZOOM_RATIO                           = 1,
+} camera_metadata_enum_android_control_zoom_method_t;
 
 
 // ANDROID_DEMOSAIC_MODE

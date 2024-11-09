@@ -4084,6 +4084,52 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           </details>
         </entry>
       </dynamic>
+      <controls>
+        <entry name="zoomMethod" type="byte" visibility="fwk_public" enum="true"
+            hwlevel="limited" aconfig_flag="zoom_method" hal_version="3.11">
+          <enum>
+            <value id="0">AUTO
+            <notes>
+              The camera device automatically detects whether the application does zoom with
+              android.scaler.cropRegion or android.control.zoomRatio, and in turn decides which
+              metadata tag reflects the effective zoom level.
+            </notes></value>
+            <value id="1">ZOOM_RATIO
+            <notes>
+              The application intends to control zoom via android.control.zoomRatio, and
+              the effective zoom level is reflected by android.control.zoomRatio in capture results.
+            </notes></value>
+          </enum>
+          <description>
+            Whether the application uses android.scaler.cropRegion or android.control.zoomRatio
+            to control zoom levels.
+          </description>
+          <details>
+            If set to AUTO, the camera device detects which capture request key the application uses
+            to do zoom, android.scaler.cropRegion or android.control.zoomRatio. If
+            the application doesn't set android.scaler.zoomRatio or sets it to 1.0 in the capture
+            request, the effective zoom level is reflected in android.scaler.cropRegion in capture
+            results. If android.control.zoomRatio is set to values other than 1.0, the effective
+            zoom level is reflected in android.control.zoomRatio. AUTO is the default value
+            for this control, and also the behavior of the OS before Android version
+            {@link android.os.Build.VERSION_CODES#BAKLAVA BAKLAVA}.
+
+            If set to ZOOM_RATIO, the application explicitly specifies zoom level be controlled
+            by android.control.zoomRatio, and the effective zoom level is reflected in
+            android.control.zoomRatio in capture results. This addresses an ambiguity with AUTO,
+            with which the camera device cannot know if the application is using cropRegion or
+            zoomRatio at 1.0x.
+          </details>
+          <hal_details>
+            Do not use this key directly. It's for camera framework usage,
+            and not for HAL consumption.
+          </hal_details>
+        </entry>
+      </controls>
+      <dynamic>
+        <clone entry="android.control.zoomMethod" kind="controls">
+        </clone>
+      </dynamic>
     </section>
     <section name="demosaic">
       <controls>
