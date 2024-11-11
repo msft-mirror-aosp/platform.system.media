@@ -219,6 +219,8 @@
             ><a href="#controls_android.control.settingsOverride">android.control.settingsOverride</a></li>
             <li
             ><a href="#controls_android.control.autoframing">android.control.autoframing</a></li>
+            <li
+            ><a href="#controls_android.control.zoomMethod">android.control.zoomMethod</a></li>
           </ul>
         </li>
         <li>
@@ -353,6 +355,8 @@
             ><a href="#dynamic_android.control.autoframingState">android.control.autoframingState</a></li>
             <li
             ><a href="#dynamic_android.control.lowLightBoostState">android.control.lowLightBoostState</a></li>
+            <li
+            ><a href="#dynamic_android.control.zoomMethod">android.control.zoomMethod</a></li>
           </ul>
         </li>
       </ul> <!-- toc_section -->
@@ -6148,6 +6152,93 @@ be an approximation of the image sensor region that is actually used.<wbr/>
 When auto-framing is turned off,<wbr/> the transition should be immediate,<wbr/> with no panning or
 zooming to transition to the settings requested by the app.<wbr/> When it is turned on,<wbr/> the
 transition can be immediate or smooth.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="controls_android.control.zoomMethod">
+            <td class="entry_name
+             " rowspan="5">
+              android.<wbr/>control.<wbr/>zoom<wbr/>Method
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name entry_type_name_enum">byte</span>
+
+              <span class="entry_type_visibility"> [fwk_public]</span>
+
+
+              <span class="entry_type_hwlevel">[limited] </span>
+
+
+
+                <ul class="entry_type_enum">
+                  <li>
+                    <span class="entry_type_enum_name">AUTO (v3.11)</span>
+                    <span class="entry_type_enum_value">0</span>
+                    <span class="entry_type_enum_notes"><p>The camera device automatically detects whether the application does zoom with
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> or <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>,<wbr/> and in turn decides which
+metadata tag reflects the effective zoom level.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">ZOOM_RATIO (v3.11)</span>
+                    <span class="entry_type_enum_value">1</span>
+                    <span class="entry_type_enum_notes"><p>The application intends to control zoom via <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>,<wbr/> and
+the effective zoom level is reflected by <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a> in capture results.<wbr/></p></span>
+                  </li>
+                </ul>
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Whether the application uses <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> or <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>
+to control zoom levels.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>If set to AUTO,<wbr/> the camera device detects which capture request key the application uses
+to do zoom,<wbr/> <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> or <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>.<wbr/> If
+the application doesn't set android.<wbr/>scaler.<wbr/>zoom<wbr/>Ratio or sets it to 1.<wbr/>0 in the capture
+request,<wbr/> the effective zoom level is reflected in <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> in capture
+results.<wbr/> If <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a> is set to values other than 1.<wbr/>0,<wbr/> the effective
+zoom level is reflected in <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>.<wbr/> AUTO is the default value
+for this control,<wbr/> and also the behavior of the OS before Android version
+<a href="https://developer.android.com/reference/android/os/Build.VERSION_CODES.html#BAKLAVA">BAKLAVA</a>.<wbr/></p>
+<p>If set to ZOOM_<wbr/>RATIO,<wbr/> the application explicitly specifies zoom level be controlled
+by <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>,<wbr/> and the effective zoom level is reflected in
+<a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a> in capture results.<wbr/> This addresses an ambiguity with AUTO,<wbr/>
+with which the camera device cannot know if the application is using cropRegion or
+zoomRatio at 1.<wbr/>0x.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Do not use this key directly.<wbr/> It's for camera framework usage,<wbr/>
+and not for HAL consumption.<wbr/></p>
             </td>
           </tr>
 
@@ -12661,6 +12752,93 @@ indicate when it is not being applied by returning 'INACTIVE'.<wbr/></p>
             </td>
           </tr>
 
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="dynamic_android.control.zoomMethod">
+            <td class="entry_name
+             " rowspan="5">
+              android.<wbr/>control.<wbr/>zoom<wbr/>Method
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name entry_type_name_enum">byte</span>
+
+              <span class="entry_type_visibility"> [fwk_public]</span>
+
+
+              <span class="entry_type_hwlevel">[limited] </span>
+
+
+
+                <ul class="entry_type_enum">
+                  <li>
+                    <span class="entry_type_enum_name">AUTO (v3.11)</span>
+                    <span class="entry_type_enum_value">0</span>
+                    <span class="entry_type_enum_notes"><p>The camera device automatically detects whether the application does zoom with
+<a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> or <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>,<wbr/> and in turn decides which
+metadata tag reflects the effective zoom level.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">ZOOM_RATIO (v3.11)</span>
+                    <span class="entry_type_enum_value">1</span>
+                    <span class="entry_type_enum_notes"><p>The application intends to control zoom via <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>,<wbr/> and
+the effective zoom level is reflected by <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a> in capture results.<wbr/></p></span>
+                  </li>
+                </ul>
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Whether the application uses <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> or <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>
+to control zoom levels.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>If set to AUTO,<wbr/> the camera device detects which capture request key the application uses
+to do zoom,<wbr/> <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> or <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>.<wbr/> If
+the application doesn't set android.<wbr/>scaler.<wbr/>zoom<wbr/>Ratio or sets it to 1.<wbr/>0 in the capture
+request,<wbr/> the effective zoom level is reflected in <a href="#controls_android.scaler.cropRegion">android.<wbr/>scaler.<wbr/>crop<wbr/>Region</a> in capture
+results.<wbr/> If <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a> is set to values other than 1.<wbr/>0,<wbr/> the effective
+zoom level is reflected in <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>.<wbr/> AUTO is the default value
+for this control,<wbr/> and also the behavior of the OS before Android version
+<a href="https://developer.android.com/reference/android/os/Build.VERSION_CODES.html#BAKLAVA">BAKLAVA</a>.<wbr/></p>
+<p>If set to ZOOM_<wbr/>RATIO,<wbr/> the application explicitly specifies zoom level be controlled
+by <a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a>,<wbr/> and the effective zoom level is reflected in
+<a href="#controls_android.control.zoomRatio">android.<wbr/>control.<wbr/>zoom<wbr/>Ratio</a> in capture results.<wbr/> This addresses an ambiguity with AUTO,<wbr/>
+with which the camera device cannot know if the application is using cropRegion or
+zoomRatio at 1.<wbr/>0x.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Do not use this key directly.<wbr/> It's for camera framework usage,<wbr/>
+and not for HAL consumption.<wbr/></p>
+            </td>
+          </tr>
 
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
