@@ -221,6 +221,8 @@
             ><a href="#controls_android.control.autoframing">android.control.autoframing</a></li>
             <li
             ><a href="#controls_android.control.zoomMethod">android.control.zoomMethod</a></li>
+            <li
+            ><a href="#controls_android.control.aePriorityMode">android.control.aePriorityMode</a></li>
           </ul>
         </li>
         <li>
@@ -282,6 +284,8 @@
             ><a href="#static_android.control.autoframingAvailable">android.control.autoframingAvailable</a></li>
             <li
             ><a href="#static_android.control.lowLightBoostInfoLuminanceRange">android.control.lowLightBoostInfoLuminanceRange</a></li>
+            <li
+            ><a href="#static_android.control.aeAvailablePriorityModes">android.control.aeAvailablePriorityModes</a></li>
           </ul>
         </li>
         <li>
@@ -357,6 +361,8 @@
             ><a href="#dynamic_android.control.lowLightBoostState">android.control.lowLightBoostState</a></li>
             <li
             ><a href="#dynamic_android.control.zoomMethod">android.control.zoomMethod</a></li>
+            <li
+            ><a href="#dynamic_android.control.aePriorityMode">android.control.aePriorityMode</a></li>
           </ul>
         </li>
       </ul> <!-- toc_section -->
@@ -3291,7 +3297,9 @@ auto-exposure routine is enabled,<wbr/> overriding the
 application's selected exposure time,<wbr/> sensor sensitivity,<wbr/>
 and frame duration (<a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>,<wbr/>
 <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>,<wbr/> and
-<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>).<wbr/> If one of the FLASH modes
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>).<wbr/> If <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> is
+enabled,<wbr/> the relevant priority CaptureRequest settings will not be overridden.<wbr/>
+See <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> for more details.<wbr/> If one of the FLASH modes
 is selected,<wbr/> the camera device's flash unit controls are
 also overridden.<wbr/></p>
 <p>The FLASH modes are only available if the camera device
@@ -6245,6 +6253,100 @@ and not for HAL consumption.<wbr/></p>
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
         
+                
+          <tr class="entry" id="controls_android.control.aePriorityMode">
+            <td class="entry_name
+             " rowspan="5">
+              android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name entry_type_name_enum">byte</span>
+
+              <span class="entry_type_visibility"> [public]</span>
+
+
+
+
+
+                <ul class="entry_type_enum">
+                  <li>
+                    <span class="entry_type_enum_name">OFF (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>Disable AE priority mode.<wbr/> This is the default value.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">SENSOR_SENSITIVITY_PRIORITY (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera device's auto-exposure routine is active and
+prioritizes the application-selected ISO (<a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>).<wbr/></p>
+<p>The application has control over <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a> while
+the application's values for <a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a> and
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a> are ignored.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">SENSOR_EXPOSURE_TIME_PRIORITY (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera device's auto-exposure routine is active and
+prioritizes the application-selected exposure time
+(<a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>).<wbr/></p>
+<p>The application has control over <a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a> while
+the application's values for <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a> and
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a> are ignored.<wbr/></p></span>
+                  </li>
+                </ul>
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Turn on AE priority mode.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>This control is only effective if <a href="#controls_android.control.mode">android.<wbr/>control.<wbr/>mode</a> is
+AUTO and <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> is set to one of its
+ON modes,<wbr/> with the exception of ON_<wbr/>LOW_<wbr/>LIGHT_<wbr/>BOOST_<wbr/>BRIGHTNESS_<wbr/>PRIORITY.<wbr/></p>
+<p>When a priority mode is enabled,<wbr/> the camera device's
+auto-exposure routine will maintain the application's
+selected parameters relevant to the priority mode while overriding
+the remaining exposure parameters
+(<a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>,<wbr/> <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>,<wbr/> and
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>).<wbr/> For example,<wbr/> if
+SENSOR_<wbr/>SENSITIVITY_<wbr/>PRIORITY mode is enabled,<wbr/> the camera device will
+maintain the application-selected <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>
+while adjusting <a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>
+and <a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>.<wbr/> The overridden fields for a
+given capture will be available in its CaptureResult.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>The total sensitivity applied for SENSOR_<wbr/>SENSITIVITY_<wbr/>PRIORITY should not be
+adjusted by any HAL applied <a href="#controls_android.control.postRawSensitivityBoost">android.<wbr/>control.<wbr/>post<wbr/>Raw<wbr/>Sensitivity<wbr/>Boost</a>.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
         
 
       <!-- end of kind -->
@@ -8226,6 +8328,64 @@ also be present.<wbr/></p>
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
         
+                
+          <tr class="entry" id="static_android.control.aeAvailablePriorityModes">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>control.<wbr/>ae<wbr/>Available<wbr/>Priority<wbr/>Modes
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">byte</span>
+                <span class="entry_type_container">x</span>
+
+                <span class="entry_type_array">
+                  n
+                </span>
+              <span class="entry_type_visibility"> [public as enumList]</span>
+
+
+
+
+                <div class="entry_type_notes">list of enums</div>
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>List of auto-exposure priority modes for <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a>
+that are supported by this camera device.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+              <p>Any value listed in <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a></p>
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>This entry lists the valid modes for
+<a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> for this camera device.<wbr/>
+If no AE priority modes are available for a device,<wbr/> this will only list OFF.<wbr/></p>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
         
 
       <!-- end of kind -->
@@ -8775,7 +8935,9 @@ auto-exposure routine is enabled,<wbr/> overriding the
 application's selected exposure time,<wbr/> sensor sensitivity,<wbr/>
 and frame duration (<a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>,<wbr/>
 <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>,<wbr/> and
-<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>).<wbr/> If one of the FLASH modes
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>).<wbr/> If <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> is
+enabled,<wbr/> the relevant priority CaptureRequest settings will not be overridden.<wbr/>
+See <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> for more details.<wbr/> If one of the FLASH modes
 is selected,<wbr/> the camera device's flash unit controls are
 also overridden.<wbr/></p>
 <p>The FLASH modes are only available if the camera device
@@ -12837,6 +12999,100 @@ zoomRatio at 1.<wbr/>0x.<wbr/></p>
             <td class="entry_details" colspan="6">
               <p>Do not use this key directly.<wbr/> It's for camera framework usage,<wbr/>
 and not for HAL consumption.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="dynamic_android.control.aePriorityMode">
+            <td class="entry_name
+             " rowspan="5">
+              android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name entry_type_name_enum">byte</span>
+
+              <span class="entry_type_visibility"> [public]</span>
+
+
+
+
+
+                <ul class="entry_type_enum">
+                  <li>
+                    <span class="entry_type_enum_name">OFF (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>Disable AE priority mode.<wbr/> This is the default value.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">SENSOR_SENSITIVITY_PRIORITY (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera device's auto-exposure routine is active and
+prioritizes the application-selected ISO (<a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>).<wbr/></p>
+<p>The application has control over <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a> while
+the application's values for <a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a> and
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a> are ignored.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">SENSOR_EXPOSURE_TIME_PRIORITY (v3.11)</span>
+                    <span class="entry_type_enum_notes"><p>The camera device's auto-exposure routine is active and
+prioritizes the application-selected exposure time
+(<a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>).<wbr/></p>
+<p>The application has control over <a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a> while
+the application's values for <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a> and
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a> are ignored.<wbr/></p></span>
+                  </li>
+                </ul>
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Turn on AE priority mode.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>This control is only effective if <a href="#controls_android.control.mode">android.<wbr/>control.<wbr/>mode</a> is
+AUTO and <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> is set to one of its
+ON modes,<wbr/> with the exception of ON_<wbr/>LOW_<wbr/>LIGHT_<wbr/>BOOST_<wbr/>BRIGHTNESS_<wbr/>PRIORITY.<wbr/></p>
+<p>When a priority mode is enabled,<wbr/> the camera device's
+auto-exposure routine will maintain the application's
+selected parameters relevant to the priority mode while overriding
+the remaining exposure parameters
+(<a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>,<wbr/> <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>,<wbr/> and
+<a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>).<wbr/> For example,<wbr/> if
+SENSOR_<wbr/>SENSITIVITY_<wbr/>PRIORITY mode is enabled,<wbr/> the camera device will
+maintain the application-selected <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a>
+while adjusting <a href="#controls_android.sensor.exposureTime">android.<wbr/>sensor.<wbr/>exposure<wbr/>Time</a>
+and <a href="#controls_android.sensor.frameDuration">android.<wbr/>sensor.<wbr/>frame<wbr/>Duration</a>.<wbr/> The overridden fields for a
+given capture will be available in its CaptureResult.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>The total sensitivity applied for SENSOR_<wbr/>SENSITIVITY_<wbr/>PRIORITY should not be
+adjusted by any HAL applied <a href="#controls_android.control.postRawSensitivityBoost">android.<wbr/>control.<wbr/>post<wbr/>Raw<wbr/>Sensitivity<wbr/>Boost</a>.<wbr/></p>
             </td>
           </tr>
 
@@ -27378,7 +27634,9 @@ light.<wbr/></p>
 duration exposed to the nearest possible value (rather than expose longer).<wbr/>
 The final exposure time used will be available in the output capture result.<wbr/></p>
 <p>This control is only effective if <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> or <a href="#controls_android.control.mode">android.<wbr/>control.<wbr/>mode</a> is set to
-OFF; otherwise the auto-exposure algorithm will override this value.<wbr/></p>
+OFF; otherwise the auto-exposure algorithm will override this value.<wbr/> However,<wbr/> in the
+case that <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> is set to SENSOR_<wbr/>EXPOSURE_<wbr/>TIME_<wbr/>PRIORITY,<wbr/> this
+control will be effective and not controlled by the auto-exposure algorithm.<wbr/></p>
             </td>
           </tr>
 
@@ -27573,7 +27831,9 @@ requested,<wbr/> it will reduce the gain to the nearest supported
 value.<wbr/> The final sensitivity used will be available in the
 output capture result.<wbr/></p>
 <p>This control is only effective if <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> or <a href="#controls_android.control.mode">android.<wbr/>control.<wbr/>mode</a> is set to
-OFF; otherwise the auto-exposure algorithm will override this value.<wbr/></p>
+OFF; otherwise the auto-exposure algorithm will override this value.<wbr/> However,<wbr/> in the
+case that <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> is set to SENSOR_<wbr/>SENSITIVITY_<wbr/>PRIORITY,<wbr/> this
+control will be effective and not controlled by the auto-exposure algorithm.<wbr/></p>
 <p>Note that for devices supporting postRawSensitivityBoost,<wbr/> the total sensitivity applied
 to the final processed image is the combination of <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a> and
 <a href="#controls_android.control.postRawSensitivityBoost">android.<wbr/>control.<wbr/>post<wbr/>Raw<wbr/>Sensitivity<wbr/>Boost</a>.<wbr/> In case the application uses the sensor
@@ -30617,7 +30877,9 @@ light.<wbr/></p>
 duration exposed to the nearest possible value (rather than expose longer).<wbr/>
 The final exposure time used will be available in the output capture result.<wbr/></p>
 <p>This control is only effective if <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> or <a href="#controls_android.control.mode">android.<wbr/>control.<wbr/>mode</a> is set to
-OFF; otherwise the auto-exposure algorithm will override this value.<wbr/></p>
+OFF; otherwise the auto-exposure algorithm will override this value.<wbr/> However,<wbr/> in the
+case that <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> is set to SENSOR_<wbr/>EXPOSURE_<wbr/>TIME_<wbr/>PRIORITY,<wbr/> this
+control will be effective and not controlled by the auto-exposure algorithm.<wbr/></p>
             </td>
           </tr>
 
@@ -30812,7 +31074,9 @@ requested,<wbr/> it will reduce the gain to the nearest supported
 value.<wbr/> The final sensitivity used will be available in the
 output capture result.<wbr/></p>
 <p>This control is only effective if <a href="#controls_android.control.aeMode">android.<wbr/>control.<wbr/>ae<wbr/>Mode</a> or <a href="#controls_android.control.mode">android.<wbr/>control.<wbr/>mode</a> is set to
-OFF; otherwise the auto-exposure algorithm will override this value.<wbr/></p>
+OFF; otherwise the auto-exposure algorithm will override this value.<wbr/> However,<wbr/> in the
+case that <a href="#controls_android.control.aePriorityMode">android.<wbr/>control.<wbr/>ae<wbr/>Priority<wbr/>Mode</a> is set to SENSOR_<wbr/>SENSITIVITY_<wbr/>PRIORITY,<wbr/> this
+control will be effective and not controlled by the auto-exposure algorithm.<wbr/></p>
 <p>Note that for devices supporting postRawSensitivityBoost,<wbr/> the total sensitivity applied
 to the final processed image is the combination of <a href="#controls_android.sensor.sensitivity">android.<wbr/>sensor.<wbr/>sensitivity</a> and
 <a href="#controls_android.control.postRawSensitivityBoost">android.<wbr/>control.<wbr/>post<wbr/>Raw<wbr/>Sensitivity<wbr/>Boost</a>.<wbr/> In case the application uses the sensor

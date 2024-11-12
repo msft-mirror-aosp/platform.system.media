@@ -208,6 +208,8 @@ typedef enum camera_metadata_tag {
                                                       // float[]      | public       | HIDL v3.10
     ANDROID_CONTROL_LOW_LIGHT_BOOST_STATE,            // enum         | public       | HIDL v3.10
     ANDROID_CONTROL_ZOOM_METHOD,                      // enum         | fwk_public
+    ANDROID_CONTROL_AE_PRIORITY_MODE,                 // enum         | public       | HIDL v3.11
+    ANDROID_CONTROL_AE_AVAILABLE_PRIORITY_MODES,      // byte[]       | public       | HIDL v3.11
     ANDROID_CONTROL_END,
 
     ANDROID_DEMOSAIC_MODE =                           // enum         | system       | HIDL v3.2
@@ -893,6 +895,13 @@ typedef enum camera_metadata_enum_android_control_zoom_method {
     ANDROID_CONTROL_ZOOM_METHOD_AUTO                                 = 0,
     ANDROID_CONTROL_ZOOM_METHOD_ZOOM_RATIO                           = 1,
 } camera_metadata_enum_android_control_zoom_method_t;
+
+// ANDROID_CONTROL_AE_PRIORITY_MODE
+typedef enum camera_metadata_enum_android_control_ae_priority_mode {
+    ANDROID_CONTROL_AE_PRIORITY_MODE_OFF                            , // HIDL v3.11
+    ANDROID_CONTROL_AE_PRIORITY_MODE_SENSOR_SENSITIVITY_PRIORITY    , // HIDL v3.11
+    ANDROID_CONTROL_AE_PRIORITY_MODE_SENSOR_EXPOSURE_TIME_PRIORITY  , // HIDL v3.11
+} camera_metadata_enum_android_control_ae_priority_mode_t;
 
 
 // ANDROID_DEMOSAIC_MODE
