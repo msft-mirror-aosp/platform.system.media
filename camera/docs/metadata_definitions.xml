@@ -855,7 +855,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             application's selected exposure time, sensor sensitivity,
             and frame duration (android.sensor.exposureTime,
             android.sensor.sensitivity, and
-            android.sensor.frameDuration). If one of the FLASH modes
+            android.sensor.frameDuration). If android.control.aePriorityMode is
+            enabled, the relevant priority CaptureRequest settings will not be overridden.
+            See android.control.aePriorityMode for more details. If one of the FLASH modes
             is selected, the camera device's flash unit controls are
             also overridden.
 
@@ -4130,6 +4132,86 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
         <clone entry="android.control.zoomMethod" kind="controls">
         </clone>
       </dynamic>
+      <controls>
+        <entry name="aePriorityMode" type="byte" visibility="public"
+            optional="true" enum="true" aconfig_flag="ae_priority" hal_version="3.11">
+          <enum>
+            <value>OFF
+              <notes>
+                Disable AE priority mode. This is the default value.
+              </notes>
+            </value>
+            <value>SENSOR_SENSITIVITY_PRIORITY
+              <notes>
+              The camera device's auto-exposure routine is active and
+              prioritizes the application-selected ISO (android.sensor.sensitivity).
+
+              The application has control over android.sensor.sensitivity while
+              the application's values for android.sensor.exposureTime and
+              android.sensor.frameDuration are ignored.
+              </notes>
+            </value>
+            <value>SENSOR_EXPOSURE_TIME_PRIORITY
+              <notes>
+              The camera device's auto-exposure routine is active and
+              prioritizes the application-selected exposure time
+              (android.sensor.exposureTime).
+
+              The application has control over android.sensor.exposureTime while
+              the application's values for android.sensor.sensitivity and
+              android.sensor.frameDuration are ignored.
+              </notes>
+            </value>
+          </enum>
+          <description>
+            Turn on AE priority mode.
+          </description>
+          <details>
+            This control is only effective if android.control.mode is
+            AUTO and android.control.aeMode is set to one of its
+            ON modes, with the exception of ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY.
+
+            When a priority mode is enabled, the camera device's
+            auto-exposure routine will maintain the application's
+            selected parameters relevant to the priority mode while overriding
+            the remaining exposure parameters
+            (android.sensor.exposureTime, android.sensor.sensitivity, and
+            android.sensor.frameDuration). For example, if
+            SENSOR_SENSITIVITY_PRIORITY mode is enabled, the camera device will
+            maintain the application-selected android.sensor.sensitivity
+            while adjusting android.sensor.exposureTime
+            and android.sensor.frameDuration. The overridden fields for a
+            given capture will be available in its CaptureResult.
+          </details>
+          <hal_details>
+          The total sensitivity applied for SENSOR_SENSITIVITY_PRIORITY should not be
+          adjusted by any HAL applied android.control.postRawSensitivityBoost.
+          </hal_details>
+        </entry>
+      </controls>
+      <dynamic>
+        <clone entry="android.control.aePriorityMode" kind="controls">
+        </clone>
+      </dynamic>
+      <static>
+        <entry name="aeAvailablePriorityModes" type="byte" visibility="public"
+               type_notes="list of enums" container="array" typedef="enumList"
+               aconfig_flag="ae_priority" hal_version="3.11">
+          <array>
+            <size>n</size>
+          </array>
+          <description>
+            List of auto-exposure priority modes for android.control.aePriorityMode
+            that are supported by this camera device.
+          </description>
+          <range>Any value listed in android.control.aePriorityMode</range>
+          <details>
+            This entry lists the valid modes for
+            android.control.aePriorityMode for this camera device.
+            If no AE priority modes are available for a device, this will only list OFF.
+          </details>
+        </entry>
+      </static>
     </section>
     <section name="demosaic">
       <controls>
@@ -9714,7 +9796,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           The final exposure time used will be available in the output capture result.
 
           This control is only effective if android.control.aeMode or android.control.mode is set to
-          OFF; otherwise the auto-exposure algorithm will override this value.
+          OFF; otherwise the auto-exposure algorithm will override this value. However, in the
+          case that android.control.aePriorityMode is set to SENSOR_EXPOSURE_TIME_PRIORITY, this
+          control will be effective and not controlled by the auto-exposure algorithm.
           </details>
           <tag id="V1" />
         </entry>
@@ -9826,7 +9910,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           output capture result.
 
           This control is only effective if android.control.aeMode or android.control.mode is set to
-          OFF; otherwise the auto-exposure algorithm will override this value.
+          OFF; otherwise the auto-exposure algorithm will override this value. However, in the
+          case that android.control.aePriorityMode is set to SENSOR_SENSITIVITY_PRIORITY, this
+          control will be effective and not controlled by the auto-exposure algorithm.
 
           Note that for devices supporting postRawSensitivityBoost, the total sensitivity applied
           to the final processed image is the combination of android.sensor.sensitivity and
