@@ -294,6 +294,10 @@ static tag_info_t android_control[ANDROID_CONTROL_END -
     { "lowLightBoostState",            TYPE_BYTE   },
     [ ANDROID_CONTROL_ZOOM_METHOD - ANDROID_CONTROL_START ] =
     { "zoomMethod",                    TYPE_BYTE   },
+    [ ANDROID_CONTROL_AE_PRIORITY_MODE - ANDROID_CONTROL_START ] =
+    { "aePriorityMode",                TYPE_BYTE   },
+    [ ANDROID_CONTROL_AE_AVAILABLE_PRIORITY_MODES - ANDROID_CONTROL_START ] =
+    { "aeAvailablePriorityModes",      TYPE_BYTE   },
 };
 
 static tag_info_t android_demosaic[ANDROID_DEMOSAIC_END -
@@ -1978,6 +1982,28 @@ int camera_metadata_enum_snprint(uint32_t tag,
                 default:
                     msg = "error: enum value out of range";
             }
+            break;
+        }
+        case ANDROID_CONTROL_AE_PRIORITY_MODE: {
+            switch (value) {
+                case ANDROID_CONTROL_AE_PRIORITY_MODE_OFF:
+                    msg = "OFF";
+                    ret = 0;
+                    break;
+                case ANDROID_CONTROL_AE_PRIORITY_MODE_SENSOR_SENSITIVITY_PRIORITY:
+                    msg = "SENSOR_SENSITIVITY_PRIORITY";
+                    ret = 0;
+                    break;
+                case ANDROID_CONTROL_AE_PRIORITY_MODE_SENSOR_EXPOSURE_TIME_PRIORITY:
+                    msg = "SENSOR_EXPOSURE_TIME_PRIORITY";
+                    ret = 0;
+                    break;
+                default:
+                    msg = "error: enum value out of range";
+            }
+            break;
+        }
+        case ANDROID_CONTROL_AE_AVAILABLE_PRIORITY_MODES: {
             break;
         }
 
@@ -5253,6 +5279,30 @@ int camera_metadata_enum_value(uint32_t tag,
                     ret = 0;
                     break;
                 }
+            break;
+        }
+        case ANDROID_CONTROL_AE_PRIORITY_MODE: {
+                enumName = "OFF";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_CONTROL_AE_PRIORITY_MODE_OFF;
+                    ret = 0;
+                    break;
+                }
+                enumName = "SENSOR_SENSITIVITY_PRIORITY";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_CONTROL_AE_PRIORITY_MODE_SENSOR_SENSITIVITY_PRIORITY;
+                    ret = 0;
+                    break;
+                }
+                enumName = "SENSOR_EXPOSURE_TIME_PRIORITY";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_CONTROL_AE_PRIORITY_MODE_SENSOR_EXPOSURE_TIME_PRIORITY;
+                    ret = 0;
+                    break;
+                }
+            break;
+        }
+        case ANDROID_CONTROL_AE_AVAILABLE_PRIORITY_MODES: {
             break;
         }
 
