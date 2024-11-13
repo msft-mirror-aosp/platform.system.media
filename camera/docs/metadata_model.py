@@ -978,7 +978,7 @@ class EnumValue(Node):
     deprecated: A boolean, True if the enum should be deprecated.
     optional: A boolean
     visibility: A string, one of "system", "java_public", "ndk_public", "hidden", "public",
-                "fwk_java_public", "fwk_public", "extension"
+                "fwk_java_public", "fwk_public", "extension", "fwk_system_public"
     notes: A string describing the notes, or None.
     sdk_notes: A string describing extra notes for public SDK only
     ndk_notes: A string describing extra notes for public NDK only
@@ -1047,7 +1047,7 @@ class EnumValue(Node):
 
   @property
   def hidden(self):
-    return self.visibility in {'hidden', 'ndk_public', 'test', 'extension'}
+    return self.visibility in {'hidden', 'ndk_public', 'test', 'extension', 'fwk_system_public'}
 
   @property
   def ndk_hidden(self):
@@ -1129,7 +1129,7 @@ class Entry(Node):
     container: The container attribute from <entry container="array">, or None.
     container_sizes: A sequence of size strings or None if container is None.
     enum: An Enum instance if the enum attribute is true, None otherwise.
-    visibility: The visibility of this entry ('system', 'hidden', 'public')
+    visibility: The visibility of this entry ('system', 'hidden', 'public' etc)
                 across the system. System entries are only visible in native code
                 headers. Hidden entries are marked @hide in managed code, while
                 public entries are visible in the Android SDK.
