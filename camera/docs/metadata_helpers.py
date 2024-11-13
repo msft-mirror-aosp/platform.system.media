@@ -881,7 +881,8 @@ def javadoc(metadata, indent = 4):
     # Convert metadata entry "android.x.y.z" to form
     # "{@link CaptureRequest#X_Y_Z android.x.y.z}"
     def javadoc_crossref_filter(node):
-      if node.applied_visibility in ('public', 'java_public', 'fwk_java_public', 'fwk_public'):
+      if node.applied_visibility in ('public', 'java_public', 'fwk_java_public', 'fwk_public',\
+                                     'fwk_system_public'):
         return '{@link %s#%s %s}' % (kind_mapping[node.kind],
                                      jkey_identifier(node.name),
                                      node.name)
@@ -892,7 +893,7 @@ def javadoc(metadata, indent = 4):
     # "@see CaptureRequest#X_Y_Z"
     def javadoc_crossref_see_filter(node_set):
       node_set = (x for x in node_set if x.applied_visibility in \
-                  ('public', 'java_public', 'fwk_java_public', 'fwk_public'))
+                  ('public', 'java_public', 'fwk_java_public', 'fwk_public', 'fwk_system_public'))
 
       text = '\n'
       for node in node_set:
@@ -1390,7 +1391,7 @@ def filter_visibility(entries, visibilities):
 def remove_hal_non_visible(entries):
   """
   Filter the given entries by removing those that are not HAL visible:
-  synthetic, fwk_only, extension, fwk_java_public, or fwk_public.
+  synthetic, fwk_only, extension, fwk_java_public, fwk_system_public, or fwk_public.
 
   Args:
     entries: An iterable of Entry nodes
@@ -1398,9 +1399,10 @@ def remove_hal_non_visible(entries):
   Yields:
     An iterable of Entry nodes
   """
-  return (e for e in entries if not (e.synthetic or e.visibility == 'fwk_only'
-                                     or e.visibility == 'fwk_java_public' or
+  return (e for e in entries if not (e.synthetic or e.visibility == 'fwk_only' or
+                                     e.visibility == 'fwk_java_public' or
                                      e.visibility == 'fwk_public' or
+                                     e.visibility == 'fwk_system_public' or
                                      e.visibility == 'extension'))
 
 def remove_ndk_non_visible(entries):
