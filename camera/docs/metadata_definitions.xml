@@ -166,6 +166,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
     </typedef>
     <typedef name="lensIntrinsicsSample">
         <language name="java">android.hardware.camera2.params.LensIntrinsicsSample</language>
+      </typedef>
+    <typedef name="sharedSessionConfiguration">
+        <language name="java">android.hardware.camera2.params.SharedSessionConfiguration</language>
     </typedef>
   </types>
 
@@ -15249,6 +15252,66 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           <details>
           Refer to android.jpegr.availableJpegRStallDurations for details.
           </details>
+        </entry>
+      </static>
+    </section>
+    <section name="sharedSession">
+      <static>
+        <entry name="colorSpace" type="byte" visibility="fwk_only" optional="true"
+          enum="true" aconfig_flag="camera_multi_client" hal_version="3.11">
+          <enum>
+            <value id="-1">UNSPECIFIED</value>
+            <value id="0">SRGB</value>
+            <value id="7">DISPLAY_P3</value>
+            <value id="16">BT2020_HLG</value>
+          </enum>
+          <description>Color space used for shared session configuration for all the output targets
+            when camera is opened in shared mode. This should be one of the values specified in
+            availableColorSpaceProfilesMap.
+          </description>
+          <hal_details>
+            Do not set this property directly. Android camera framework will generate this tag if the
+            camera device can be opened in shared mode.
+          </hal_details>
+        </entry>
+        <entry name="outputConfigurations" type="int64" visibility="fwk_only"
+          optional="true" container="array" aconfig_flag="camera_multi_client"
+          hal_version="3.11">
+          <array>
+            <size>n</size>
+          </array>
+          <description>List of shared output configurations that this camera device supports when
+            camera is opened in shared mode. Array contains following entries for each supported
+            shared configuration:
+            1) surface type
+            2) width
+            3) height
+            4) format
+            5) mirrorMode
+            6) useReadoutTimestamp
+            7) timestampBase
+            8) dataspace
+            9) usage
+            10) streamUsecase
+            11) physical camera id len
+            12) physical camera id as UTF-8 null terminated string.
+          </description>
+          <hal_details>
+            Do not set this property directly. Android camera framework will generate this tag if the
+            camera device can be opened in shared mode.
+          </hal_details>
+        </entry>
+        <entry name="configuration" type="byte" visibility="fwk_system_public"
+          synthetic="true" optional="true" typedef="sharedSessionConfiguration"
+          aconfig_flag="camera_multi_client">
+          <description>The available stream configurations that this camera device supports for
+            shared capture session when camera is opened in shared mode. Android camera framework
+            will generate this tag if the camera device can be opened in shared mode.
+          </description>
+          <hal_details>
+            Do not set this property directly (it is synthetic and will not be available at the
+            HAL layer);
+          </hal_details>
         </entry>
       </static>
     </section>
