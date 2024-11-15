@@ -94,6 +94,8 @@ static_assert(static_cast<int>(ANDROID_EXTENSION)
         == static_cast<int>(ACAMERA_EXTENSION));
 static_assert(static_cast<int>(ANDROID_JPEGR)
         == static_cast<int>(ACAMERA_JPEGR));
+static_assert(static_cast<int>(ANDROID_SHARED_SESSION)
+        == static_cast<int>(ACAMERA_SHARED_SESSION));
 
 static_assert(static_cast<int>(ANDROID_COLOR_CORRECTION_START)
         == static_cast<int>(ACAMERA_COLOR_CORRECTION_START));
@@ -163,6 +165,8 @@ static_assert(static_cast<int>(ANDROID_EXTENSION_START)
         == static_cast<int>(ACAMERA_EXTENSION_START));
 static_assert(static_cast<int>(ANDROID_JPEGR_START)
         == static_cast<int>(ACAMERA_JPEGR_START));
+static_assert(static_cast<int>(ANDROID_SHARED_SESSION_START)
+        == static_cast<int>(ACAMERA_SHARED_SESSION_START));
 
 
 static_assert(static_cast<int>(ANDROID_COLOR_CORRECTION_MODE)
@@ -1688,4 +1692,5 @@ static_assert(static_cast<int32_t>(ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGU
         == static_cast<int32_t>(ACAMERA_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_OUTPUT));
 static_assert(static_cast<int32_t>(ANDROID_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_INPUT)
         == static_cast<int32_t>(ACAMERA_JPEGR_AVAILABLE_JPEG_R_STREAM_CONFIGURATIONS_MAXIMUM_RESOLUTION_INPUT));
+
 
