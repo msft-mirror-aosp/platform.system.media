@@ -108,3 +108,49 @@ TEST(audio_utils_string, device_parsing) {
     ASSERT_EQ("", devaddr[2].second);
 }
 
+TEST(audio_utils_string, ConvertToLowerCamelCase) {
+    EXPECT_EQ("camelCase.andSnakeCase.4Fun.2Funny.look4It",
+            android::audio_utils::stringutils::toLowerCamelCase(
+                    "camel_case.AndSnake_Case.4Fun.2FUNNY.Look_4__it"));
+
+    EXPECT_EQ("abc.abc1_10_100$def #!g",
+            android::audio_utils::stringutils::toLowerCamelCase(
+                    "ABC.abc_1_10_100$def #!g"));
+}
+
+TEST(audio_utils_string, ConvertToUpperCamelCase) {
+    EXPECT_EQ("CamelCase.AndSnakeCase.4Fun.2Funny.Look4It",
+            android::audio_utils::stringutils::toUpperCamelCase(
+                    "camel_case.AndSnake_Case.4Fun.2FUNNY.Look_4__it"));
+
+    EXPECT_EQ("Abc.Abc1_10_100$Def #!G",
+            android::audio_utils::stringutils::toUpperCamelCase(
+                    "ABC.abc_1_10_100$def #!g"));
+}
+
+TEST(audio_utils_string, ConvertToLowerSnakeCase) {
+    EXPECT_EQ("camel_case.and_snake_case.4fun.2funny.look_4_it",
+            android::audio_utils::stringutils::toLowerSnakeCase(
+                    "camel_case.AndSnake_Case.4Fun.2FUNNY.Look_4__it"));
+
+    EXPECT_EQ("abc.abc_1_10_100$def #!g",
+            android::audio_utils::stringutils::toLowerSnakeCase(
+                    "ABC.abc_1_10_100$def #!g"));
+}
+
+TEST(audio_utils_string, ConvertToUpperSnakeCase) {
+    EXPECT_EQ("CAMEL_CASE.AND_SNAKE_CASE.4FUN.2FUNNY.LOOK_4_IT",
+            android::audio_utils::stringutils::toUpperSnakeCase(
+                    "camel_case.AndSnake_Case.4Fun.2FUNNY.Look_4__it"));
+
+    EXPECT_EQ("ABC.ABC_1_10_100$DEF #!G",
+            android::audio_utils::stringutils::toUpperSnakeCase(
+                    "ABC.abc_1_10_100$def #!g"));
+}
+
+TEST(audio_utils_string, PreserveDigitSequence) {
+    EXPECT_EQ("CamelCase10_100",
+            android::audio_utils::stringutils::toUpperCamelCase("camel_case10_100"));
+    EXPECT_EQ("camelCase10_100",
+            android::audio_utils::stringutils::toLowerCamelCase("camel_case10_100"));
+}

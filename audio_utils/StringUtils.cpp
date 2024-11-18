@@ -114,4 +114,87 @@ getDeviceAddressPairs(const std::string& devices)
     }
 }
 
+std::string changeNameFormat(const std::string& name, NameFormat format) {
+    std::string s;
+
+    char prevAlphaNum = 0;  // last alphanum encountered, 0 starts new name.
+    for (auto it = name.begin(); it != name.end(); ++it) {
+
+        // underscores
+        bool prevUnderscore = false;
+        bool firstCharOfWord = false;
+        if (*it == '_') {  // handle multiple _.
+            do {
+                ++it;
+                if (it == name.end()) return s;  // trailing '_' stripped.
+            } while (*it == '_');
+            firstCharOfWord = true;
+            prevUnderscore = true;
+        }
+
+        // a digit
+        if (isdigit(*it)) {
+            if (prevUnderscore &&
+                    ((format == NameFormat::kFormatLowerSnakeCase
+                            || format == NameFormat::kFormatUpperSnakeCase) // preserve underscore
+                     || (prevAlphaNum != 0 && isdigit(prevAlphaNum)))) {
+                s.push_back('_');  // do not concatenate 899_100 -> 899100, leave _
+            }
+            s.push_back(*it);
+            prevAlphaNum = *it;
+            continue;
+        }
+
+        // a non-alpha sequence. we copy as if '.' or ' '
+        if (!isalpha(*it)) {
+            s.push_back(*it);
+            prevAlphaNum = 0;
+            continue;
+        }
+
+        // an alpha char - determine whether to convert to upper or lower case.
+        if (!firstCharOfWord) {
+            if (prevAlphaNum == 0 || (prevAlphaNum
+                    && (islower(prevAlphaNum) || isdigit(prevAlphaNum)) && isupper(*it))) {
+                firstCharOfWord = true;
+            }
+        }
+        switch (format) {
+            case NameFormat::kFormatLowerCamelCase:
+                if (firstCharOfWord && prevAlphaNum != 0) {
+                    s.push_back(toupper(*it));
+                } else {
+                    s.push_back(tolower(*it));
+                }
+                break;
+            case NameFormat::kFormatUpperCamelCase:
+                if (firstCharOfWord) {
+                    s.push_back(toupper(*it));
+                } else {
+                    s.push_back(tolower(*it));
+                }
+                break;
+            case NameFormat::kFormatLowerSnakeCase:
+                if (prevUnderscore || // preserve underscore
+                        (firstCharOfWord && prevAlphaNum != 0 && !isdigit(prevAlphaNum))) {
+                    s.push_back('_');
+                }
+                s.push_back(tolower(*it));
+                break;
+            case NameFormat::kFormatUpperSnakeCase:
+                if (prevUnderscore || // preserve underscore
+                        (firstCharOfWord && prevAlphaNum != 0 && !isdigit(prevAlphaNum))) {
+                    s.push_back('_');
+                }
+                s.push_back(toupper(*it));
+                break;
+           default:
+                s.push_back(*it);
+                break;
+        }
+        prevAlphaNum = *it;
+    }
+    return s;
+}
+
 } // namespace android::audio_utils::stringutils
