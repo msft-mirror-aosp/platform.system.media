@@ -52,5 +52,70 @@ bool parseVector(const std::string& str, std::vector<int32_t>* vector);
 std::vector<std::pair<std::string, std::string>>
 getDeviceAddressPairs(const std::string& devices);
 
-} // android::audio_utils::stringutils
+/**
+ * For purposes of field naming and logging, we have common formats:
+ *
+ * Lower camel case: Often used for variables or method names.
+ *                   "helloWorld" "toString()"
+ *
+ * Upper camel case: Often used for classes or structs.
+ *                   "HelloWorld" "MyClass"
+ *
+ * Lower snake case: Often used for variable names or method names.
+ *                   "hello_world" "to_string()"
+ *
+ * Upper snake case: Often used for MACRO names or constants.
+ *                   "HELLO_WORLD" "TO_STRING()"
+ */
+enum class NameFormat {
+    kFormatLowerCamelCase,  // Example: helloWorld
+    kFormatUpperCamelCase,  // Example: HelloWorld
+    kFormatLowerSnakeCase,  // Example: hello_world
+    kFormatUpperSnakeCase,  // Example: HELLO_WORLD
+};
 
+/**
+ * Returns a string with the name tokens converted to a particular format.
+ *
+ * changeNameFormat("hello_world", NameFormat::kFormatLowerCamelCase) -> "helloWorld"
+ *
+ * This is used for consistent logging, where the log convention may differ from
+ * the string/stringify convention of the name.
+ *
+ * The following rules are used:
+ *
+ * 1) A name consists of one or more concatenated words, connected by a case change,
+ *    a '_', or a switch between number to alpha sequence.
+ *
+ * 2) A '_', a number, or a lower to upper case transition will count as a new word.
+ *    A number sequence counts as a word.
+ *
+ * 3) A non alphanumeric character (such as '.') signifies a new name follows
+ *    and is copied through. For example, "helloWorld.toString".
+ *
+ * 4) Conversion of multiple numeric fields separated by '_' will preserve the underscore
+ *    to avoid confusion.  As an example:
+ *    changeNameFormat("alpha_10_100", NameFormat::kFormatUpperCamelCase)
+ *            -> "Alpha10_100" (not Alpha10100)
+ *
+ * 5) When the target format is upper or lower snake case, attempt to preserve underscores.
+ */
+std::string changeNameFormat(const std::string& name, NameFormat format);
+
+inline std::string toLowerCamelCase(const std::string& name) {
+    return changeNameFormat(name, NameFormat::kFormatLowerCamelCase);
+}
+
+inline std::string toUpperCamelCase(const std::string& name) {
+    return changeNameFormat(name, NameFormat::kFormatUpperCamelCase);
+}
+
+inline std::string toLowerSnakeCase(const std::string& name) {
+    return changeNameFormat(name, NameFormat::kFormatLowerSnakeCase);
+}
+
+inline std::string toUpperSnakeCase(const std::string& name) {
+    return changeNameFormat(name, NameFormat::kFormatUpperSnakeCase);
+}
+
+} // android::audio_utils::stringutils
