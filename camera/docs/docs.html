@@ -1519,6 +1519,22 @@
         </li>
       </ul> <!-- toc_section -->
     </li>
+    <li>
+      <span class="toc_section_header"><a href="#section_sharedSession">sharedSession</a></span>
+      <ul class="toc_section">
+        <li>
+          <span class="toc_kind_header">static</span>
+          <ul class="toc_section">
+            <li
+            ><a href="#static_android.sharedSession.colorSpace">android.sharedSession.colorSpace</a></li>
+            <li
+            ><a href="#static_android.sharedSession.outputConfigurations">android.sharedSession.outputConfigurations</a></li>
+            <li
+            ><a href="#static_android.sharedSession.configuration">android.sharedSession.configuration</a></li>
+          </ul>
+        </li>
+      </ul> <!-- toc_section -->
+    </li>
   </ul>
 
 
@@ -42737,6 +42753,230 @@ output format/<wbr/>size combination for Jpeg/<wbr/>R streams for CaptureRequest
             </td>
           </tr>
 
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+        
+
+      <!-- end of kind -->
+      </tbody>
+
+  <!-- end of section -->
+  <tr><td colspan="7" id="section_sharedSession" class="section">sharedSession</td></tr>
+
+
+      <tr><td colspan="7" class="kind">static</td></tr>
+
+      <thead class="entries_header">
+        <tr>
+          <th class="th_name">Property Name</th>
+          <th class="th_type">Type</th>
+          <th class="th_description">Description</th>
+          <th class="th_units">Units</th>
+          <th class="th_range">Range</th>
+          <th class="th_hal_version">Initial HIDL HAL version</th>
+          <th class="th_tags">Tags</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        
+
+        
+
+        
+
+        
+
+                
+          <tr class="entry" id="static_android.sharedSession.colorSpace">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>shared<wbr/>Session.<wbr/>color<wbr/>Space
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name entry_type_name_enum">byte</span>
+
+              <span class="entry_type_visibility"> [fwk_only]</span>
+
+
+
+
+
+                <ul class="entry_type_enum">
+                  <li>
+                    <span class="entry_type_enum_name">UNSPECIFIED (v3.11)</span>
+                    <span class="entry_type_enum_value">-1</span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">SRGB (v3.11)</span>
+                    <span class="entry_type_enum_value">0</span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">DISPLAY_P3 (v3.11)</span>
+                    <span class="entry_type_enum_value">7</span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">BT2020_HLG (v3.11)</span>
+                    <span class="entry_type_enum_value">16</span>
+                  </li>
+                </ul>
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Color space used for shared session configuration for all the output targets
+when camera is opened in shared mode.<wbr/> This should be one of the values specified in
+availableColorSpaceProfilesMap.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Do not set this property directly.<wbr/> Android camera framework will generate this tag if the
+camera device can be opened in shared mode.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.sharedSession.outputConfigurations">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>shared<wbr/>Session.<wbr/>output<wbr/>Configurations
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int64</span>
+                <span class="entry_type_container">x</span>
+
+                <span class="entry_type_array">
+                  n
+                </span>
+              <span class="entry_type_visibility"> [fwk_only]</span>
+
+
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>List of shared output configurations that this camera device supports when
+camera is opened in shared mode.<wbr/> Array contains following entries for each supported
+shared configuration:
+1) surface type
+2) width
+3) height
+4) format
+5) mirrorMode
+6) useReadoutTimestamp
+7) timestampBase
+8) dataspace
+9) usage
+10) streamUsecase
+11) physical camera id len
+12) physical camera id as UTF-8 null terminated string.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>11</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Do not set this property directly.<wbr/> Android camera framework will generate this tag if the
+camera device can be opened in shared mode.<wbr/></p>
+            </td>
+          </tr>
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.sharedSession.configuration">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>shared<wbr/>Session.<wbr/>configuration
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">byte</span>
+
+              <span class="entry_type_visibility"> [fwk_system_public as sharedSessionConfiguration]</span>
+
+              <span class="entry_type_synthetic">[synthetic] </span>
+
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>The available stream configurations that this camera device supports for
+shared capture session when camera is opened in shared mode.<wbr/> Android camera framework
+will generate this tag if the camera device can be opened in shared mode.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>2</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Do not set this property directly (it is synthetic and will not be available at the
+HAL layer);</p>
+            </td>
+          </tr>
 
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
