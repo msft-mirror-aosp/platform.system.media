@@ -64,6 +64,15 @@ template <typename T, typename... Args>
 constexpr bool is_braces_constructible_v =
     is_braces_constructible<T, Args...>::value;
 
+// Define a concept to check if a class has a member type `Tag` and `getTag()` method
+template <typename T>
+concept has_tag_and_get_tag = requires(T t) {
+    { t.getTag() } -> std::same_as<typename T::Tag>;
+};
+
+template <typename T>
+inline constexpr bool has_tag_and_get_tag_v = has_tag_and_get_tag<T>;
+
 /**
  * Concept to identify primitive types, includes fundamental types, enums, and
  * std::string.
@@ -74,17 +83,17 @@ concept PrimitiveType = std::is_arithmetic_v<T> || std::is_enum_v<T> ||
 
 // Helper to access elements by runtime index
 template <typename Tuple, typename Func, size_t... Is>
-void opTupleElementsByIndex(Tuple&& tuple, size_t index, Func&& func,
-                            std::index_sequence<Is...>) {
+void op_tuple_elements_by_index(Tuple&& tuple, size_t index, Func&& func,
+                                std::index_sequence<Is...>) {
   ((index == Is ? func(std::get<Is>(tuple)) : void()), ...);
 }
 
 template <typename Tuple, typename Func>
-void opTupleElements(Tuple&& tuple, size_t index, Func&& func) {
+void op_tuple_elements(Tuple&& tuple, size_t index, Func&& func) {
   constexpr size_t tuple_size = std::tuple_size_v<std::decay_t<Tuple>>;
-  opTupleElementsByIndex(std::forward<Tuple>(tuple), index,
-                         std::forward<Func>(func),
-                         std::make_index_sequence<tuple_size>{});
+  op_tuple_elements_by_index(std::forward<Tuple>(tuple), index,
+                             std::forward<Func>(func),
+                             std::make_index_sequence<tuple_size>{});
 }
 
 /**
@@ -277,7 +286,7 @@ auto structure_to_tuple(const T& t) {
  * const auto addOp3 = [](const auto& a, const auto& b, const auto& c) {
  *   return {a + b + c};
  * };
- * auto result = opAggregate(addOp3, v1, v2, v3);
+ * auto result = op_aggregate(addOp3, v1, v2, v3);
  * The value of `result` will be std::vector<int>({15, 15, 15})
  *
  * @tparam TernaryOp The ternary operation apply to parameters `a`, `b`, and
@@ -291,8 +300,8 @@ auto structure_to_tuple(const T& t) {
  *         `std::nullopt` otherwise.
  */
 template <typename TernaryOp, typename T, size_t... Is>
-std::optional<T> opAggregate_helper(TernaryOp op, const T& a, const T& b,
-                                    const T& c, std::index_sequence<Is...>) {
+std::optional<T> op_aggregate_helper(TernaryOp op, const T& a, const T& b,
+                                     const T& c, std::index_sequence<Is...>) {
   const auto aTuple = structure_to_tuple<T>(a);
   const auto bTuple = structure_to_tuple<T>(b);
   const auto cTuple = structure_to_tuple<T>(c);
@@ -322,10 +331,11 @@ std::optional<T> opAggregate_helper(TernaryOp op, const T& a, const T& b,
 }
 
 template <typename TernaryOp, typename T>
-std::optional<T> opAggregate(TernaryOp op, const T& a, const T& b, const T& c) {
+std::optional<T> op_aggregate(TernaryOp op, const T& a, const T& b,
+                              const T& c) {
   constexpr size_t tuple_size =
       std::tuple_size_v<std::decay_t<decltype(structure_to_tuple(a))>>;
-  return opAggregate_helper<TernaryOp, T>(
+  return op_aggregate_helper<TernaryOp, T>(
       op, a, b, c, std::make_index_sequence<tuple_size>{});
 }
 
@@ -351,7 +361,7 @@ std::optional<T> opAggregate(TernaryOp op, const T& a, const T& b, const T& c) {
  * const auto addOp2 = [](const auto& a, const auto& b) {
  *   return {a + b};
  * };
- * auto result = opAggregate(addOp2, v1, v2);
+ * auto result = op_aggregate(addOp2, v1, v2);
  * The value of `result` will be std::vector<int>({14, 7, 9})
  *
  * @tparam BinaryOp The binary operation to apply to parameters `a` and `b`.
@@ -363,8 +373,8 @@ std::optional<T> opAggregate(TernaryOp op, const T& a, const T& b, const T& c) {
  *         `std::nullopt` otherwise.
  */
 template <typename BinaryOp, typename T, size_t... Is>
-std::optional<T> opAggregate_helper(BinaryOp op, const T& a, const T& b,
-                                    std::index_sequence<Is...>) {
+std::optional<T> op_aggregate_helper(BinaryOp op, const T& a, const T& b,
+                                     std::index_sequence<Is...>) {
   const auto aTuple = structure_to_tuple<T>(a);
   const auto bTuple = structure_to_tuple<T>(b);
 
@@ -392,10 +402,10 @@ std::optional<T> opAggregate_helper(BinaryOp op, const T& a, const T& b,
 }
 
 template <typename BinaryOp, typename T>
-std::optional<T> opAggregate(BinaryOp op, const T& a, const T& b) {
+std::optional<T> op_aggregate(BinaryOp op, const T& a, const T& b) {
   constexpr size_t tuple_size =
       std::tuple_size_v<std::decay_t<decltype(structure_to_tuple(a))>>;
-  return opAggregate_helper<BinaryOp, T>(
+  return op_aggregate_helper<BinaryOp, T>(
       op, a, b, std::make_index_sequence<tuple_size>{});
 }
 
