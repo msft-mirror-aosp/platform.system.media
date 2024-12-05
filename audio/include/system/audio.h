@@ -631,6 +631,7 @@ struct audio_port_config_device_ext {
     audio_module_handle_t hw_module;                /* module the device is attached to */
     audio_devices_t       type;                     /* device type (e.g AUDIO_DEVICE_OUT_SPEAKER) */
     char                  address[AUDIO_DEVICE_MAX_ADDRESS_LEN]; /* device address. "" if N/A */
+    audio_channel_mask_t  speaker_layout_channel_mask; /* represents physical speaker layout. */
 };
 
 /* extension for audio port configuration structure when the audio port is a
@@ -956,6 +957,8 @@ static inline bool audio_port_configs_are_equal(
     case AUDIO_PORT_TYPE_DEVICE:
         if (lhs->ext.device.hw_module != rhs->ext.device.hw_module ||
                 lhs->ext.device.type != rhs->ext.device.type ||
+                lhs->ext.device.speaker_layout_channel_mask !=
+                        rhs->ext.device.speaker_layout_channel_mask ||
                 strncmp(lhs->ext.device.address, rhs->ext.device.address,
                         AUDIO_DEVICE_MAX_ADDRESS_LEN) != 0) {
             return false;
@@ -1959,6 +1962,25 @@ static inline bool audio_is_valid_format(audio_format_t format)
     case AUDIO_FORMAT_DTS_HD_MA:
     case AUDIO_FORMAT_DTS_UHD_P2:
         return true;
+    case AUDIO_FORMAT_IAMF:
+        switch (format) {
+        case AUDIO_FORMAT_IAMF_SIMPLE_OPUS:
+        case AUDIO_FORMAT_IAMF_SIMPLE_AAC:
+        case AUDIO_FORMAT_IAMF_SIMPLE_PCM:
+        case AUDIO_FORMAT_IAMF_SIMPLE_FLAC:
+        case AUDIO_FORMAT_IAMF_BASE_OPUS:
+        case AUDIO_FORMAT_IAMF_BASE_AAC:
+        case AUDIO_FORMAT_IAMF_BASE_PCM:
+        case AUDIO_FORMAT_IAMF_BASE_FLAC:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_OPUS:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_AAC:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_PCM:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_FLAC:
+                return true;
+        default:
+                return false;
+        }
+        /* not reached */
     default:
         return false;
     }
