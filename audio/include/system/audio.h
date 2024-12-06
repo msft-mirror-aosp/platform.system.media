@@ -2326,6 +2326,13 @@ inline const char* audio_channel_mask_to_string(audio_channel_mask_t channel_mas
     }
 }
 
+inline CONSTEXPR bool audio_output_is_mixed_output_flags(audio_output_flags_t flags) {
+    return (flags & (AUDIO_OUTPUT_FLAG_DIRECT | AUDIO_OUTPUT_FLAG_COMPRESS_OFFLOAD |
+            AUDIO_OUTPUT_FLAG_HW_AV_SYNC | AUDIO_OUTPUT_FLAG_IEC958_NONAUDIO |
+            AUDIO_OUTPUT_FLAG_DIRECT_PCM | AUDIO_OUTPUT_FLAG_GAPLESS_OFFLOAD |
+            AUDIO_OUTPUT_FLAG_BIT_PERFECT)) == 0;
+}
+
 __END_DECLS
 
 /**
