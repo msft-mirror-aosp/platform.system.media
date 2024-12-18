@@ -62,6 +62,23 @@ cc_test {
     ],
 }
 
+cc_test {
+    name: "audio_linkedhashmap_tests",
+    host_supported: true,
+    srcs: ["audio_linkedhashmap_tests.cpp"],
+    shared_libs: [
+        "libbase",
+    ],
+    header_libs: [
+        "libaudioutils_headers",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wthread-safety",
+    ],
+}
+
 cc_defaults {
     name: "audio_math_test_defaults",
     host_supported: true,
@@ -263,6 +280,23 @@ cc_test {
         "libaudioutils",
     ],
 
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "elementwise_op_tests",
+    host_supported: true,
+
+    shared_libs: [
+        "libaudioutils",
+        "libcutils",
+        "liblog",
+    ],
+    srcs: ["elementwise_op_tests.cpp"],
     cflags: [
         "-Wall",
         "-Werror",
