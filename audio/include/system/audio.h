@@ -1962,6 +1962,25 @@ static inline bool audio_is_valid_format(audio_format_t format)
     case AUDIO_FORMAT_DTS_HD_MA:
     case AUDIO_FORMAT_DTS_UHD_P2:
         return true;
+    case AUDIO_FORMAT_IAMF:
+        switch (format) {
+        case AUDIO_FORMAT_IAMF_SIMPLE_OPUS:
+        case AUDIO_FORMAT_IAMF_SIMPLE_AAC:
+        case AUDIO_FORMAT_IAMF_SIMPLE_PCM:
+        case AUDIO_FORMAT_IAMF_SIMPLE_FLAC:
+        case AUDIO_FORMAT_IAMF_BASE_OPUS:
+        case AUDIO_FORMAT_IAMF_BASE_AAC:
+        case AUDIO_FORMAT_IAMF_BASE_PCM:
+        case AUDIO_FORMAT_IAMF_BASE_FLAC:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_OPUS:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_AAC:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_PCM:
+        case AUDIO_FORMAT_IAMF_BASE_ENHANCED_FLAC:
+                return true;
+        default:
+                return false;
+        }
+        /* not reached */
     default:
         return false;
     }
