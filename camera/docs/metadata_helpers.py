@@ -217,6 +217,7 @@ def protobuf_type(entry):
     "dynamicRangeProfiles"   : "DynamicRangeProfiles",
     "colorSpaceProfiles"     : "ColorSpaceProfiles",
     "versionCode"            : "int32",
+    "sharedSessionConfiguration"  : "SharedSessionConfiguration",
   }
 
   if typeName not in typename_to_protobuftype:
